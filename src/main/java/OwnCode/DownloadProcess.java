@@ -22,7 +22,7 @@ public class DownloadProcess{
     private boolean acknowledgementToStop = false;
 
     public boolean isInterrupted = false;
-    private boolean stop = false;
+    private boolean receivedAPacket = false;
 
     public DownloadProcess(int processID, String fileName, Client client, String filePath){
         this.processID = processID;
@@ -47,10 +47,27 @@ public class DownloadProcess{
         DatagramPacket startPacket = new DatagramPacket(buffer, buffer.length);
         client.send(startPacket);
         print("Starting downloading process...");
-        //todo timer. als niet snel genoeg packetjes binnen komen, stuur deze opnieuw
+
+        //set timer
+        Utils.Timer timer = utils.new Timer(1000);
+        try{
+            while (!timer.isTooLate()) {
+                Thread.sleep(10);
+            }
+            //timer went off
+            if(receivedAPacket=false){//if there is still no packet received:
+                handshake();
+            }
+
+        } catch (InterruptedException e) {
+            print("Client error: " + e.getMessage());
+        }
     }
 
     public void receivePacket(DatagramPacket packet){
+
+        receivedAPacket = true;//for timer in handshake()
+
         while(!isInterrupted){//Can only receive packets when running/not interrupted
             byte[] packetData = packet.getData();
             int packetNumber = utils.limitBytesToInteger(packetData[4], packetData[5]);
@@ -120,6 +137,8 @@ public class DownloadProcess{
     public void kill(){
        //todo bij client en server thisProcess=null
        // runningUploadProcesses[processID] = null;
+
+        //client/server.runningUp/downloadProcesses[processID] = null; (staat niet meer in processmanager)
     }
 
     public int getProcessID(){return processID;}

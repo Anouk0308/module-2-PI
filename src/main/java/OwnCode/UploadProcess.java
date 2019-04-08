@@ -28,8 +28,12 @@ public class UploadProcess {
     private boolean acknowledgementToStop = false;
 
     public boolean isInterrupted = false;
+    private boolean receivedAnAck = false;
 
     public UploadProcess(int processID, File file, Client client){
+        slidingWindow = new SlidingWindow();
+        utils = new Utils();
+        packetWithOwnHeader = new PacketWithOwnHeader();
         this.processID = processID;
         this.file = file;
         this.packetSize = slidingWindow.getPacketSize();
@@ -42,6 +46,9 @@ public class UploadProcess {
     }
 
     public UploadProcess(int processID, File file, Server server){
+        slidingWindow = new SlidingWindow();
+        utils = new Utils();
+        packetWithOwnHeader = new PacketWithOwnHeader();
         this.processID = processID;
         this.file = file;
         this.packetSize = slidingWindow.getPacketSize();
@@ -79,16 +86,51 @@ public class UploadProcess {
             client.send(startPacket);
             //todo server ook, ligt aan wie initieerde
         }
+
+        //set timer
+        Utils.Timer timer = utils.new Timer(1000);
+        try{
+            while (!timer.isTooLate()) {
+                Thread.sleep(10);
+            }
+            //timer went off
+            if(receivedAnAck=false){//if there is still no acknowledgement packet received:
+                startProcess();
+            }
+
+        } catch (InterruptedException e) {
+            print("Client error: " + e.getMessage());
+        }
+
+
     }
 
+    int AckNumber = 0;//for counter
+    int counter = 0;//for counter
+
     public void receiveAcknowledgementPacket(DatagramPacket packet){
-        //todo: counter hierop. als je 5 keer zelfde acknowledgement krijgt, nextPacketNumber = packetNumber + 1
-        //todo: timer erop. als je na x aantl secondes na startProcess() niks binnen krijgt, dan nog een keer start process;
+
+        receivedAnAck = true;//for timer in startProcess()
 
         while(!isInterrupted) {//Can only receive packets when running/not interrupted
             byte[] packetData = packet.getData();
             int packetNumber = utils.limitBytesToInteger(packetData[4], packetData[5]);
-            int nextPacketNumber = packetNumber + windowSize;
+
+            //set counter
+            if(packetNumber != AckNumber){
+                AckNumber = packetNumber;
+                counter = 0;
+            } else{ // already seen this acknowledgement packet
+                counter++;
+            }
+
+            int nextPacketNumber;
+            if(counter >= 5){//when received 5 times the same acknowledgementPacket, send packet after this acknowledgementPacket
+                nextPacketNumber = packetNumber + 1;
+            } else {
+                nextPacketNumber = packetNumber + windowSize;
+            }
+
             if (nextPacketNumber < uploadingPackets.length - 1) { //not the last packet
                 DatagramPacket nextPacket = uploadingPackets[nextPacketNumber];
                 client.send(nextPacket);
@@ -123,7 +165,7 @@ public class UploadProcess {
 
     public void kill(){
         //todo bij client en server thisProcess=null
-        //runningUploadProcesses[processID] = null;
+        //client/server.runningUp/downloadProcesses[processID] = null; (staat niet meer in processmanager)
     }
 
     public int getProcessID(){return processID;}

@@ -131,12 +131,47 @@ public class Utils {
         return number;
     }
 
-    public void timer(int seconds){
-        //todo
+    public class Timer{
+        private int startingTime;
+        private int tooLate;
+        private boolean isTooLate;
+
+        public Timer(int miliSeconds){
+            startingTime = (int) System.currentTimeMillis();
+            tooLate = startingTime + miliSeconds;
+        }
+
+        public boolean isTooLate(){
+            int now = (int) System.currentTimeMillis();
+            if(now > tooLate){
+                return true;
+            }else{
+                return  false;
+            }
+        }
+
     }
 
-    public void counter(){
-        //todo
-    }
+    public class Counter{
+        private int counter = 0;
+        private int tooMuch;
+        private boolean isTooMuch;
 
+        public Counter(int times){
+            tooMuch = counter + times;
+        }
+
+        public void countUp(){
+            counter++;
+        }
+
+        public boolean isTooMuch(){
+            if(counter>tooMuch){
+                return true;
+            } else{
+                return false;
+            }
+        }
+
+    }
 }
