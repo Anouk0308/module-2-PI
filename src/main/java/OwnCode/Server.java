@@ -47,8 +47,8 @@ public class Server implements NetworkUser {
                 socket.receive(receivePacket);
                 InetAddress destinationAddress = receivePacket.getAddress();
                 int destinationPort = receivePacket.getPort();
-                processManager = new ProcessManager(socket, destinationPort, destinationAddress);
-                clientInputHandler(receivePacket);
+                processManager = new ProcessManager(this);
+                inputHandler(receivePacket);
             }
         } catch (SocketException e) {
             print("Timeout error: " + e.getMessage());
@@ -57,10 +57,10 @@ public class Server implements NetworkUser {
         }
     }
 
-    public void clientInputHandler(DatagramPacket receivedPacket){
-        DatagramPacket checkedPacket = checksum.checkingChecksum(receivedPacket);
+    public void inputHandler(DatagramPacket receivedPacketFromClient){
+        DatagramPacket checkedPacket = checksum.checkingChecksum(receivedPacketFromClient);
         while(checkedPacket != null) {
-            byte[] data = receivedPacket.getData();
+            byte[] data = receivedPacketFromClient.getData();
             byte commandoByte = data[1];
             byte byteProcessID1 = data[2];
             byte byteProcessID2 = data[3];
@@ -77,13 +77,13 @@ public class Server implements NetworkUser {
                                         break;
                 case 4:                 requestStartUploadProcess(rawData, processID);
                                         break;
-                case 6:                 processManager.receivePacketForProcess(processID, receivedPacket);
+                case 6:                 processManager.receivePacketForProcess(processID, receivedPacketFromClient);
                                         break;
-                case 7:                 processManager.receiveAcknowledgementPacketForProcess(processID, receivedPacket);
+                case 7:                 processManager.receiveAcknowledgementPacketForProcess(processID, receivedPacketFromClient);
                                         break;
-                case 8:                 processManager.receiveLastPacketForProcess(processID, receivedPacket);
+                case 8:                 processManager.receiveLastPacketForProcess(processID, receivedPacketFromClient);
                                         break;
-                case 9:                 processManager.receiveAcknowledgementLastPacketForProcess(processID, receivedPacket);
+                case 9:                 processManager.receiveAcknowledgementLastPacketForProcess(processID, receivedPacketFromClient);
                                         break;
                 case 10:                sendAckProcessPaused(processID);
                                         break;

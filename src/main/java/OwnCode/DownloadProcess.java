@@ -109,7 +109,7 @@ public class DownloadProcess{
                 }
                 DatagramPacket[] newPacketArray = new DatagramPacket[newPacketsArrayLenght];
                 System.arraycopy(downloadingPackets, 0, newPacketArray, 0, newPacketsArrayLenght);
-                utils.packetsToFile(newPacketArray, filePath);
+                utils.packetsToFile(newPacketArray, filePath, slidingWindow.getRawDataSpace());
 
                 //save file
                 //todo savennnnn

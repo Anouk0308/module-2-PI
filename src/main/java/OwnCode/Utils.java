@@ -6,7 +6,6 @@ import java.util.Arrays;
 import java.util.Base64;
 
 public class Utils {
-    private SlidingWindow slidingWindow = new SlidingWindow();
 
     public byte[] fromStringToByteArr (String s){
         byte[] decodedBytes = Base64.getDecoder().decode(s);
@@ -65,8 +64,7 @@ public class Utils {
         return rawData;
     }
 
-    public File packetsToFile(DatagramPacket[] packets, String FilePath){
-        int rawDataSpace = slidingWindow.getRawDataSpace();
+    public File packetsToFile(DatagramPacket[] packets, String FilePath, int rawDataSpace){
         byte[] bytesFile = new byte[packets.length*rawDataSpace];
         for(int i = 0; i < packets.length; i++){
             byte[] packetBytes = packets[i].getData();

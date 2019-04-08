@@ -5,7 +5,6 @@ import java.util.stream.Stream;
 
 public class PacketWithOwnHeader {
     private Utils utils = new Utils();
-    private SlidingWindow slidingWindow = new SlidingWindow();
     private Checksum checksum = new Checksum();
 
     private byte[] checksumBytes = new byte[1];

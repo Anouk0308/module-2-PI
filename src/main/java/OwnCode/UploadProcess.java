@@ -141,7 +141,7 @@ public class UploadProcess {
             print("Client error: " + e.getMessage());
         }
     }
-    
+
     public void setAcknowledgementToStopTrue(){
         acknowledgementToStop = true;
     }
