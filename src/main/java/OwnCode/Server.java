@@ -7,8 +7,9 @@ import java.net.DatagramSocket;
 import java.net.InetAddress;
 import java.net.SocketException;
 
-public class Server {
-    private String[] fileonPI;
+public class Server implements NetworkUser {
+    private static boolean isClient = false;
+    private String[] filesOnPI;
     private DatagramSocket socket;
     private int port;
     private String filePath = "pi/src/"; // where are the files placed
@@ -21,9 +22,6 @@ public class Server {
     private int packetSize;
     private InetAddress destinationAddress;
     private int destinationPort;
-    private Client client;//todo dit is nu alleen omdat upload en download alleen met client kunen werken!!!!!!
-    //todo
-    //todo
 
     public Server(int port) {
         this.port = port;
@@ -33,6 +31,11 @@ public class Server {
         checksum = new Checksum();
         slidingWindow = new SlidingWindow();
         packetSize = slidingWindow.getPacketSize();
+
+        filesOnPI = new String[2];
+        filesOnPI[0] = "PIfile.java";
+        filesOnPI[1] = "PItext.txt";
+
         connect();
     }
 
@@ -105,8 +108,7 @@ public class Server {
 
     public void requestStartDownloadProcess(byte[] rawData, int processID){
         String fileName = utils.fromByteArrToString(rawData);
-        processManager.createDownloadProcessWithProcessID(fileName, filePath, client, processID);
-        //todo client veranderen in this (server)
+        processManager.createDownloadProcessWithProcessID(fileName, filePath, this, processID, isClient);
 
         byte[] buffer = packetWithOwnHeader.commandoFive(processID);
         DatagramPacket acknowlegement = new DatagramPacket(buffer, buffer.length);
@@ -116,8 +118,7 @@ public class Server {
     public void requestStartUploadProcess(byte[] rawData, int processID){
         String fileName = utils.fromByteArrToString(rawData);
         File file = new File(filePath+fileName);//todo: kijken of dit zo werkt
-        processManager.createUploadProcessWithProcessID(file, client, processID);
-        //todo client veranderen in this (server)
+        processManager.createUploadProcessWithProcessID(file, this, processID, isClient);
     }
 
     public void sendAckProcessPaused(int processID){
@@ -150,8 +151,8 @@ public class Server {
 
     public String filesToString(){
         String s = "";
-        for(int i = 0; i < fileonPI.length; i++){
-            s = s + "+" + fileonPI[i];
+        for(int i = 0; i < filesOnPI.length; i++){
+            s = s + "+" + filesOnPI[i];
         }
         return s;
     }
@@ -167,6 +168,8 @@ public class Server {
             print("Client error: " + e.getMessage());
         }
     }
+
+    public ProcessManager getProcessManager(){return processManager;}
 
     private static void print (String message){
         System.out.println(message);

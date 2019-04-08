@@ -11,8 +11,7 @@ public class DownloadProcess{
     private DatagramPacket[] downloadingPackets = new DatagramPacket[100000]; //todo, kijken hoe dit op te lossen
     private File file;
 
-    private Client client;
-    private Server server;
+    private NetworkUser networkUser;
     private String filePath; // where are the files placed
 
     private SlidingWindow slidingWindow;
@@ -24,28 +23,22 @@ public class DownloadProcess{
     public boolean isInterrupted = false;
     private boolean receivedAPacket = false;
 
-    public DownloadProcess(int processID, String fileName, Client client, String filePath){
+    public DownloadProcess(int processID, String fileName, NetworkUser networkUser, String filePath, boolean isClient){
         this.processID = processID;
         this.fileName = fileName;
-        this.client = client;
+        this.networkUser = networkUser;
         this.packetSize = slidingWindow.getPacketSize();
         this.windowSize = slidingWindow.getWindowSize();
         this.filePath = filePath;
-        handshake();
-    }
-
-    public DownloadProcess(int processID, Server server, String filePath){
-        this.processID = processID;
-        this.server = server;
-        this.packetSize = slidingWindow.getPacketSize();
-        this.windowSize = slidingWindow.getWindowSize();
-        this.filePath = filePath;
+        if(isClient){
+            handshake();
+        }
     }
 
     public void handshake(){
         byte[] buffer = packetWithOwnHeader.commandoFour(processID, fileName);
         DatagramPacket startPacket = new DatagramPacket(buffer, buffer.length);
-        client.send(startPacket);
+        networkUser.send(startPacket);
         print("Starting downloading process...");
 
         //set timer
@@ -83,7 +76,7 @@ public class DownloadProcess{
 
             byte[] buffer = packetWithOwnHeader.commandoSeven(processID, packetNumberSuccessive);
             DatagramPacket acknowledgePacket = new DatagramPacket(buffer, buffer.length);
-            client.send(acknowledgePacket);//todo server ook, ligt aan wie initieerde
+            networkUser.send(acknowledgePacket);
         }
     }
 
@@ -105,7 +98,7 @@ public class DownloadProcess{
                 //tell the other that everything is received
                 byte[] buffer = packetWithOwnHeader.commandoNine(processID, packetNumberSuccessive);
                 DatagramPacket acknowledgePacket = new DatagramPacket(buffer, buffer.length);
-                client.send(acknowledgePacket);//todo server ook, ligt aan wie initieerde
+                networkUser.send(acknowledgePacket);
 
                 //create file from packetlist
                 int newPacketsArrayLenght = downloadingPackets.length;
@@ -119,7 +112,7 @@ public class DownloadProcess{
                 utils.packetsToFile(newPacketArray, filePath);
 
                 //save file
-                //todo
+                //todo savennnnn
 
                 //print download is done
                 print("Downloading " + fileName + " is finished.");
@@ -128,17 +121,14 @@ public class DownloadProcess{
             } else {
                 byte[] buffer = packetWithOwnHeader.commandoSeven(processID, packetNumberSuccessive);
                 DatagramPacket acknowledgePacket = new DatagramPacket(buffer, buffer.length);
-                client.send(acknowledgePacket);//todo server ook, ligt aan wie initieerde
+                networkUser.send(acknowledgePacket);
             }
         }
 
     }
 
     public void kill(){
-       //todo bij client en server thisProcess=null
-       // runningUploadProcesses[processID] = null;
-
-        //client/server.runningUp/downloadProcesses[processID] = null; (staat niet meer in processmanager)
+        networkUser.getProcessManager().stopSpecificProcess(processID);
     }
 
     public int getProcessID(){return processID;}

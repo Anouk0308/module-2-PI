@@ -6,7 +6,7 @@ import java.util.Arrays;
 import java.util.Base64;
 
 public class Utils {
-    private SlidingWindow slidingWindow;
+    private SlidingWindow slidingWindow = new SlidingWindow();
 
     public byte[] fromStringToByteArr (String s){
         byte[] decodedBytes = Base64.getDecoder().decode(s);
@@ -63,12 +63,6 @@ public class Utils {
         byte[] rawData = new byte[b.length-6]; //header is 6 bytes long
         System.arraycopy(b,6,rawData,0,b.length);
         return rawData;
-    }
-
-    public DatagramPacket[] fileToPackets(File file){
-        DatagramPacket[] packets = new DatagramPacket[1000];
-        //todo: file naar packets met correcte header al of zonder, even goed over nadenken
-        return packets;
     }
 
     public File packetsToFile(DatagramPacket[] packets, String FilePath){
@@ -134,7 +128,6 @@ public class Utils {
     public class Timer{
         private int startingTime;
         private int tooLate;
-        private boolean isTooLate;
 
         public Timer(int miliSeconds){
             startingTime = (int) System.currentTimeMillis();
@@ -147,29 +140,6 @@ public class Utils {
                 return true;
             }else{
                 return  false;
-            }
-        }
-
-    }
-
-    public class Counter{
-        private int counter = 0;
-        private int tooMuch;
-        private boolean isTooMuch;
-
-        public Counter(int times){
-            tooMuch = counter + times;
-        }
-
-        public void countUp(){
-            counter++;
-        }
-
-        public boolean isTooMuch(){
-            if(counter>tooMuch){
-                return true;
-            } else{
-                return false;
             }
         }
 

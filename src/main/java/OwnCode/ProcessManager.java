@@ -35,25 +35,26 @@ public class ProcessManager {
         return processID;
     }
 
-    public void createUploadProcess(File file, Client client){
+    public void createUploadProcess(File file, NetworkUser networkUser, boolean isClient){
         int processID = getAProcessID();
-        UploadProcess upload = new UploadProcess(processID, file, client);
+
+        UploadProcess upload = new UploadProcess(processID, file, networkUser, isClient);
         runningUploadProcesses[processID] = upload;
     }
 
-    public void createDownloadProcess(String fileName, String filePath, Client client){
+    public void createDownloadProcess(String fileName, String filePath, NetworkUser networkUser, boolean isClient){
         int processID = getAProcessID();
-        DownloadProcess download = new DownloadProcess(processID, fileName, client, filePath);
+        DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, filePath, isClient);
         runningDownloadProcesses[processID] = download;
     }
 
-    public void createUploadProcessWithProcessID(File file, Client client, int processID){
-        UploadProcess upload = new UploadProcess(processID, file, client);
+    public void createUploadProcessWithProcessID(File file, NetworkUser networkUser, int processID, boolean isClient){
+        UploadProcess upload = new UploadProcess(processID, file, networkUser, isClient);
         runningUploadProcesses[processID] = upload;
     }
 
-    public void createDownloadProcessWithProcessID(String fileName, String filePath, Client client, int processID){
-        DownloadProcess download = new DownloadProcess(processID, fileName, client, filePath);
+    public void createDownloadProcessWithProcessID(String fileName, String filePath, NetworkUser networkUser, int processID, boolean isClient){
+        DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, filePath, isClient);
         runningDownloadProcesses[processID] = download;
     }
 
@@ -292,6 +293,7 @@ public class ProcessManager {
             if(state.equals("RUNNING")){
                 if(process.equals("UP")){
                     runningUploadProcesses[processID].kill();
+                    runningUploadProcesses[processID] = null;
 
                     //also send the server to stop the process
                     byte[] buffer = packetWithOwnHeader.commandoTwelve(processID);
@@ -300,6 +302,7 @@ public class ProcessManager {
 
                 }else if (process.equals("DOWN")){
                     runningDownloadProcesses[processID].kill();
+                    runningDownloadProcesses[processID] = null;
 
                     //also send the server to stop the process
                     byte[] buffer = packetWithOwnHeader.commandoTwelve(processID);
@@ -309,6 +312,7 @@ public class ProcessManager {
             } else if(state.equals("PAUSED")){
                 if(process.equals("UP")){
                     pausedUploadProcesses[processID].kill();
+                    pausedUploadProcesses[processID] = null;
 
                     //also send the server to stop the process
                     byte[] buffer = packetWithOwnHeader.commandoTwelve(processID);
@@ -317,6 +321,7 @@ public class ProcessManager {
 
                 }else if (process.equals("DOWN")){
                     pausedDownloadProcesses[processID].kill();
+                    pausedDownloadProcesses[processID] = null;
 
                     //also send the server to stop the process
                     byte[] buffer = packetWithOwnHeader.commandoTwelve(processID);
@@ -334,6 +339,7 @@ public class ProcessManager {
     public void stopAllProcesses(){
         for(int i = 0; i < runningUploadProcesses.length; i++){
             runningUploadProcesses[i].kill();
+            runningUploadProcesses[processID] = null;
             print("Process "+ processID + "is stopped");
 
             //also send the server to stop the process
@@ -344,6 +350,7 @@ public class ProcessManager {
 
         for(int i = 0; i < runningDownloadProcesses.length; i++){
             runningDownloadProcesses[i].kill();
+            runningDownloadProcesses[processID] = null;
             print("Process "+ processID + "is stopped");
 
             //also send the server to stop the process
@@ -354,6 +361,7 @@ public class ProcessManager {
 
         for(int i = 0; i < pausedUploadProcesses.length; i++){
             pausedUploadProcesses[i].kill();
+            pausedUploadProcesses[processID] = null;
             print("Process "+ processID + "is stopped");
 
             //also send the server to stop the process
@@ -364,6 +372,7 @@ public class ProcessManager {
 
         for(int i = 0; i < pausedDownloadProcesses.length; i++){
             pausedDownloadProcesses[i].kill();
+            pausedDownloadProcesses[processID] = null;
             print("Process "+ processID + "is stopped");
 
             //also send the server to stop the process

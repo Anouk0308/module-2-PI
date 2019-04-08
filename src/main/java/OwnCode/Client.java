@@ -1,6 +1,5 @@
 package OwnCode;
 
-import javax.xml.crypto.Data;
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
@@ -8,7 +7,9 @@ import java.io.InputStreamReader;
 import java.net.*;
 import java.util.Arrays;
 
-public class Client{
+public class Client implements NetworkUser {
+    private static boolean isClient = true;
+
     private static String IPAddress = "127.16.1.1";
     private static int Port = 8000;
 
@@ -180,7 +181,7 @@ public class Client{
                     String filename = thisLine;
                     String pathname = filePath + filename;//todo:kijken of dit zo werkt?
                     File file = new File(pathname);
-                    processManager.createUploadProcess(file, this);
+                    processManager.createUploadProcess(file, this, isClient);
                 } else{
                     print("That is not a correct filename, these are the files to choose from:");
                     printOwnFiles();
@@ -199,7 +200,7 @@ public class Client{
                 String thisLine = userInput.readLine();
                 if(Arrays.asList(filesClient).contains(thisLine)){
                     String filename = thisLine;
-                    processManager.createDownloadProcess(filename, filePath, this);
+                    processManager.createDownloadProcess(filename, filePath, this, isClient);
                 } else{
                     print("That is not a correct filename, these are the files to choose from:");
                     printPIFiles();
@@ -334,6 +335,8 @@ public class Client{
             print("Client error: " + e.getMessage());
         }
     }
+
+    public ProcessManager getProcessManager(){return processManager;}
 
     private static void print (String message){
         System.out.println(message);

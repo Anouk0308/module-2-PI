@@ -1,13 +1,7 @@
 package OwnCode;
 
-import javax.xml.crypto.Data;
 import java.io.File;
-import java.io.IOException;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 
 public class UploadProcess {
     private int processID;
@@ -18,8 +12,7 @@ public class UploadProcess {
     private int windowSize;
     private DatagramPacket[] uploadingPackets;
 
-    private Client client;
-    private Server server;
+    private NetworkUser networkUser;
     private SlidingWindow slidingWindow;
     private Utils utils;
     private PacketWithOwnHeader packetWithOwnHeader;
@@ -30,7 +23,7 @@ public class UploadProcess {
     public boolean isInterrupted = false;
     private boolean receivedAnAck = false;
 
-    public UploadProcess(int processID, File file, Client client){
+    public UploadProcess(int processID, File file, NetworkUser networkUser, boolean isClient){
         slidingWindow = new SlidingWindow();
         utils = new Utils();
         packetWithOwnHeader = new PacketWithOwnHeader();
@@ -38,24 +31,11 @@ public class UploadProcess {
         this.file = file;
         this.packetSize = slidingWindow.getPacketSize();
         this.windowSize = slidingWindow.getWindowSize();
-        this.uploadingPackets = utils.fileToPackets(file);
-        this.client = client;
         this.uploadingPackets = slidingWindow.slice(file,processID);
-        handshake();
-        startProcess();
-    }
-
-    public UploadProcess(int processID, File file, Server server){
-        slidingWindow = new SlidingWindow();
-        utils = new Utils();
-        packetWithOwnHeader = new PacketWithOwnHeader();
-        this.processID = processID;
-        this.file = file;
-        this.packetSize = slidingWindow.getPacketSize();
-        this.windowSize = slidingWindow.getWindowSize();
-        this.uploadingPackets = utils.fileToPackets(file);
-        this.server = server;
-        this.uploadingPackets = slidingWindow.slice(file,processID);
+        this.networkUser = networkUser;
+        if(isClient){
+            handshake();
+        }
         startProcess();
     }
 
@@ -63,7 +43,7 @@ public class UploadProcess {
         byte[] buffer = packetWithOwnHeader.commandoThree(processID, fileName);
         DatagramPacket startPacket = new DatagramPacket(buffer, buffer.length);
         try {
-            client.send(startPacket);
+            networkUser.send(startPacket);
 
             while (!acknowledgementToStart) {//wait till PI tells that the uploading process can start
                 Thread.sleep(10);
@@ -83,8 +63,7 @@ public class UploadProcess {
         //send first packets
         for(int i = 0; i < windowSize; i++){
             DatagramPacket startPacket = uploadingPackets[i];
-            client.send(startPacket);
-            //todo server ook, ligt aan wie initieerde
+            networkUser.send(startPacket);
         }
 
         //set timer
@@ -133,8 +112,7 @@ public class UploadProcess {
 
             if (nextPacketNumber < uploadingPackets.length - 1) { //not the last packet
                 DatagramPacket nextPacket = uploadingPackets[nextPacketNumber];
-                client.send(nextPacket);
-                //todo server ook, ligt aan wie initieerde
+                networkUser.send(nextPacket);
             } else if (nextPacketNumber == uploadingPackets.length - 1) { //last packet
                 sendLastPacket();
             } //packetNumber that does not exist, does noet have to be send
@@ -145,27 +123,31 @@ public class UploadProcess {
         DatagramPacket lastPacket = uploadingPackets[uploadingPackets.length-1];
 
         try {
-            client.send(lastPacket);
-            //todo server ook, ligt aan wie initieerde
+            networkUser.send(lastPacket);
 
-            while (!acknowledgementToStop) {//wait till PI tells that the uploading process can stop todo: timer erop. als je te lang moet wachten, doe dan nog een keer sendLastPacket()
-                Thread.sleep(10);
+            //set timer
+            Utils.Timer timer = utils.new Timer(1000);
+            while(!timer.isTooLate()){//while timer didn't went of yet
+                if (acknowledgementToStop) {
+                    print("Uploading " + file.getName() + " is finished.");
+                    kill();//process is killed, timer will not go off
+                } else { //wait till PI tells that the uploading process can stop
+                    Thread.sleep(10);
+                }
             }
-            print("Uploading " + file.getName() + " is finished.");
-            kill();
-
+            //timer went off, still no acknowledgement to stop
+            sendLastPacket();
         } catch (InterruptedException e) {
             print("Client error: " + e.getMessage());
         }
     }
-
+    
     public void setAcknowledgementToStopTrue(){
         acknowledgementToStop = true;
     }
 
     public void kill(){
-        //todo bij client en server thisProcess=null
-        //client/server.runningUp/downloadProcesses[processID] = null; (staat niet meer in processmanager)
+        networkUser.getProcessManager().stopSpecificProcess(processID);
     }
 
     public int getProcessID(){return processID;}
