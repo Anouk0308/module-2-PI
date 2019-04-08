@@ -4,231 +4,219 @@ import java.util.Arrays;
 import java.util.stream.Stream;
 
 public class PacketWithOwnHeader {
-    private byte[] commandoByte = new byte[1];
-    private byte[] checksumBytes;//todo: kijken wat ik hiermee ga doen
-    private Utils utils;
-    private SlidingWindow slidingWindow;
-    private Checksum checksum;
+    private Utils utils = new Utils();
+    private SlidingWindow slidingWindow = new SlidingWindow();
+    private Checksum checksum = new Checksum();
 
-    //todo: headers zijn nu flexibel??
+    private byte[] checksumBytes = new byte[1];
+    private byte[] commandoByte = new byte[1];
+    private byte[] processIDbytes = new byte[2];
+    private byte[] packetNumberBytes= new byte[2];
+
+    /*
+        A header will be 1-6 bytes. When raw data will be send, the header most be 6 bytes, in order to remove the header from the raw data correctly
+     */
 
 
     public byte[] commandoOne(){ //client to PI: please give me your files
         commandoByte[0]= utils.fromIntegerToByte(1);
 
         checksumBytes = checksum.creatingChecksum(commandoByte);
-        byte[] byteArr = utils.combineByteArr(checksumBytes, commandoByte);
-        return byteArr;
+        byte[] header = utils.combineByteArr(checksumBytes, commandoByte);
+        return header;
     }
 
     public byte[] commandoTwo(byte[] PIFileNames){ // PI to client: here are my files
         commandoByte[0]= utils.fromIntegerToByte(2);
-        byte[] byteArrTemp = utils.combineByteArr(commandoByte, PIFileNames);
+        byte[] headerTemp = utils.combineByteArr(commandoByte, processIDbytes, packetNumberBytes, PIFileNames);
 
-        checksumBytes = checksum.creatingChecksum(byteArrTemp);
-        byte[] byteArr = utils.combineByteArr(checksumBytes, byteArrTemp);
-        return byteArr;
+        checksumBytes = checksum.creatingChecksum(headerTemp);
+        byte[] header = utils.combineByteArr(checksumBytes, headerTemp);
+        return header;
     }
 
     public byte[] commandoThree(int processID, String fileName){//client to PI: I am going to download, so start an upload
         commandoByte[0]= utils.fromIntegerToByte(3);
 
-        Integer[] processIDi = new Integer[1];
-        processIDi[0] = processID;
-        byte[] processIDbytes = utils.fromIntegerArrToByteArr(processIDi);
+        processIDbytes[0] = utils.limitByteFirstByte(processID);
+        processIDbytes[1]= utils.limitByteSecondByte(processID);
 
         byte[] fileNamebytes = utils.fromStringToByteArr(fileName);
 
-        byte[] byteArrTemp = utils.combineByteArr(commandoByte, processIDbytes, fileNamebytes);
+        byte[] headerTemp = utils.combineByteArr(commandoByte, processIDbytes, packetNumberBytes, fileNamebytes);
 
-        checksumBytes = checksum.creatingChecksum(byteArrTemp);
-        byte[] byteArr = utils.combineByteArr(checksumBytes, byteArrTemp);
-        return byteArr;
+        checksumBytes = checksum.creatingChecksum(headerTemp);
+        byte[] header = utils.combineByteArr(checksumBytes, headerTemp);
+        return header;
     }
 
     public byte[] commandoFour(int processID, String fileName){//client to PI: I am going to upload, so start a download
         commandoByte[0]= utils.fromIntegerToByte(4);
 
-        Integer[] processIDi = new Integer[1];
-        processIDi[0] = processID;
-        byte[] processIDbytes = utils.fromIntegerArrToByteArr(processIDi);
+        processIDbytes[0] = utils.limitByteFirstByte(processID);
+        processIDbytes[1]= utils.limitByteSecondByte(processID);
 
         byte[] fileNamebytes = utils.fromStringToByteArr(fileName);
 
-        byte[] byteArrTemp = utils.combineByteArr(commandoByte, processIDbytes, fileNamebytes);
+        byte[] headerTemp = utils.combineByteArr(commandoByte, processIDbytes, packetNumberBytes, fileNamebytes);
 
-        checksumBytes = checksum.creatingChecksum(byteArrTemp);
-        byte[] byteArr = utils.combineByteArr(checksumBytes, byteArrTemp);
-        return byteArr;
+        checksumBytes = checksum.creatingChecksum(headerTemp);
+        byte[] header = utils.combineByteArr(checksumBytes, headerTemp);
+        return header;
     }
 
     public byte[] commandoFive(int processID){//PI to client: I have started a download, you can start uploading
         commandoByte[0]= utils.fromIntegerToByte(5);
 
-        Integer[] processIDi = new Integer[1];
-        processIDi[0] = processID;
-        byte[] processIDbytes = utils.fromIntegerArrToByteArr(processIDi);
+        processIDbytes[0] = utils.limitByteFirstByte(processID);
+        processIDbytes[1]= utils.limitByteSecondByte(processID);
 
-        byte[] byteArrTemp = utils.combineByteArr(commandoByte, processIDbytes);
+        byte[] headerTemp = utils.combineByteArr(commandoByte, processIDbytes);
 
-        checksumBytes = checksum.creatingChecksum(byteArrTemp);
-        byte[] byteArr = utils.combineByteArr(checksumBytes, byteArrTemp);
-        return byteArr;
+        checksumBytes = checksum.creatingChecksum(headerTemp);
+        byte[] header = utils.combineByteArr(checksumBytes, headerTemp);
+        return header;
     }
 
     public byte[] commandoSix(int processID, int packetNumber, byte[] rawData){//this packet is for this process
         commandoByte[0]= utils.fromIntegerToByte(6);
 
-        Integer[] processIDi = new Integer[1];
-        processIDi[0] = processID;
-        byte[] processIDbytes = utils.fromIntegerArrToByteArr(processIDi);
+        processIDbytes[0] = utils.limitByteFirstByte(processID);
+        processIDbytes[1]= utils.limitByteSecondByte(processID);
 
-        Integer[] packetNumberi = new Integer[1];
-        packetNumberi[0] = packetNumber;
-        byte[] packetNumberBytes = utils.fromIntegerArrToByteArr(packetNumberi);
+        packetNumberBytes[0] = utils.limitByteFirstByte(packetNumber);
+        packetNumberBytes[1]= utils.limitByteSecondByte(packetNumber);
 
-        byte[] byteArrTemp = utils.combineByteArr(commandoByte, processIDbytes, packetNumberBytes, rawData);
+        byte[] headerTemp = utils.combineByteArr(commandoByte, processIDbytes, packetNumberBytes, rawData);
 
-        checksumBytes = checksum.creatingChecksum(byteArrTemp);
-        byte[] byteArr = utils.combineByteArr(checksumBytes, byteArrTemp);
-        return byteArr;
+        checksumBytes = checksum.creatingChecksum(headerTemp);
+        byte[] header = utils.combineByteArr(checksumBytes, headerTemp);
+        return header;
     }
 
     public byte[] commandoSeven(int processID, int packetNumber){//this process has this packet as 'last received successive'
         commandoByte[0]= utils.fromIntegerToByte(7);
 
-        Integer[] processIDi = new Integer[1];
-        processIDi[0] = processID;
-        byte[] processIDbytes = utils.fromIntegerArrToByteArr(processIDi);
+        processIDbytes[0] = utils.limitByteFirstByte(processID);
+        processIDbytes[1]= utils.limitByteSecondByte(processID);
 
-        Integer[] packetNumberi = new Integer[1];
-        packetNumberi[0] = packetNumber;
-        byte[] packetNumberBytes = utils.fromIntegerArrToByteArr(packetNumberi);
+        packetNumberBytes[0] = utils.limitByteFirstByte(packetNumber);
+        packetNumberBytes[1]= utils.limitByteSecondByte(packetNumber);
 
-        byte[] byteArrTemp = utils.combineByteArr(commandoByte, processIDbytes, packetNumberBytes);
+        byte[] headerTemp = utils.combineByteArr(commandoByte, processIDbytes, packetNumberBytes);
 
-        checksumBytes = checksum.creatingChecksum(byteArrTemp);
-        byte[] byteArr = utils.combineByteArr(checksumBytes, byteArrTemp);
-        return byteArr;
+        checksumBytes = checksum.creatingChecksum(headerTemp);
+        byte[] header = utils.combineByteArr(checksumBytes, headerTemp);
+        return header;
     }
 
     public byte[] commandoEight(int processID, int packetNumber, byte[] rawData){//this is the last packet for this process
         commandoByte[0]= utils.fromIntegerToByte(8);
 
-        Integer[] processIDi = new Integer[1];
-        processIDi[0] = processID;
-        byte[] processIDbytes = utils.fromIntegerArrToByteArr(processIDi);
+        processIDbytes[0] = utils.limitByteFirstByte(processID);
+        processIDbytes[1]= utils.limitByteSecondByte(processID);
 
-        Integer[] packetNumberi = new Integer[1];
-        packetNumberi[0] = packetNumber;
-        byte[] packetNumberBytes = utils.fromIntegerArrToByteArr(packetNumberi);
+        packetNumberBytes[0] = utils.limitByteFirstByte(packetNumber);
+        packetNumberBytes[1]= utils.limitByteSecondByte(packetNumber);
 
-        byte[] byteArrTemp = utils.combineByteArr(commandoByte, processIDbytes, packetNumberBytes, rawData);
+        byte[] headerTemp = utils.combineByteArr(commandoByte, processIDbytes, packetNumberBytes, rawData);
 
-        checksumBytes = checksum.creatingChecksum(byteArrTemp);
-        byte[] byteArr = utils.combineByteArr(checksumBytes, byteArrTemp);
-        return byteArr;
+        checksumBytes = checksum.creatingChecksum(headerTemp);
+        byte[] header = utils.combineByteArr(checksumBytes, headerTemp);
+        return header;
     }
 
     public byte[] commandoNine(int processID, int packetNumber){//last packet for this process is received, I am going to close this process on my side
         commandoByte[0]= utils.fromIntegerToByte(9);
 
-        Integer[] processIDi = new Integer[1];
-        processIDi[0] = processID;
-        byte[] processIDbytes = utils.fromIntegerArrToByteArr(processIDi);
+        processIDbytes[0] = utils.limitByteFirstByte(processID);
+        processIDbytes[1]= utils.limitByteSecondByte(processID);
 
-        Integer[] packetNumberi = new Integer[1];
-        packetNumberi[0] = packetNumber;
-        byte[] packetNumberBytes = utils.fromIntegerArrToByteArr(packetNumberi);
+        packetNumberBytes[0] = utils.limitByteFirstByte(packetNumber);
+        packetNumberBytes[1]= utils.limitByteSecondByte(packetNumber);
 
-        byte[] byteArrTemp = utils.combineByteArr(commandoByte, processIDbytes, packetNumberBytes);
+        byte[] headerTemp = utils.combineByteArr(commandoByte, processIDbytes, packetNumberBytes);
 
-        checksumBytes = checksum.creatingChecksum(byteArrTemp);
-        byte[] byteArr = utils.combineByteArr(checksumBytes, byteArrTemp);
-        return byteArr;
+        checksumBytes = checksum.creatingChecksum(headerTemp);
+        byte[] header = utils.combineByteArr(checksumBytes, headerTemp);
+        return header;
     }
 
     public byte[] commandoTen(int processID){//Client to PI: pause this process
         commandoByte[0]= utils.fromIntegerToByte(10);
 
-        Integer[] processIDi = new Integer[1];
-        processIDi[0] = processID;
-        byte[] processIDbytes = utils.fromIntegerArrToByteArr(processIDi);
+        processIDbytes[0] = utils.limitByteFirstByte(processID);
+        processIDbytes[1]= utils.limitByteSecondByte(processID);
 
-        byte[] byteArrTemp = utils.combineByteArr(commandoByte, processIDbytes);
+        byte[] headerTemp = utils.combineByteArr(commandoByte, processIDbytes);
 
-        checksumBytes = checksum.creatingChecksum(byteArrTemp);
-        byte[] byteArr = utils.combineByteArr(checksumBytes, byteArrTemp);
-        return byteArr;
+        checksumBytes = checksum.creatingChecksum(headerTemp);
+        byte[] header = utils.combineByteArr(checksumBytes, headerTemp);
+        return header;
     }
 
     public byte[] commandoEleven(int processID){//Client to PI: continue this process
         commandoByte[0]= utils.fromIntegerToByte(11);
 
-        Integer[] processIDi = new Integer[1];
-        processIDi[0] = processID;
-        byte[] processIDbytes = utils.fromIntegerArrToByteArr(processIDi);
+        processIDbytes[0] = utils.limitByteFirstByte(processID);
+        processIDbytes[1]= utils.limitByteSecondByte(processID);
 
-        byte[] byteArrTemp = utils.combineByteArr(commandoByte, processIDbytes);
+        byte[] headerTemp = utils.combineByteArr(commandoByte, processIDbytes);
 
-        checksumBytes = checksum.creatingChecksum(byteArrTemp);
-        byte[] byteArr = utils.combineByteArr(checksumBytes, byteArrTemp);
-        return byteArr;
+        checksumBytes = checksum.creatingChecksum(headerTemp);
+        byte[] header = utils.combineByteArr(checksumBytes, headerTemp);
+        return header;
     }
 
     public byte[] commandoTwelve(int processID){//Client to PI: stop this process
         commandoByte[0]= utils.fromIntegerToByte(12);
 
-        Integer[] processIDi = new Integer[1];
-        processIDi[0] = processID;
-        byte[] processIDbytes = utils.fromIntegerArrToByteArr(processIDi);
+        processIDbytes[0] = utils.limitByteFirstByte(processID);
+        processIDbytes[1]= utils.limitByteSecondByte(processID);
 
-        byte[] byteArrTemp = utils.combineByteArr(commandoByte, processIDbytes);
+        byte[] headerTemp = utils.combineByteArr(commandoByte, processIDbytes);
 
-        checksumBytes = checksum.creatingChecksum(byteArrTemp);
-        byte[] byteArr = utils.combineByteArr(checksumBytes, byteArrTemp);
-        return byteArr;
+        checksumBytes = checksum.creatingChecksum(headerTemp);
+        byte[] header = utils.combineByteArr(checksumBytes, headerTemp);
+        return header;
     }
 
     public byte[] commandoThirteen(int processID){//PI to client: I have paused this process
         commandoByte[0]= utils.fromIntegerToByte(13);
 
-        Integer[] processIDi = new Integer[1];
-        processIDi[0] = processID;
-        byte[] processIDbytes = utils.fromIntegerArrToByteArr(processIDi);
+        processIDbytes[0] = utils.limitByteFirstByte(processID);
+        processIDbytes[1]= utils.limitByteSecondByte(processID);
 
-        byte[] byteArrTemp = utils.combineByteArr(commandoByte, processIDbytes);
+        byte[] headerTemp = utils.combineByteArr(commandoByte, processIDbytes);
 
-        checksumBytes = checksum.creatingChecksum(byteArrTemp);
-        byte[] byteArr = utils.combineByteArr(checksumBytes, byteArrTemp);
-        return byteArr;
+        checksumBytes = checksum.creatingChecksum(headerTemp);
+        byte[] header = utils.combineByteArr(checksumBytes, headerTemp);
+        return header;
     }
 
     public byte[] commandoFourteen(int processID){//PI to client: I have continued this process
         commandoByte[0]= utils.fromIntegerToByte(14);
 
-        Integer[] processIDi = new Integer[1];
-        processIDi[0] = processID;
-        byte[] processIDbytes = utils.fromIntegerArrToByteArr(processIDi);
+        processIDbytes[0] = utils.limitByteFirstByte(processID);
+        processIDbytes[1]= utils.limitByteSecondByte(processID);
 
-        byte[] byteArrTemp = utils.combineByteArr(commandoByte, processIDbytes);
+        byte[] headerTemp = utils.combineByteArr(commandoByte, processIDbytes);
 
-        checksumBytes = checksum.creatingChecksum(byteArrTemp);
-        byte[] byteArr = utils.combineByteArr(checksumBytes, byteArrTemp);
-        return byteArr;
+        checksumBytes = checksum.creatingChecksum(headerTemp);
+        byte[] header = utils.combineByteArr(checksumBytes, headerTemp);
+        return header;
     }
 
     public byte[] commandoFiveteen(int processID){//PI to client: I have stopped this process
         commandoByte[0]= utils.fromIntegerToByte(15);
 
-        Integer[] processIDi = new Integer[1];
-        processIDi[0] = processID;
-        byte[] processIDbytes = utils.fromIntegerArrToByteArr(processIDi);
+        processIDbytes[0] = utils.limitByteFirstByte(processID);
+        processIDbytes[1]= utils.limitByteSecondByte(processID);
 
-        byte[] byteArrTemp = utils.combineByteArr(commandoByte, processIDbytes);
+        byte[] headerTemp = utils.combineByteArr(commandoByte, processIDbytes);
 
-        checksumBytes = checksum.creatingChecksum(byteArrTemp);
-        byte[] byteArr = utils.combineByteArr(checksumBytes, byteArrTemp);
-        return byteArr;
+        checksumBytes = checksum.creatingChecksum(headerTemp);
+        byte[] header = utils.combineByteArr(checksumBytes, headerTemp);
+        return header;
     }
 }

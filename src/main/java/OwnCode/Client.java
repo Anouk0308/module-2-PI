@@ -9,6 +9,9 @@ import java.net.*;
 import java.util.Arrays;
 
 public class Client{
+    private static String IPAddress = "127.16.1.1";
+    private static int Port = 8000;
+
     private String[] filesClient;
     private String filePath = "Macintosh HD/Users/anouk.schoenmakers/Documents/raspberry/nu-module-2/src/"; // where are the files placed
     private String[] filesPI;
@@ -27,6 +30,10 @@ public class Client{
     private Checksum checksum;
     private ProcessManager processManager;
 
+    public static void main(String[] args) {
+        Client client = new Client(IPAddress, Port);
+    }
+
     public Client(String destinationIPAdress, int destinationPort){
         this.destinationIPAdress = destinationIPAdress;
         this.destinationPort = destinationPort;
@@ -35,6 +42,11 @@ public class Client{
         utils = new Utils();
         statistics = new Statistics();
         checksum = new Checksum();
+
+        filesClient = new String[2];
+        filesClient[0] = "file.java";
+        filesClient[1] = "text.txt";
+
         connect();
         menu();
     }
@@ -45,13 +57,9 @@ public class Client{
             socket = new DatagramSocket();
             processManager = new ProcessManager(socket, destinationPort, destinationAddress);
 
+            print("trying to connect");
+
             while (true) { //receive
-
-                //TODO: kijken of handshake nodig is
-               /* DatagramPacket request = new DatagramPacket(new byte[1], 1, address, port);
-                socket.send(request);
-                */
-
                 byte[] buffer = new byte[512];//packet grootte
                 DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
                 socket.receive(receivePacket);
@@ -262,12 +270,14 @@ public class Client{
         DatagramPacket checkedPacket = checksum.checkingChecksum(receivedPacket);
         while(checkedPacket != null) {
             byte[] data = receivedPacket.getData();
-            byte commandoByte = data[0]; //todo: kijken of dit klopt met checksum enzo
-            byte byteProcessID = data[1];//todo: kijken of dit klopt
-            byte bytePacketNumber = data[2];//todo same
+            byte commandoByte = data[1];
+            byte byteProcessID1 = data[2];
+            byte byteProcessID2 = data[3];
+            byte bytePacketNumber1 = data[4];
+            byte bytePacketNumber2 = data[5];
             byte[] rawData = utils.removeHeader(data);
-            int processID = utils.fromByteToInteger(byteProcessID);
-            int packetNumber = utils.fromByteToInteger(bytePacketNumber);
+            int processID = utils.limitBytesToInteger(byteProcessID1, byteProcessID2);
+            int packetNumber = utils.limitBytesToInteger(bytePacketNumber1, bytePacketNumber2);
             switch (utils.fromByteToInteger(commandoByte)) {
                 case 2:                 receivedFilesPI(data);
                                         break;

@@ -5,11 +5,15 @@ import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
 
 public class UploadProcess {
     private int processID;
     private File file;
     private String fileName = file.getName();
+
     private int packetSize;
     private int windowSize;
     private DatagramPacket[] uploadingPackets;
@@ -23,19 +27,18 @@ public class UploadProcess {
     private boolean acknowledgementToStart = false;
     private boolean acknowledgementToStop = false;
 
-    private Thread thread;
-    private boolean fromClient = true;
-    private boolean handshakeSend = false;
-    private boolean stop = false;
+    public boolean isInterrupted = false;
 
     public UploadProcess(int processID, File file, Client client){
         this.processID = processID;
         this.file = file;
         this.packetSize = slidingWindow.getPacketSize();
         this.windowSize = slidingWindow.getWindowSize();
-        this.uploadingPackets = utils.fileToPackets(file);//todo ff kijken naar headers
+        this.uploadingPackets = utils.fileToPackets(file);
         this.client = client;
-        thread.start();
+        this.uploadingPackets = slidingWindow.slice(file,processID);
+        handshake();
+        startProcess();
     }
 
     public UploadProcess(int processID, File file, Server server){
@@ -43,33 +46,13 @@ public class UploadProcess {
         this.file = file;
         this.packetSize = slidingWindow.getPacketSize();
         this.windowSize = slidingWindow.getWindowSize();
-        this.uploadingPackets = utils.fileToPackets(file);//todo: nu ervan uitgegaan dat header hier al bij zit of iets slims bedenken met die headers toevoegen
+        this.uploadingPackets = utils.fileToPackets(file);
         this.server = server;
-        thread.start();
+        this.uploadingPackets = slidingWindow.slice(file,processID);
+        startProcess();
     }
 
-    public Thread getThread(){return thread;}
-
-    public void run() {
-        while(!stop) {
-            if (fromClient) {
-                if(!handshakeSend){
-                    handshakeProcess();
-                }
-            }
-            startProcess();
-            /*  rest is receiving packets and responding on them.
-                these are handled in the receiveAcknowledgementPacket()
-            */
-            try{
-                Thread.sleep(10);
-            } catch(InterruptedException e){
-                print(e.getMessage());
-            }
-        }
-    }
-
-    public void handshakeProcess(){
+    public void handshake(){
         byte[] buffer = packetWithOwnHeader.commandoThree(processID, fileName);
         DatagramPacket startPacket = new DatagramPacket(buffer, buffer.length);
         try {
@@ -92,15 +75,9 @@ public class UploadProcess {
     public void startProcess(){
         //send first packets
         for(int i = 0; i < windowSize; i++){
-
-            int packetNumber = i;
-            byte[] rawData = new byte[10]; //todo iets met utils en data krijgen
-
-
-            byte[] buffer = packetWithOwnHeader.commandoSix(processID, packetNumber, rawData);
-            DatagramPacket startPacket = new DatagramPacket(buffer, buffer.length);
+            DatagramPacket startPacket = uploadingPackets[i];
             client.send(startPacket);
-            //todo: kijken hoe dit te handelen, aangezien ook server kan zijn
+            //todo server ook, ligt aan wie initieerde
         }
     }
 
@@ -108,17 +85,14 @@ public class UploadProcess {
         //todo: counter hierop. als je 5 keer zelfde acknowledgement krijgt, nextPacketNumber = packetNumber + 1
         //todo: timer erop. als je na x aantl secondes na startProcess() niks binnen krijgt, dan nog een keer start process;
 
-        while(!Thread.currentThread().isInterrupted()) {//Can only receive packets when running/not interrupted
-            int packetNumber = 1;//todo: uit header lezen welk packetje het is
+        while(!isInterrupted) {//Can only receive packets when running/not interrupted
+            byte[] packetData = packet.getData();
+            int packetNumber = utils.limitBytesToInteger(packetData[4], packetData[5]);
             int nextPacketNumber = packetNumber + windowSize;
             if (nextPacketNumber < uploadingPackets.length - 1) { //not the last packet
-
-                byte[] rawData = new byte[10]; //todo kijken hoe dit te krijgen met utils, en uploading packets
-                byte[] buffer = packetWithOwnHeader.commandoSix(processID, nextPacketNumber, rawData);
-                DatagramPacket startPacket = new DatagramPacket(buffer, buffer.length);
-                client.send(startPacket);
-                //todo: kijken hoe dit te handelen, aangezien ook server kan zijn
-
+                DatagramPacket nextPacket = uploadingPackets[nextPacketNumber];
+                client.send(nextPacket);
+                //todo server ook, ligt aan wie initieerde
             } else if (nextPacketNumber == uploadingPackets.length - 1) { //last packet
                 sendLastPacket();
             } //packetNumber that does not exist, does noet have to be send
@@ -126,14 +100,11 @@ public class UploadProcess {
     }
 
     public void sendLastPacket(){
-        int packetNumber = 1; //todo
-        byte[] rawData = new byte[1]; //todo
-        byte[] buffer = packetWithOwnHeader.commandoEight(processID, packetNumber, rawData);
-        DatagramPacket lastPacket = new DatagramPacket(buffer, buffer.length);
+        DatagramPacket lastPacket = uploadingPackets[uploadingPackets.length-1];
 
         try {
             client.send(lastPacket);
-            //todo: kijken hoe dit te handelen, aangezien ook server kan zijn
+            //todo server ook, ligt aan wie initieerde
 
             while (!acknowledgementToStop) {//wait till PI tells that the uploading process can stop todo: timer erop. als je te lang moet wachten, doe dan nog een keer sendLastPacket()
                 Thread.sleep(10);
@@ -151,7 +122,8 @@ public class UploadProcess {
     }
 
     public void kill(){
-        stop = true;
+        //todo bij client en server thisProcess=null
+        //runningUploadProcesses[processID] = null;
     }
 
     public int getProcessID(){return processID;}

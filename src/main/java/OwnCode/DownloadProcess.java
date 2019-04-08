@@ -3,7 +3,7 @@ package OwnCode;
 import java.io.File;
 import java.net.DatagramPacket;
 
-public class DownloadProcess implements Runnable{
+public class DownloadProcess{
     private int processID;
     private String fileName;
     private int packetSize;
@@ -21,9 +21,7 @@ public class DownloadProcess implements Runnable{
 
     private boolean acknowledgementToStop = false;
 
-    private Thread thread;
-    private boolean fromClient = true;
-    private boolean handshakeSend = false;
+    public boolean isInterrupted = false;
     private boolean stop = false;
 
     public DownloadProcess(int processID, String fileName, Client client, String filePath){
@@ -33,7 +31,7 @@ public class DownloadProcess implements Runnable{
         this.packetSize = slidingWindow.getPacketSize();
         this.windowSize = slidingWindow.getWindowSize();
         this.filePath = filePath;
-        thread.start();
+        handshake();
     }
 
     public DownloadProcess(int processID, Server server, String filePath){
@@ -42,31 +40,9 @@ public class DownloadProcess implements Runnable{
         this.packetSize = slidingWindow.getPacketSize();
         this.windowSize = slidingWindow.getWindowSize();
         this.filePath = filePath;
-        fromClient = false;
-        thread.start();
     }
 
-    public Thread getThread(){return thread;}
-
-    public void run() {
-        while(!stop) {
-            if (fromClient) {
-                if(!handshakeSend){
-                    handshakeProcess();
-                }
-            }
-            /*  rest is receiving packets and responding on them.
-            these are handled in the receivePacket() & receiveLastPacket()
-        */
-            try{
-                Thread.sleep(10);
-            } catch(InterruptedException e){
-                print(e.getMessage());
-            }
-        }
-    }
-
-    public void handshakeProcess(){
+    public void handshake(){
         byte[] buffer = packetWithOwnHeader.commandoFour(processID, fileName);
         DatagramPacket startPacket = new DatagramPacket(buffer, buffer.length);
         client.send(startPacket);
@@ -75,8 +51,9 @@ public class DownloadProcess implements Runnable{
     }
 
     public void receivePacket(DatagramPacket packet){
-        while(!Thread.currentThread().isInterrupted()){//Can only receive packets when running/not interrupted
-            int packetNumber = 1;//todo: uit header lezen welk packetje het is
+        while(!isInterrupted){//Can only receive packets when running/not interrupted
+            byte[] packetData = packet.getData();
+            int packetNumber = utils.limitBytesToInteger(packetData[4], packetData[5]);
             downloadingPackets[packetNumber] = packet;
 
             int packetNumberSuccessive = -1;
@@ -89,13 +66,14 @@ public class DownloadProcess implements Runnable{
 
             byte[] buffer = packetWithOwnHeader.commandoSeven(processID, packetNumberSuccessive);
             DatagramPacket acknowledgePacket = new DatagramPacket(buffer, buffer.length);
-            client.send(acknowledgePacket);//todo server ook
+            client.send(acknowledgePacket);//todo server ook, ligt aan wie initieerde
         }
     }
 
     public void receiveLastPacket(DatagramPacket packet){
-        while(!Thread.currentThread().isInterrupted()) {//Can only receive packets when running/not interrupted
-            int packetNumber = 1;//todo: uit header lezen welk packetje het is
+        while(!isInterrupted) {//Can only receive packets when running/not interrupted
+            byte[] packetData = packet.getData();
+            int packetNumber = utils.limitBytesToInteger(packetData[4], packetData[5]);
             downloadingPackets[packetNumber] = packet;
 
             int packetNumberSuccessive = -1;
@@ -110,7 +88,7 @@ public class DownloadProcess implements Runnable{
                 //tell the other that everything is received
                 byte[] buffer = packetWithOwnHeader.commandoNine(processID, packetNumberSuccessive);
                 DatagramPacket acknowledgePacket = new DatagramPacket(buffer, buffer.length);
-                client.send(acknowledgePacket);//todo server ook
+                client.send(acknowledgePacket);//todo server ook, ligt aan wie initieerde
 
                 //create file from packetlist
                 int newPacketsArrayLenght = downloadingPackets.length;
@@ -120,6 +98,7 @@ public class DownloadProcess implements Runnable{
                     }
                 }
                 DatagramPacket[] newPacketArray = new DatagramPacket[newPacketsArrayLenght];
+                System.arraycopy(downloadingPackets, 0, newPacketArray, 0, newPacketsArrayLenght);
                 utils.packetsToFile(newPacketArray, filePath);
 
                 //save file
@@ -132,14 +111,15 @@ public class DownloadProcess implements Runnable{
             } else {
                 byte[] buffer = packetWithOwnHeader.commandoSeven(processID, packetNumberSuccessive);
                 DatagramPacket acknowledgePacket = new DatagramPacket(buffer, buffer.length);
-                client.send(acknowledgePacket);//todo server ook
+                client.send(acknowledgePacket);//todo server ook, ligt aan wie initieerde
             }
         }
 
     }
 
     public void kill(){
-        stop = true;
+       //todo bij client en server thisProcess=null
+       // runningUploadProcesses[processID] = null;
     }
 
     public int getProcessID(){return processID;}

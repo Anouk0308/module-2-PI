@@ -115,7 +115,7 @@ public class ProcessManager {
         if(IDfound == 1){
             print("Process "+ processID + "is paused");
             if(process.equals("UP")){
-                runningUploadProcesses[processID].getThread().interrupt();
+                runningUploadProcesses[processID].isInterrupted = true;
                 pausedUploadProcesses[processID] = runningUploadProcesses[processID];
                 runningUploadProcesses[processID] = null;
 
@@ -125,7 +125,7 @@ public class ProcessManager {
                 send(pausePacket);
 
             }else if (process.equals("DOWN")){
-                runningDownloadProcesses[processID].getThread().interrupt();
+                runningDownloadProcesses[processID].isInterrupted = true;
                 pausedDownloadProcesses[processID] = runningDownloadProcesses[processID];
                 runningDownloadProcesses[processID] = null;
 
@@ -145,7 +145,7 @@ public class ProcessManager {
     public void pauseAllProcesses(){
         for(int i = 0; i < runningUploadProcesses.length; i++){
             int processID = runningUploadProcesses[i].getProcessID();
-            runningUploadProcesses[i].getThread().interrupt();
+            runningUploadProcesses[i].isInterrupted = true;
             pausedUploadProcesses[i] = runningUploadProcesses[i];
             runningUploadProcesses[i] = null;
             print("Process "+ processID + "is paused");
@@ -158,7 +158,7 @@ public class ProcessManager {
 
         for(int i = 0; i < pausedUploadProcesses.length; i++){
             int processID = runningDownloadProcesses[i].getProcessID();
-            runningDownloadProcesses[i].getThread().interrupt();
+            runningDownloadProcesses[i].isInterrupted = true;
             pausedDownloadProcesses[i] = runningDownloadProcesses[i];
             runningDownloadProcesses[i] = null;
             print("Process "+ processID + "is paused");
@@ -193,7 +193,7 @@ public class ProcessManager {
         if(IDfound == 1){
             print("Process "+ processID + "is continued");
             if(process.equals("UP")){
-                pausedUploadProcesses[processID].getThread().run();
+                pausedUploadProcesses[processID].isInterrupted = false;
                 runningUploadProcesses[processID] = pausedUploadProcesses[processID];
                 pausedUploadProcesses[processID] = null;
 
@@ -204,7 +204,7 @@ public class ProcessManager {
 
 
             }else if (process.equals("DOWN")){
-                pausedDownloadProcesses[processID].getThread().run();
+                pausedDownloadProcesses[processID].isInterrupted = false;
                 runningDownloadProcesses[processID] = pausedDownloadProcesses[processID];
                 pausedDownloadProcesses[processID] = null;
 
@@ -223,7 +223,7 @@ public class ProcessManager {
     public void continueAllProcesses(){
         for(int i = 0; i < pausedUploadProcesses.length; i++){
             int processID = pausedUploadProcesses[i].getProcessID();
-            pausedUploadProcesses[i].getThread().run();
+            pausedUploadProcesses[i].isInterrupted = false;
             runningUploadProcesses[i] = pausedUploadProcesses[i];
             pausedUploadProcesses[i] = null;
             print("Process "+ processID + "is continued");
@@ -236,7 +236,7 @@ public class ProcessManager {
 
         for(int i = 0; i < runningUploadProcesses.length; i++){
             int processID = pausedDownloadProcesses[i].getProcessID();
-            pausedDownloadProcesses[i].getThread().run();
+            pausedDownloadProcesses[i].isInterrupted = false;
             runningDownloadProcesses[i] = pausedDownloadProcesses[i];
             pausedDownloadProcesses[i] = null;
             print("Process "+ processID + "is continued");
@@ -292,7 +292,6 @@ public class ProcessManager {
             if(state.equals("RUNNING")){
                 if(process.equals("UP")){
                     runningUploadProcesses[processID].kill();
-                    runningUploadProcesses[processID] = null;
 
                     //also send the server to stop the process
                     byte[] buffer = packetWithOwnHeader.commandoTwelve(processID);
@@ -301,7 +300,6 @@ public class ProcessManager {
 
                 }else if (process.equals("DOWN")){
                     runningDownloadProcesses[processID].kill();
-                    runningDownloadProcesses[processID] = null;
 
                     //also send the server to stop the process
                     byte[] buffer = packetWithOwnHeader.commandoTwelve(processID);
@@ -311,7 +309,6 @@ public class ProcessManager {
             } else if(state.equals("PAUSED")){
                 if(process.equals("UP")){
                     pausedUploadProcesses[processID].kill();
-                    pausedUploadProcesses[processID] = null;
 
                     //also send the server to stop the process
                     byte[] buffer = packetWithOwnHeader.commandoTwelve(processID);
@@ -320,7 +317,6 @@ public class ProcessManager {
 
                 }else if (process.equals("DOWN")){
                     pausedDownloadProcesses[processID].kill();
-                    pausedDownloadProcesses[processID] = null;
 
                     //also send the server to stop the process
                     byte[] buffer = packetWithOwnHeader.commandoTwelve(processID);
@@ -338,7 +334,6 @@ public class ProcessManager {
     public void stopAllProcesses(){
         for(int i = 0; i < runningUploadProcesses.length; i++){
             runningUploadProcesses[i].kill();
-            runningUploadProcesses[i] = null;
             print("Process "+ processID + "is stopped");
 
             //also send the server to stop the process
@@ -349,7 +344,6 @@ public class ProcessManager {
 
         for(int i = 0; i < runningDownloadProcesses.length; i++){
             runningDownloadProcesses[i].kill();
-            runningDownloadProcesses[i] = null;
             print("Process "+ processID + "is stopped");
 
             //also send the server to stop the process
@@ -360,7 +354,6 @@ public class ProcessManager {
 
         for(int i = 0; i < pausedUploadProcesses.length; i++){
             pausedUploadProcesses[i].kill();
-            pausedUploadProcesses[i] = null;
             print("Process "+ processID + "is stopped");
 
             //also send the server to stop the process
@@ -371,7 +364,6 @@ public class ProcessManager {
 
         for(int i = 0; i < pausedDownloadProcesses.length; i++){
             pausedDownloadProcesses[i].kill();
-            pausedDownloadProcesses[i] = null;
             print("Process "+ processID + "is stopped");
 
             //also send the server to stop the process

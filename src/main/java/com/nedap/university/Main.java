@@ -1,13 +1,22 @@
 package com.nedap.university;
 
-public class Main {
+import OwnCode.Server;
 
-    private static boolean keepAlive = true;
-    private static boolean running = false;
+public class Main {
 
     private Main() {}
 
     public static void main(String[] args) {
+        Server server = new Server(8000);
+    }
+
+
+}
+/*
+    private static boolean keepAlive = true;
+    private static boolean running = false;
+
+public static void main(String[] args) {
         running = true;
         System.out.println("Hello, Nedap University!");
 
@@ -42,4 +51,4 @@ public class Main {
         };
         Runtime.getRuntime().addShutdownHook(shutdownThread);
     }
-}
+ */

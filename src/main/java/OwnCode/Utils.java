@@ -2,6 +2,7 @@ package OwnCode;
 
 import java.io.File;
 import java.net.DatagramPacket;
+import java.util.Arrays;
 import java.util.Base64;
 
 public class Utils {
@@ -59,8 +60,9 @@ public class Utils {
     }
 
     public byte[] removeHeader(byte[] b){ //get only the raw data
-        //todo: hier header weghalen. heeft dus te maken met of header flexibel is of niet
-        return b;
+        byte[] rawData = new byte[b.length-6]; //header is 6 bytes long
+        System.arraycopy(b,6,rawData,0,b.length);
+        return rawData;
     }
 
     public DatagramPacket[] fileToPackets(File file){
@@ -70,21 +72,20 @@ public class Utils {
     }
 
     public File packetsToFile(DatagramPacket[] packets, String FilePath){
-        int packetSize = slidingWindow.getPacketSize();
         int rawDataSpace = slidingWindow.getRawDataSpace();
-        byte[] bytes = new byte[packets.length*rawDataSpace];
+        byte[] bytesFile = new byte[packets.length*rawDataSpace];
         for(int i = 0; i < packets.length; i++){
             byte[] packetBytes = packets[i].getData();
-            System.arraycopy(packetBytes,0,bytes,i*rawDataSpace, rawDataSpace);
+            byte[] rawPacketBytes = removeHeader(packetBytes);
+            System.arraycopy(rawPacketBytes,0,bytesFile,i*rawDataSpace, rawDataSpace);
         }
         //todo, byte array to file
+
+
 
         File file = new File(FilePath);
         return file;
     }
-
-
-
 
     public byte[] combineByteArr(byte[] a, byte[] b){
         byte[] c = new byte[a.length + b.length];
@@ -108,6 +109,26 @@ public class Utils {
         System.arraycopy(b, 0, e, b.length, c.length);
         System.arraycopy(b, 0, e, c.length, d.length);
         return e;
+    }
+
+    public byte limitByteFirstByte(int i){
+        int divided = Math.floorDiv(i,256);
+        byte b = fromIntegerToByte(divided);
+        return b;
+    }
+
+    public byte limitByteSecondByte(int i){
+        int modulo = i%256;
+        byte b = fromIntegerToByte(modulo);
+        return b;
+    }
+
+    public int limitBytesToInteger(byte firstByte, byte secondByte){
+        int firstInt = fromByteToInteger(firstByte);
+        int secondInt = fromByteToInteger(secondByte);
+        int number = firstInt*secondInt;
+
+        return number;
     }
 
     public void timer(int seconds){

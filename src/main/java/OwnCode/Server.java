@@ -25,7 +25,7 @@ public class Server {
     //todo
     //todo
 
-    public Server(int port) throws SocketException {
+    public Server(int port) {
         this.port = port;
         packetWithOwnHeader = new PacketWithOwnHeader();
         utils = new Utils();
@@ -40,13 +40,6 @@ public class Server {
         try {
             socket = new DatagramSocket(port);
             while (true) { //receive
-
-                //TODO: kijken of handshake nodig is
-               /* DatagramPacket request = new DatagramPacket(new byte[1], 1, address, port);
-                socket.send(request);
-                */
-
-
                 DatagramPacket receivePacket = new DatagramPacket(new byte[packetSize], packetSize);
                 socket.receive(receivePacket);
                 InetAddress destinationAddress = receivePacket.getAddress();
@@ -65,12 +58,14 @@ public class Server {
         DatagramPacket checkedPacket = checksum.checkingChecksum(receivedPacket);
         while(checkedPacket != null) {
             byte[] data = receivedPacket.getData();
-            byte commandoByte = data[0]; //todo: kijken of dit klopt met checksum enzo
-            byte byteProcessID = data[1];//todo: kijken of dit klopt
-            byte bytePacketNumber = data[2];//todo same
+            byte commandoByte = data[1];
+            byte byteProcessID1 = data[2];
+            byte byteProcessID2 = data[3];
+            byte bytePacketNumber1 = data[4];
+            byte bytePacketNumber2 = data[5];
             byte[] rawData = utils.removeHeader(data);
-            int processID = utils.fromByteToInteger(byteProcessID);
-            int packetNumber = utils.fromByteToInteger(bytePacketNumber);
+            int processID = utils.limitBytesToInteger(byteProcessID1, byteProcessID2);
+            int packetNumber = utils.limitBytesToInteger(bytePacketNumber1, bytePacketNumber2);
             switch (utils.fromByteToInteger(commandoByte)) {
 
                 case 1:                 requestSendFileNames();
