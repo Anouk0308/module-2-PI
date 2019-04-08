@@ -11,7 +11,7 @@ public class QuoteClient {
  
     public static void main(String[] args) {
         if (args.length < 2) {
-            System.out.println("Syntax: QuoteClient <hostname> <port>");
+            System.out.println("Syntax: QuoteClient <hostname (ipadress)> <port>");
             return;
         }
  
