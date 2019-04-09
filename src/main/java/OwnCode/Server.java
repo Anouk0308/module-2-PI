@@ -53,12 +53,9 @@ public class Server implements NetworkUser, Runnable{
     }
 
     public void inputHandler(DatagramPacket receivedPacketFromClient){
-        print("packet in IH:" + receivedPacketFromClient.toString());//todo weghalen
         DatagramPacket checkedPacket = checksum.checkingChecksum(receivedPacketFromClient);
-        print("checkedPacket in IH:" + checkedPacket.toString());//todo weghalen
         if(checkedPacket != null) {
             byte[] data = receivedPacketFromClient.getData();
-            print("data lenght" + data.length);//todo weghalen
             byte commandoByte = data[1];
             int processID = 0;
             byte[] rawData = null;
@@ -77,11 +74,8 @@ public class Server implements NetworkUser, Runnable{
 
                 case 0:                 handshake(receivedPacketFromClient);
                                         break;
-                case 1:                 print("we zijn nu al bij case 1");//todo weghalen
-                                        requestSendFileNames();
+                case 1:                 requestSendFileNames();
                                         break;
-                case 2:                 print("verstuurd naar zichzelf");//todo weghalen
-                                        break;//todo weghalen
                 case 3:                 requestStartDownloadProcess(rawData, processID);
                                         break;
                 case 4:                 requestStartUploadProcess(rawData, processID);
@@ -113,16 +107,11 @@ public class Server implements NetworkUser, Runnable{
 
     public void requestSendFileNames(){
         String files = filesToString();
-        print("1");//todo weghalen
         byte[] bytes = utils.fromStringToByteArr(files);
 
-        print("2"); //todo weghalen
         byte[] buffer = packetWithOwnHeader.commandoTwo(bytes);
-        print("3");//todo weghalen
         DatagramPacket giveFiles = new DatagramPacket(buffer, buffer.length);
-        print("4"); //todo weghalen
         send(giveFiles);
-        print("5"); // todo weghalen
     }
 
     public void requestStartDownloadProcess(byte[] rawData, int processID){
@@ -173,6 +162,7 @@ public class Server implements NetworkUser, Runnable{
         for(int i = 0; i < filesOnPI.length; i++){
             s = s + "+" + filesOnPI[i];
         }
+        s = s + "+";
         return s;
     }
 
@@ -183,7 +173,6 @@ public class Server implements NetworkUser, Runnable{
 
         try {
             socket.send(packet);
-            print("packetje verzonden");//todo weghalen
         } catch (IOException e) {
             print("Client error: " + e.getMessage());
         }

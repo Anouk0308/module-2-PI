@@ -10,11 +10,21 @@ public class Oefenen {
 
     public Oefenen(){
         startUp();
-        byte[] a = new byte[10];
-        byte[] b = new byte[8];
-        byte[] c = new byte[75];
-        byte[] d = new byte[3];
-        byte[] e = combineByteArrayTesten(a,b,c,d);
+        byte[] b = new byte[1];
+        b[0]=1;
+
+
+        String s = utils.fromByteArrToStringBit(b);
+
+        print(s);
+
+        String[] sarray = s.split("");
+
+        for(int i = 0; i < sarray.length; i++){
+            print(sarray[i]);
+        }
+
+
 
 
     }
@@ -23,17 +33,6 @@ public class Oefenen {
         utils = new Utils();
     }
 
-    public byte[] combineByteArrayTesten(byte[]a,byte[]b,byte[]c,byte[]d){
-        byte[] by = null;
-        if(d!=null){
-            by = utils.combineByteArr(a,b,c,d);
-        } else if(c!=null){
-            by = utils.combineByteArr(a,b,c);
-        } else{
-           by =  utils.combineByteArr(a,b);
-        }
-        return by;
-    }
 
 
 

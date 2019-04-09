@@ -19,6 +19,14 @@ public class Utils {
         return s;
     }
 
+    public String fromByteArrToStringBit(byte[] b){
+        String s = "";
+        for(int i = 0; i < b.length; i++) {
+            s = s + Integer.toBinaryString((b[i] & 0xFF) + 0x100).substring(1);
+        }
+        return s;
+    }
+
     public Integer fromByteToInteger (byte b){
         Integer decodedIntegers =  (b & 0x000000ff);
         return decodedIntegers;

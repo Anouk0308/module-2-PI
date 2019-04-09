@@ -1,8 +1,7 @@
 package OwnCode;
 
 public class ZZZtodoLijstVoorMezelf {
-
-    //UIH: 2, file pi
+    
     //UIH: 3 & 4, up en download
     //crc 32, checksum
     //UIH: 5-13, proccessmanager

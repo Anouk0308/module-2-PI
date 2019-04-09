@@ -30,17 +30,11 @@ public class PacketWithOwnHeader {
     }
 
     public byte[] commandoTwo(byte[] PIFileNames){ // PI to client: here are my files
-        print("2a");//todo weghalen
         commandoByte[0]= utils.fromIntegerToByte(2);
-        print("2b");//todo weghalen
         byte[] headerTemp = utils.combineByteArr(commandoByte, processIDbytes, packetNumberBytes, PIFileNames);
-        print("2c");//todo weghalen
-
 
         checksumBytes = checksum.creatingChecksum(headerTemp);
-        print("2d");//todo weghalen
         byte[] header = utils.combineByteArr(checksumBytes, headerTemp);
-        print("2e");//todo weghalen
         return header;
     }
 

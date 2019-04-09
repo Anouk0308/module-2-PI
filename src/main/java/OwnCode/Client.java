@@ -27,7 +27,7 @@ public class Client implements NetworkUser, Runnable {
 
         utils = new Utils();
         statistics = new Statistics();
-        checksum = new Checksum();
+        checksum = new Checksum(statistics);
         slidingWindow = new SlidingWindow();
         packetWithOwnHeader = new PacketWithOwnHeader();
         processManager = new ProcessManager(this, slidingWindow);
@@ -104,7 +104,7 @@ public class Client implements NetworkUser, Runnable {
     public void receivedFilesPI(byte[] data){
         byte[] rawData = utils.removeHeader(data);
         String filesString = utils.fromByteArrToString(rawData);
-        String[] filesArr = filesString.split("//+");
+        String[] filesArr = filesString.split("\\+");
         userInputHandler.setFilesPI(filesArr);
         userInputHandler.setUpdatedFilesPI(true);
     }
@@ -127,9 +127,7 @@ public class Client implements NetworkUser, Runnable {
         DatagramPacket packet = new DatagramPacket(buf, length, destinationAddress, destinationPort);
 
         try {
-            print("data lenght" + length);
             socket.send(packet);
-            print("Sended packet");//todo weghalen
         } catch (IOException e) {
             print("Client error: " + e.getMessage());
         }

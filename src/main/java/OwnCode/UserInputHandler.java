@@ -42,7 +42,7 @@ public class UserInputHandler implements Runnable{
     }
 
     public void startMenu(){
-        print("What would you like to do?");ß
+        print("What would you like to do?");
         print("1. Get the filelist from this computer");
         print("2. Get the filelist from the PI");
         print("3. Upload a file to the PI");
@@ -115,22 +115,19 @@ public class UserInputHandler implements Runnable{
 
     public void printPIFiles(){
         byte[] buffer = packetWithOwnHeader.commandoOne();
-        print("1");//todo weghalen
         DatagramPacket askFiles = new DatagramPacket(buffer, buffer.length);
         try {
-            print("2");//todo weghalen
             client.send(askFiles);
-            print("3");//todo weghalen
 
 
             while (!updatedFilesPI) {//wait till FilesPI are received & updated
                 Thread.sleep(10);
             }
-            print("4");//todo weghalen
 
-            for (int i = 0; i < filesPI.length; i++) {
+            for (int i = 0; i < filesPI.length-1; i++) {//last in array is empty
                 print(filesPI[i]);
             }
+            print("");//empty row
             updatedFilesPI = false;
 
             print("Would you like to do something else?");
@@ -222,7 +219,6 @@ public class UserInputHandler implements Runnable{
 
     public void stopProgram(){
         try {
-            print("Trying to stop program");//todo weghalen
             processManager.stopAllProcesses();
             print("All processes are stopped");
             client.getSocket().close();
