@@ -3,7 +3,7 @@ package OwnCode;
 import java.io.File;
 import java.net.DatagramPacket;
 
-public class DownloadProcess{
+public class DownloadProcess implements Process{
     private int processID;
     private String fileName;
     private int packetSize;
@@ -134,6 +134,10 @@ public class DownloadProcess{
     public int getProcessID(){return processID;}
 
     public String getFileName(){return fileName;}
+
+    public void setIsInterrupted(boolean b){
+        isInterrupted = b;
+    }
 
     private static void print (String message){
         System.out.println(message);

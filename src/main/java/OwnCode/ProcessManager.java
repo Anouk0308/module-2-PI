@@ -10,11 +10,17 @@ import java.net.InetAddress;
 
 public class ProcessManager {
 
+    private Process[] runningProcesses = new Process[1000];
+    private Process[] pausedProcesses = new Process[1000];
+
+    /*
+
     private UploadProcess[] runningUploadProcesses = new UploadProcess[256];
     private UploadProcess[] pausedUploadProcesses = new UploadProcess[256];
 
     private DownloadProcess[] runningDownloadProcesses = new DownloadProcess[256];
     private DownloadProcess[] pausedDownloadProcesses = new DownloadProcess[256];
+    */
     int processID = -1;
 
     private PacketWithOwnHeader packetWithOwnHeader;
@@ -35,52 +41,40 @@ public class ProcessManager {
         int processID = getAProcessID();
 
         UploadProcess upload = new UploadProcess(processID, file, networkUser, isClient);
-        runningUploadProcesses[processID] = upload;
+        runningProcesses[processID] = upload;
     }
 
     public void createDownloadProcess(String fileName, String filePath, NetworkUser networkUser, boolean isClient){
         int processID = getAProcessID();
         DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, filePath, isClient);
-        runningDownloadProcesses[processID] = download;
+        runningProcesses[processID] = download;
     }
 
     public void createUploadProcessWithProcessID(File file, NetworkUser networkUser, int processID, boolean isClient){
         UploadProcess upload = new UploadProcess(processID, file, networkUser, isClient);
-        runningUploadProcesses[processID] = upload;
+        runningProcesses[processID] = upload;
     }
 
     public void createDownloadProcessWithProcessID(String fileName, String filePath, NetworkUser networkUser, int processID, boolean isClient){
         DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, filePath, isClient);
-        runningDownloadProcesses[processID] = download;
+        runningProcesses[processID] = download;
     }
 
     public void printRunningProcesses(){
-        for(int i = 0; i < runningUploadProcesses.length; i++){
-            UploadProcess process = runningUploadProcesses[i];
+        for(int i = 0; i < runningProcesses.length; i++){
+            Process process = runningProcesses[i];
             int processID = process.getProcessID();
             String filename = process.getFileName();
             print("Process "+ processID+ " is uploading file "+ filename);
         }
-        for(int i = 0; i < runningDownloadProcesses.length; i++){
-            DownloadProcess process = runningDownloadProcesses[i];
-            int processID = process.getProcessID();
-            String filename = process.getFileName();
-            print("Process "+ processID+ " is downloading file "+ filename);
-        }
     }
 
     public void printPausedProcesses(){
-        for(int i = 0; i < pausedUploadProcesses.length; i++){
-            UploadProcess process = runningUploadProcesses[i];
+        for(int i = 0; i < pausedProcesses.length; i++){
+            Process process = pausedProcesses[i];
             int processID = process.getProcessID();
             String filename = process.getFileName();
             print("Process "+ processID+ " is paused while uploading file "+ filename);
-        }
-        for(int i = 0; i < pausedDownloadProcesses.length; i++){
-            DownloadProcess process = runningDownloadProcesses[i];
-            int processID = process.getProcessID();
-            String filename = process.getFileName();
-            print("Process "+ processID+ " is paused while downloading file "+ filename);
         }
     }
 
@@ -92,45 +86,26 @@ public class ProcessManager {
     public void pauseSpecificProcess(int userIDSugested){
         int IDfound = 0;
         int processID = 0;
-        String process = "";
 
-        for(int i = 0; i < runningUploadProcesses.length; i++){
-            if(runningUploadProcesses[i].getProcessID() == userIDSugested){
+        for(int i = 0; i < runningProcesses.length; i++){
+            if(runningProcesses[i].getProcessID() == userIDSugested){
                 IDfound = 1;
                 processID = i;
-                process = "UP";
-            }
-        }
-        for(int i = 0; i < runningDownloadProcesses.length; i++){
-            if(runningDownloadProcesses[i].getProcessID() == userIDSugested){
-                IDfound = 1;
-                processID = i;
-                process = "DOWN";
             }
         }
 
         if(IDfound == 1){
             print("Process "+ processID + "is paused");
-            if(process.equals("UP")){
-                runningUploadProcesses[processID].isInterrupted = true;
-                pausedUploadProcesses[processID] = runningUploadProcesses[processID];
-                runningUploadProcesses[processID] = null;
 
-                //also send the server to pause the process
-                byte[] buffer = packetWithOwnHeader.commandoTen(processID);
-                DatagramPacket pausePacket = new DatagramPacket(buffer, buffer.length);
-                networkUser.send(pausePacket);
+            runningProcesses[processID].setIsInterrupted(true);
+            pausedProcesses[processID] = runningProcesses[processID];
+            runningProcesses[processID] = null;
 
-            }else if (process.equals("DOWN")){
-                runningDownloadProcesses[processID].isInterrupted = true;
-                pausedDownloadProcesses[processID] = runningDownloadProcesses[processID];
-                runningDownloadProcesses[processID] = null;
+            //also send the server to pause the process
+            byte[] buffer = packetWithOwnHeader.commandoTen(processID);
+            DatagramPacket pausePacket = new DatagramPacket(buffer, buffer.length);
+            networkUser.send(pausePacket);
 
-                //also send the server to pause the process
-                byte[] buffer = packetWithOwnHeader.commandoTen(processID);
-                DatagramPacket pausePacket = new DatagramPacket(buffer, buffer.length);
-                networkUser.send(pausePacket);
-            }
         } else{
             print("That is not a correct processID, these are the processes to choose from:");
             printRunningProcesses();
@@ -140,28 +115,13 @@ public class ProcessManager {
 
 
     public void pauseAllProcesses(){
-        for(int i = 0; i < runningUploadProcesses.length; i++){
-            if(runningUploadProcesses[i] != null){
-                int processID = runningUploadProcesses[i].getProcessID();
-                runningUploadProcesses[i].isInterrupted = true;
-                pausedUploadProcesses[i] = runningUploadProcesses[i];
-                runningUploadProcesses[i] = null;
+        for(int i = 0; i < runningProcesses.length; i++){
+            if(runningProcesses[i] != null){
+                int processID = runningProcesses[i].getProcessID();
+                runningProcesses[i].setIsInterrupted(true);
+                pausedProcesses[i] = runningProcesses[i];
+                runningProcesses[i] = null;
                 print("Process "+ processID + "is paused");
-
-                //also send the server to pause the process
-                byte[] buffer = packetWithOwnHeader.commandoTen(processID);
-                DatagramPacket pausePacket = new DatagramPacket(buffer, buffer.length);
-                networkUser.send(pausePacket);
-            }
-        }
-
-        for(int i = 0; i < pausedUploadProcesses.length; i++){
-            if(runningDownloadProcesses[i] != null) {
-                int processID = runningDownloadProcesses[i].getProcessID();
-                runningDownloadProcesses[i].isInterrupted = true;
-                pausedDownloadProcesses[i] = runningDownloadProcesses[i];
-                runningDownloadProcesses[i] = null;
-                print("Process " + processID + "is paused");
 
                 //also send the server to pause the process
                 byte[] buffer = packetWithOwnHeader.commandoTen(processID);
@@ -174,46 +134,27 @@ public class ProcessManager {
     public void continueSpecificProcess(int userIDSugested){
         int IDfound = 0;
         int processID = 0;
-        String process = "";
 
-        for(int i = 0; i < pausedUploadProcesses.length; i++){
-            if(pausedUploadProcesses[i].getProcessID() == userIDSugested){
+        for(int i = 0; i < pausedProcesses.length; i++){
+            if(pausedProcesses[i].getProcessID() == userIDSugested){
                 IDfound = 1;
                 processID = i;
-                process = "UP";
             }
         }
-        for(int i = 0; i < pausedDownloadProcesses.length; i++){
-            if(pausedDownloadProcesses[i].getProcessID() == userIDSugested){
-                IDfound = 1;
-                processID = i;
-                process = "DOWN";
-            }
-        }
+
 
         if(IDfound == 1){
             print("Process "+ processID + "is continued");
-            if(process.equals("UP")){
-                pausedUploadProcesses[processID].isInterrupted = false;
-                runningUploadProcesses[processID] = pausedUploadProcesses[processID];
-                pausedUploadProcesses[processID] = null;
 
-                //also send the server to continue the process
-                byte[] buffer = packetWithOwnHeader.commandoEleven(processID);
-                DatagramPacket continuePacket = new DatagramPacket(buffer, buffer.length);
-                networkUser.send(continuePacket);
+            pausedProcesses[processID].setIsInterrupted(false);
+            runningProcesses[processID] = pausedProcesses[processID];
+            pausedProcesses[processID] = null;
 
+            //also send the server to continue the process
+            byte[] buffer = packetWithOwnHeader.commandoEleven(processID);
+            DatagramPacket continuePacket = new DatagramPacket(buffer, buffer.length);
+            networkUser.send(continuePacket);
 
-            }else if (process.equals("DOWN")){
-                pausedDownloadProcesses[processID].isInterrupted = false;
-                runningDownloadProcesses[processID] = pausedDownloadProcesses[processID];
-                pausedDownloadProcesses[processID] = null;
-
-                //also send the server to continue the process
-                byte[] buffer = packetWithOwnHeader.commandoEleven(processID);
-                DatagramPacket continuePacket = new DatagramPacket(buffer, buffer.length);
-                networkUser.send(continuePacket);
-            }
         } else{
             print("That is not a correct processID, these are the processes to choose from:");
             printRunningProcesses();
@@ -222,27 +163,12 @@ public class ProcessManager {
     }
 
     public void continueAllProcesses(){
-        for(int i = 0; i < pausedUploadProcesses.length; i++){
-            if(pausedUploadProcesses[i] != null) {
-                int processID = pausedUploadProcesses[i].getProcessID();
-                pausedUploadProcesses[i].isInterrupted = false;
-                runningUploadProcesses[i] = pausedUploadProcesses[i];
-                pausedUploadProcesses[i] = null;
-                print("Process " + processID + "is continued");
-
-                //also send the server to continue the process
-                byte[] buffer = packetWithOwnHeader.commandoEleven(processID);
-                DatagramPacket continuePacket = new DatagramPacket(buffer, buffer.length);
-                networkUser.send(continuePacket);
-            }
-        }
-
-        for(int i = 0; i < runningUploadProcesses.length; i++){
-            if(pausedDownloadProcesses[i] != null) {
-                int processID = pausedDownloadProcesses[i].getProcessID();
-                pausedDownloadProcesses[i].isInterrupted = false;
-                runningDownloadProcesses[i] = pausedDownloadProcesses[i];
-                pausedDownloadProcesses[i] = null;
+        for(int i = 0; i < pausedProcesses.length; i++){
+            if(pausedProcesses[i] != null) {
+                int processID = pausedProcesses[i].getProcessID();
+                pausedProcesses[i].setIsInterrupted(false);
+                runningProcesses[i] = pausedProcesses[i];
+                pausedProcesses[i] = null;
                 print("Process " + processID + "is continued");
 
                 //also send the server to continue the process
@@ -256,38 +182,19 @@ public class ProcessManager {
     public void stopSpecificProcess(int userIDSugested){
         int IDfound = 0;
         int processID = 0;
-        String process = "";
         String state = "";
 
-        for(int i = 0; i < runningUploadProcesses.length; i++){
-            if(runningUploadProcesses[i].getProcessID() == userIDSugested){
+        for(int i = 0; i < runningProcesses.length; i++){
+            if(runningProcesses[i].getProcessID() == userIDSugested){
                 IDfound = 1;
                 processID = i;
-                process = "UP";
                 state = "RUNNING";
             }
         }
-        for(int i = 0; i < runningDownloadProcesses.length; i++){
-            if(runningDownloadProcesses[i].getProcessID() == userIDSugested){
+        for(int i = 0; i < pausedProcesses.length; i++){
+            if(pausedProcesses[i].getProcessID() == userIDSugested){
                 IDfound = 1;
                 processID = i;
-                process = "DOWN";
-                state = "RUNNING";
-            }
-        }
-        for(int i = 0; i < pausedUploadProcesses.length; i++){
-            if(pausedUploadProcesses[i].getProcessID() == userIDSugested){
-                IDfound = 1;
-                processID = i;
-                process = "UP";
-                state = "PAUSED";
-            }
-        }
-        for(int i = 0; i < pausedDownloadProcesses.length; i++){
-            if(pausedDownloadProcesses[i].getProcessID() == userIDSugested){
-                IDfound = 1;
-                processID = i;
-                process = "DOWN";
                 state = "PAUSED";
             }
         }
@@ -295,43 +202,21 @@ public class ProcessManager {
         if(IDfound == 1){
             print("Process "+ processID + "is stopped");
             if(state.equals("RUNNING")){
-                if(process.equals("UP")){
-                    runningUploadProcesses[processID].kill();
-                    runningUploadProcesses[processID] = null;
+                runningProcesses[processID].kill();
+                runningProcesses[processID] = null;
 
-                    //also send the server to stop the process
-                    byte[] buffer = packetWithOwnHeader.commandoTwelve(processID);
-                    DatagramPacket stopPacket = new DatagramPacket(buffer, buffer.length);
-                    networkUser.send(stopPacket);
-
-                }else if (process.equals("DOWN")){
-                    runningDownloadProcesses[processID].kill();
-                    runningDownloadProcesses[processID] = null;
-
-                    //also send the server to stop the process
-                    byte[] buffer = packetWithOwnHeader.commandoTwelve(processID);
-                    DatagramPacket stopPacket = new DatagramPacket(buffer, buffer.length);
-                    networkUser.send(stopPacket);
-                }
+                //also send the server to stop the process
+                byte[] buffer = packetWithOwnHeader.commandoTwelve(processID);
+                DatagramPacket stopPacket = new DatagramPacket(buffer, buffer.length);
+                networkUser.send(stopPacket);
             } else if(state.equals("PAUSED")){
-                if(process.equals("UP")){
-                    pausedUploadProcesses[processID].kill();
-                    pausedUploadProcesses[processID] = null;
+                pausedProcesses[processID].kill();
+                pausedProcesses[processID] = null;
 
-                    //also send the server to stop the process
-                    byte[] buffer = packetWithOwnHeader.commandoTwelve(processID);
-                    DatagramPacket stopPacket = new DatagramPacket(buffer, buffer.length);
-                    networkUser.send(stopPacket);
-
-                }else if (process.equals("DOWN")){
-                    pausedDownloadProcesses[processID].kill();
-                    pausedDownloadProcesses[processID] = null;
-
-                    //also send the server to stop the process
-                    byte[] buffer = packetWithOwnHeader.commandoTwelve(processID);
-                    DatagramPacket stopPacket = new DatagramPacket(buffer, buffer.length);
-                    networkUser.send(stopPacket);
-                }
+                //also send the server to stop the process
+                byte[] buffer = packetWithOwnHeader.commandoTwelve(processID);
+                DatagramPacket stopPacket = new DatagramPacket(buffer, buffer.length);
+                networkUser.send(stopPacket);
             }
         } else{
             print("That is not a correct processID, these are the processes to choose from:");
@@ -341,10 +226,10 @@ public class ProcessManager {
     }
 
     public void stopAllProcesses(){
-        for(int i = 0; i < runningUploadProcesses.length; i++){
-            if(runningUploadProcesses[i] != null) {
-                runningUploadProcesses[i].kill();
-                runningUploadProcesses[processID] = null;
+        for(int i = 0; i < runningProcesses.length; i++){
+            if(runningProcesses[i] != null) {
+                runningProcesses[i].kill();
+                runningProcesses[processID] = null;
                 print("Process " + processID + "is stopped");
 
                 //also send the server to stop the process
@@ -354,36 +239,10 @@ public class ProcessManager {
             }
         }
 
-        for(int i = 0; i < runningDownloadProcesses.length; i++){
-            if(runningDownloadProcesses[i] != null) {
-                runningDownloadProcesses[i].kill();
-                runningDownloadProcesses[processID] = null;
-                print("Process " + processID + "is stopped");
-
-                //also send the server to stop the process
-                byte[] buffer = packetWithOwnHeader.commandoTwelve(processID);
-                DatagramPacket stopPacket = new DatagramPacket(buffer, buffer.length);
-                networkUser.send(stopPacket);
-            }
-        }
-
-        for(int i = 0; i < pausedUploadProcesses.length; i++){
-            if(pausedUploadProcesses[i] != null) {
-                pausedUploadProcesses[i].kill();
-                pausedUploadProcesses[processID] = null;
-                print("Process " + processID + "is stopped");
-
-                //also send the server to stop the process
-                byte[] buffer = packetWithOwnHeader.commandoTwelve(processID);
-                DatagramPacket stopPacket = new DatagramPacket(buffer, buffer.length);
-                networkUser.send(stopPacket);
-            }
-        }
-
-        for(int i = 0; i < pausedDownloadProcesses.length; i++){
-            if(pausedDownloadProcesses[i] != null) {
-                pausedDownloadProcesses[i].kill();
-                pausedDownloadProcesses[processID] = null;
+        for(int i = 0; i < pausedProcesses.length; i++){
+            if(pausedProcesses[i] != null) {
+                pausedProcesses[i].kill();
+                pausedProcesses[processID] = null;
                 print("Process " + processID + "is stopped");
 
                 //also send the server to stop the process
@@ -395,31 +254,38 @@ public class ProcessManager {
     }
 
     public void receiveUploadAcknowledgement(int processID){
-        UploadProcess upload = runningUploadProcesses[processID];
-        upload.setAcknowledgementToStartTrue();
+        if(runningProcesses[processID] != null && runningProcesses[processID] instanceof UploadProcess){
+            UploadProcess upload = (UploadProcess) runningProcesses[processID];
+            upload.setAcknowledgementToStartTrue();
+        }
     }
 
     public void receivePacketForProcess(int processID, DatagramPacket receivedPacked){
-        if (runningDownloadProcesses[processID] != null){
-            runningDownloadProcesses[processID].receivePacket(receivedPacked);
+        if (runningProcesses[processID] != null && runningProcesses[processID] instanceof DownloadProcess){
+            DownloadProcess downloadProcess = (DownloadProcess) runningProcesses[processID];
+            downloadProcess.receivePacket(receivedPacked);
         }
     }
 
     public void receiveAcknowledgementPacketForProcess(int processID, DatagramPacket receivedPacked){
-        if (runningUploadProcesses[processID] != null){
-            runningUploadProcesses[processID].receiveAcknowledgementPacket(receivedPacked);
+        if (runningProcesses[processID] != null && runningProcesses[processID] instanceof UploadProcess){
+            UploadProcess uploadProcess = (UploadProcess) runningProcesses[processID];
+            uploadProcess.receiveAcknowledgementPacket(receivedPacked);
         }
     }
 
     public void receiveLastPacketForProcess(int processID, DatagramPacket receivedPacked){
-        if (runningDownloadProcesses[processID] != null){
-            runningDownloadProcesses[processID].receiveLastPacket(receivedPacked);
+        if (runningProcesses[processID] != null && runningProcesses[processID] instanceof DownloadProcess){
+            DownloadProcess downloadProcess = (DownloadProcess) runningProcesses[processID];
+            downloadProcess.receiveLastPacket(receivedPacked);
         }
     }
 
-    public void receiveAcknowledgementLastPacketForProcess(int processID, DatagramPacket receivedPacked){
-        UploadProcess upload = runningUploadProcesses[processID];
-        upload.setAcknowledgementToStopTrue();
+    public void receiveAcknowledgementLastPacketForProcess(int processID){
+        if(runningProcesses[processID] != null && runningProcesses[processID] instanceof UploadProcess){
+            UploadProcess upload = (UploadProcess) runningProcesses[processID];
+            upload.setAcknowledgementToStopTrue();
+        }
     }
 
     private static void print (String message){

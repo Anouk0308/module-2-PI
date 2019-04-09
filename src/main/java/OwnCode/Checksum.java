@@ -6,6 +6,7 @@ public class Checksum { //https://www.slideshare.net/sandeep101026/crc-java-code
     private int generatorPolynomial = 1101;
 
 
+    //todo crc32
 
     public byte [] creatingChecksum(byte[] data){
 

@@ -7,7 +7,7 @@ import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.util.Arrays;
 
-public class UserInputHandler {
+public class UserInputHandler implements Runnable{
     private BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
 
     private Client client;
@@ -33,13 +33,15 @@ public class UserInputHandler {
         filesClient = new String[2];
         filesClient[0] = "file.java";
         filesClient[1] = "text.txt";
+    }
 
-
+    @Override
+    public void run() {
+        print("Welkom to this network");
         startMenu();
     }
 
     public void startMenu(){
-        print("Welkom to this network");
         print("What would you like to do?");
         print("1. Get the filelist from this computer");
         print("2. Get the filelist from the PI");
@@ -107,6 +109,8 @@ public class UserInputHandler {
         for(int i = 0; i < filesClient.length; i++){
             print(filesClient[i]);
         }
+        print("");
+        startMenu();
     }
 
     public void printPIFiles(){

@@ -2,10 +2,7 @@ package OwnCode;
 
 import java.io.File;
 import java.io.IOException;
-import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.net.SocketException;
+import java.net.*;
 
 public class Server implements NetworkUser {
     private static boolean isClient = false;
@@ -20,8 +17,10 @@ public class Server implements NetworkUser {
     private ProcessManager processManager;
     private SlidingWindow slidingWindow;
     private int packetSize;
-    private InetAddress destinationAddress;
+    private Receiver receiver;
     private int destinationPort;
+    private String destinationIPAdress;
+    private InetAddress destinationAddress;
 
     public Server(int port) {
         this.port = port;
@@ -36,24 +35,26 @@ public class Server implements NetworkUser {
         filesOnPI[0] = "PIfile.java";
         filesOnPI[1] = "PItext.txt";
 
+        destinationPort = port; //todo hoeft ntl niet, je kan zelf per unit aangeven welke poort je wilt;
+        destinationIPAdress = "";//todo handshake sturen ofzo
+        try{
+            destinationAddress = InetAddress.getByName(destinationIPAdress);
+        } catch(UnknownHostException e){
+            print("unknownHostException" + e.getMessage());
+        }
+
+
         connect();
     }
 
     public void connect(){
         try {
             socket = new DatagramSocket(port);
-            while (true) { //receive
-                DatagramPacket receivePacket = new DatagramPacket(new byte[packetSize], packetSize);
-                socket.receive(receivePacket);
-                InetAddress destinationAddress = receivePacket.getAddress();
-                int destinationPort = receivePacket.getPort();
-                processManager = new ProcessManager(this);
-                inputHandler(receivePacket);
-            }
+            receiver = new Receiver(socket, slidingWindow, this);
+            Thread receiverThread = new Thread(receiver);
+            receiverThread.start();
         } catch (SocketException e) {
             print("Timeout error: " + e.getMessage());
-        } catch (IOException e) {
-            print("Client error: " + e.getMessage());
         }
     }
 
@@ -83,7 +84,7 @@ public class Server implements NetworkUser {
                                         break;
                 case 8:                 processManager.receiveLastPacketForProcess(processID, receivedPacketFromClient);
                                         break;
-                case 9:                 processManager.receiveAcknowledgementLastPacketForProcess(processID, receivedPacketFromClient);
+                case 9:                 processManager.receiveAcknowledgementLastPacketForProcess(processID);
                                         break;
                 case 10:                sendAckProcessPaused(processID);
                                         break;
