@@ -115,13 +115,18 @@ public class UserInputHandler implements Runnable{
 
     public void printPIFiles(){
         byte[] buffer = packetWithOwnHeader.commandoOne();
+        print("1");//todo weghalen
         DatagramPacket askFiles = new DatagramPacket(buffer, buffer.length);
         try {
+            print("2");//todo weghalen
             client.send(askFiles);
+            print("3");//todo weghalen
+
 
             while (!updatedFilesPI) {//wait till FilesPI are received & updated
                 Thread.sleep(10);
             }
+            print("4");//todo weghalen
 
             for (int i = 0; i < filesPI.length; i++) {
                 print(filesPI[i]);
@@ -129,7 +134,7 @@ public class UserInputHandler implements Runnable{
             updatedFilesPI = false;
 
             print("Would you like to do something else?");
-            startMenu(); //todo: kijken of dit niet mooier kan, dus bv met yes/no. yes = menu, no = close program
+            startMenu();
 
         } catch(InterruptedException e){
             print("Something went wrong" + e.getMessage());

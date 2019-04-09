@@ -9,7 +9,7 @@ import java.util.Arrays;
 
 public class Client implements NetworkUser {
     private static String IPAddress = "127.16.1.1";
-    private static int Port = 8000;
+    private static int Port = 8888;
 
     private DatagramSocket socket;
     private String destinationIPAdress;

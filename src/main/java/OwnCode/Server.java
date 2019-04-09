@@ -23,6 +23,7 @@ public class Server implements NetworkUser {
     private InetAddress destinationAddress;
 
     public Server(int port) {
+        print("Starting server");
         this.port = port;
         packetWithOwnHeader = new PacketWithOwnHeader();
         utils = new Utils();
@@ -43,18 +44,23 @@ public class Server implements NetworkUser {
             print("unknownHostException" + e.getMessage());
         }
 
-
+        print("1");
         connect();
+        print("2");
     }
 
     public void connect(){
         try {
+            print("a");
             socket = new DatagramSocket(port);
+            print("b");
             receiver = new Receiver(socket, slidingWindow, this);
+            print("c");
             Thread receiverThread = new Thread(receiver);
+            print("d");
             receiverThread.start();
         } catch (SocketException e) {
-            print("Timeout error: " + e.getMessage());
+            print("SocketException: " + e.getMessage());
         }
     }
 
@@ -173,7 +179,7 @@ public class Server implements NetworkUser {
     public ProcessManager getProcessManager(){return processManager;}
 
     private static void print (String message){
-        System.out.println(message);
+        System.out.println("[PIVanAnouk😁]" + message);
     }
 
 }
