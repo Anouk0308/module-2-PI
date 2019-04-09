@@ -1,8 +1,5 @@
 package OwnCode;
 
-import java.util.Arrays;
-import java.util.stream.Stream;
-
 public class PacketWithOwnHeader {
     private Utils utils = new Utils();
     private Checksum checksum = new Checksum();
@@ -16,6 +13,13 @@ public class PacketWithOwnHeader {
         A header will be 1-6 bytes. When raw data will be send, the header most be 6 bytes, in order to remove the header from the raw data correctly
      */
 
+    public byte[] commandoZero(){ //client to PI: handshake
+        commandoByte[0]= utils.fromIntegerToByte(0);
+
+        checksumBytes = checksum.creatingChecksum(commandoByte);
+        byte[] header = utils.combineByteArr(checksumBytes, commandoByte);
+        return header;
+    }
 
     public byte[] commandoOne(){ //client to PI: please give me your files
         commandoByte[0]= utils.fromIntegerToByte(1);
@@ -26,11 +30,17 @@ public class PacketWithOwnHeader {
     }
 
     public byte[] commandoTwo(byte[] PIFileNames){ // PI to client: here are my files
+        print("2a");//todo weghalen
         commandoByte[0]= utils.fromIntegerToByte(2);
+        print("2b");//todo weghalen
         byte[] headerTemp = utils.combineByteArr(commandoByte, processIDbytes, packetNumberBytes, PIFileNames);
+        print("2c");//todo weghalen
+
 
         checksumBytes = checksum.creatingChecksum(headerTemp);
+        print("2d");//todo weghalen
         byte[] header = utils.combineByteArr(checksumBytes, headerTemp);
+        print("2e");//todo weghalen
         return header;
     }
 
@@ -217,5 +227,9 @@ public class PacketWithOwnHeader {
         checksumBytes = checksum.creatingChecksum(headerTemp);
         byte[] header = utils.combineByteArr(checksumBytes, headerTemp);
         return header;
+    }
+
+    public void print (String message){
+        System.out.println(message);
     }
 }

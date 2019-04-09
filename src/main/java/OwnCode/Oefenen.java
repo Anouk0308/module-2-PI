@@ -10,16 +10,11 @@ public class Oefenen {
 
     public Oefenen(){
         startUp();
-        timer =utils.new Timer(10);
-        try{
-            while (!timer.isTooLate()) {//wait till PI tells that the uploading process can start
-                print("not to late");
-                Thread.sleep(1);
-            }
-            print("too late");
-        } catch (InterruptedException e) {
-            print("Client error: " + e.getMessage());
-        }
+        byte[] a = new byte[10];
+        byte[] b = new byte[8];
+        byte[] c = new byte[75];
+        byte[] d = new byte[3];
+        byte[] e = combineByteArrayTesten(a,b,c,d);
 
 
     }
@@ -28,12 +23,16 @@ public class Oefenen {
         utils = new Utils();
     }
 
-    public void intbitint(int integer){
-        print(Integer.toString(integer));
-        byte bytetje = utils.fromIntegerToByte(integer);
-        print(Byte.toString(bytetje));
-        int integertje = utils.fromByteToInteger(bytetje);
-        print(Integer.toString(integertje));
+    public byte[] combineByteArrayTesten(byte[]a,byte[]b,byte[]c,byte[]d){
+        byte[] by = null;
+        if(d!=null){
+            by = utils.combineByteArr(a,b,c,d);
+        } else if(c!=null){
+            by = utils.combineByteArr(a,b,c);
+        } else{
+           by =  utils.combineByteArr(a,b);
+        }
+        return by;
     }
 
 

@@ -3,6 +3,7 @@ package OwnCode;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
+import java.net.InetAddress;
 
 public class Receiver implements Runnable{
     private DatagramSocket socket;
@@ -22,7 +23,22 @@ public class Receiver implements Runnable{
                 byte[] buffer = new byte[slidingWindow.getPacketSize()];//packet grootte
                 DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
                 socket.receive(receivePacket);
-                System.out.println("received a packet");
+                InetAddress clientAddress = receivePacket.getAddress();
+                print("received a packet from" + clientAddress.toString());
+                print("packet:" + receivePacket.toString());//todo weghalen
+
+
+
+
+                byte[] data = receivePacket.getData();//todo weghalen
+                byte commandoByte = data[1];//todo weghalen
+                Utils utils = new Utils();//todo weghalen
+                int commandonumber = utils.fromByteToInteger(commandoByte);//todo weghalen
+                print("commandonumber:");//todo weghalen
+
+
+
+
                 networkUser.inputHandler(receivePacket);
             }
         } catch (IOException e) {
@@ -30,7 +46,5 @@ public class Receiver implements Runnable{
         }
     }
 
-
-
-    private static void print (String message){ System.out.println(message); }
+    private void print (String message){ networkUser.print(message); }
 }

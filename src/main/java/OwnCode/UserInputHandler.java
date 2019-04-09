@@ -42,7 +42,7 @@ public class UserInputHandler implements Runnable{
     }
 
     public void startMenu(){
-        print("What would you like to do?");
+        print("What would you like to do?");ß
         print("1. Get the filelist from this computer");
         print("2. Get the filelist from the PI");
         print("3. Upload a file to the PI");

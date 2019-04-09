@@ -1,34 +1,23 @@
 package OwnCode;
 
-import java.io.BufferedReader;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.DatagramPacket;
-import java.net.DatagramSocket;
-import java.net.InetAddress;
 
 public class ProcessManager {
 
     private Process[] runningProcesses = new Process[1000];
     private Process[] pausedProcesses = new Process[1000];
 
-    /*
-
-    private UploadProcess[] runningUploadProcesses = new UploadProcess[256];
-    private UploadProcess[] pausedUploadProcesses = new UploadProcess[256];
-
-    private DownloadProcess[] runningDownloadProcesses = new DownloadProcess[256];
-    private DownloadProcess[] pausedDownloadProcesses = new DownloadProcess[256];
-    */
     int processID = -1;
 
     private PacketWithOwnHeader packetWithOwnHeader;
     private NetworkUser networkUser;
+    private SlidingWindow slidingWindow;
 
 
-    public ProcessManager(NetworkUser networkUser){
+    public ProcessManager(NetworkUser networkUser, SlidingWindow slidingWindow){
         this.networkUser = networkUser;
+        this.slidingWindow = slidingWindow;
         packetWithOwnHeader = new PacketWithOwnHeader();
     }
 
@@ -40,23 +29,23 @@ public class ProcessManager {
     public void createUploadProcess(File file, NetworkUser networkUser, boolean isClient){
         int processID = getAProcessID();
 
-        UploadProcess upload = new UploadProcess(processID, file, networkUser, isClient);
+        UploadProcess upload = new UploadProcess(processID, file, networkUser, isClient, slidingWindow);
         runningProcesses[processID] = upload;
     }
 
     public void createDownloadProcess(String fileName, String filePath, NetworkUser networkUser, boolean isClient){
         int processID = getAProcessID();
-        DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, filePath, isClient);
+        DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, filePath, isClient, slidingWindow);
         runningProcesses[processID] = download;
     }
 
     public void createUploadProcessWithProcessID(File file, NetworkUser networkUser, int processID, boolean isClient){
-        UploadProcess upload = new UploadProcess(processID, file, networkUser, isClient);
+        UploadProcess upload = new UploadProcess(processID, file, networkUser, isClient, slidingWindow);
         runningProcesses[processID] = upload;
     }
 
     public void createDownloadProcessWithProcessID(String fileName, String filePath, NetworkUser networkUser, int processID, boolean isClient){
-        DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, filePath, isClient);
+        DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, filePath, isClient, slidingWindow);
         runningProcesses[processID] = download;
     }
 

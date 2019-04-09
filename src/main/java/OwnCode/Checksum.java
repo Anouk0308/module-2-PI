@@ -18,7 +18,7 @@ public class Checksum { //https://www.slideshare.net/sandeep101026/crc-java-code
 
         //todo
 
-        byte[] checksum = new byte [10];
+        byte[] checksum = new byte [1];
 
         return checksum;
     }

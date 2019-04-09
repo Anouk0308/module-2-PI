@@ -1,16 +1,10 @@
 package OwnCode;
 
-import java.io.BufferedReader;
-import java.io.File;
+
 import java.io.IOException;
-import java.io.InputStreamReader;
 import java.net.*;
-import java.util.Arrays;
 
-public class Client implements NetworkUser {
-    private static String IPAddress = "127.16.1.1";
-    private static int Port = 8888;
-
+public class Client implements NetworkUser, Runnable {
     private DatagramSocket socket;
     private String destinationIPAdress;
     private int destinationPort;
@@ -24,10 +18,7 @@ public class Client implements NetworkUser {
     private UserInputHandler userInputHandler;
     private Receiver receiver;
     private SlidingWindow slidingWindow;
-
-    public static void main(String[] args) {
-        Client client = new Client(IPAddress, Port);
-    }
+    private PacketWithOwnHeader packetWithOwnHeader;
 
     public Client(String destinationIPAdress, int destinationPort){
         this.destinationIPAdress = destinationIPAdress;
@@ -37,15 +28,18 @@ public class Client implements NetworkUser {
         utils = new Utils();
         statistics = new Statistics();
         checksum = new Checksum();
-        processManager = new ProcessManager(this);
         slidingWindow = new SlidingWindow();
+        packetWithOwnHeader = new PacketWithOwnHeader();
+        processManager = new ProcessManager(this, slidingWindow);
         userInputHandler = new UserInputHandler(this, processManager, statistics);
+    }
 
+    @Override
+    public void run() {
         connect();
 
         Thread userInputHandlerThread = new Thread(userInputHandler);
         userInputHandlerThread.start();
-
     }
 
     public void connect(){
@@ -55,6 +49,11 @@ public class Client implements NetworkUser {
             receiver = new Receiver(socket, slidingWindow, this);
             Thread receiverThread = new Thread(receiver);
             receiverThread.start();
+
+            byte[] buffer = packetWithOwnHeader.commandoZero();
+            DatagramPacket handshake = new DatagramPacket(buffer, buffer.length);
+            send(handshake);
+
         } catch (SocketException e) {
             print("Timeout error: " + e.getMessage());
         } catch (UnknownHostException e){
@@ -69,13 +68,14 @@ public class Client implements NetworkUser {
         while(checkedPacket != null) {
             byte[] data = receivedPacketFromServer.getData();
             byte commandoByte = data[1];
-            byte byteProcessID1 = data[2];
-            byte byteProcessID2 = data[3];
-            byte bytePacketNumber1 = data[4];
-            byte bytePacketNumber2 = data[5];
-            byte[] rawData = utils.removeHeader(data);
-            int processID = utils.limitBytesToInteger(byteProcessID1, byteProcessID2);
-            int packetNumber = utils.limitBytesToInteger(bytePacketNumber1, bytePacketNumber2);
+
+            int processID = 0;
+            if(data.length >= 4){
+                byte byteProcessID1 = data[2];
+                byte byteProcessID2 = data[3];
+                processID = utils.limitBytesToInteger(byteProcessID1, byteProcessID2);
+            }
+
             switch (utils.fromByteToInteger(commandoByte)) {
                 case 2:                 receivedFilesPI(data);
                                         break;
@@ -123,11 +123,13 @@ public class Client implements NetworkUser {
 
     public void send(DatagramPacket p){
         byte[] buf = p.getData();
-        int lenght = p.getLength();
-        DatagramPacket packet = new DatagramPacket(buf, lenght, destinationAddress, destinationPort);
+        int length = p.getLength();
+        DatagramPacket packet = new DatagramPacket(buf, length, destinationAddress, destinationPort);
 
         try {
+            print("data lenght" + length);
             socket.send(packet);
+            print("Sended packet");//todo weghalen
         } catch (IOException e) {
             print("Client error: " + e.getMessage());
         }
@@ -135,7 +137,7 @@ public class Client implements NetworkUser {
 
     public ProcessManager getProcessManager(){return processManager;}
 
-    private static void print (String message){
+    public void print (String message){
         System.out.println(message);
     }
 }

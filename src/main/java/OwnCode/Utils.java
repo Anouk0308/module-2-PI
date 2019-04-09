@@ -2,14 +2,37 @@ package OwnCode;
 
 import java.io.File;
 import java.net.DatagramPacket;
-import java.util.Arrays;
 import java.util.Base64;
 
 public class Utils {
 
+    //from a to b
+
     public byte[] fromStringToByteArr (String s){
-        byte[] decodedBytes = Base64.getDecoder().decode(s);
+        String encodedString = Base64.getEncoder().encodeToString(s.getBytes());
+        byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
         return decodedBytes;
+    }
+
+    public String fromByteArrToString (byte[] b) throws IllegalArgumentException {
+        String s = new String(b);
+        return s;
+    }
+
+    public Integer fromByteToInteger (byte b){
+        Integer decodedIntegers =  (b & 0x000000ff);
+        return decodedIntegers;
+    }
+
+    public byte fromIntegerToByte (Integer i) throws IllegalArgumentException {
+        byte encodedByte = (byte) ((i & 0x000000ff));
+        return encodedByte;
+    }
+
+    public String[] fromByteArrToStringArr (byte[] b) throws IllegalArgumentException {
+        String s = Base64.getEncoder().encodeToString(b);
+        String stringArr[] = s.split("\\+");
+        return stringArr;
     }
 
     public Integer[] fromByteArrToIntegerArr (byte[] b){
@@ -17,11 +40,6 @@ public class Utils {
         for (int i = 0; i < b.length; i++) {
             decodedIntegers[i] = (b[i] & 0x000000ff);
         }
-        return decodedIntegers;
-    }
-
-    public Integer fromByteToInteger (byte b){
-        Integer decodedIntegers =  (b & 0x000000ff);
         return decodedIntegers;
     }
 
@@ -42,25 +60,14 @@ public class Utils {
         return encodedBytes;
     }
 
-    public byte fromIntegerToByte (Integer i) throws IllegalArgumentException {
-        byte encodedByte = (byte) ((i & 0x000000ff));
-        return encodedByte;
-    }
-
-    public String fromByteArrToString (byte[] b) throws IllegalArgumentException {
-        String s = Base64.getEncoder().encodeToString(b);
-        return s;
-    }
-
-    public String[] fromByteArrToStringArr (byte[] b) throws IllegalArgumentException {
-        String s = Base64.getEncoder().encodeToString(b);
-        String stringArr[] = s.split("\\+");
-        return stringArr;
-    }
-
+    //packets related
     public byte[] removeHeader(byte[] b){ //get only the raw data
-        byte[] rawData = new byte[b.length-6]; //header is 6 bytes long
-        System.arraycopy(b,6,rawData,0,b.length);
+        byte[] rawData = null;
+        if(b.length > 6) {
+            rawData = new byte[b.length - 6]; //header is 6 bytes long
+            System.arraycopy(b, 6, rawData, 0, rawData.length);
+            return rawData;
+        }
         return rawData;
     }
 
@@ -73,12 +80,11 @@ public class Utils {
         }
         //todo, byte array to file
 
-
-
         File file = new File(FilePath);
         return file;
     }
 
+    //combining byte arrays
     public byte[] combineByteArr(byte[] a, byte[] b){
         byte[] c = new byte[a.length + b.length];
         System.arraycopy(a, 0, c, 0, a.length);
@@ -90,7 +96,7 @@ public class Utils {
         byte[] d = new byte[a.length + b.length + c.length];
         System.arraycopy(a, 0, d, 0, a.length);
         System.arraycopy(b, 0, d, a.length, b.length);
-        System.arraycopy(b, 0, d, b.length, c.length);
+        System.arraycopy(c, 0, d, b.length, c.length);
         return d;
     }
 
@@ -98,11 +104,12 @@ public class Utils {
         byte[] e = new byte[a.length + b.length + c.length + d.length];
         System.arraycopy(a, 0, e, 0, a.length);
         System.arraycopy(b, 0, e, a.length, b.length);
-        System.arraycopy(b, 0, e, b.length, c.length);
-        System.arraycopy(b, 0, e, c.length, d.length);
+        System.arraycopy(c, 0, e, b.length, c.length);
+        System.arraycopy(d, 0, e, c.length, d.length);
         return e;
     }
 
+    //dealing with the limitation of a byte (from 0 till 255)
     public byte limitByteFirstByte(int i){
         int divided = Math.floorDiv(i,256);
         byte b = fromIntegerToByte(divided);
@@ -123,6 +130,7 @@ public class Utils {
         return number;
     }
 
+    //a timer
     public class Timer{
         private int startingTime;
         private int tooLate;
@@ -140,6 +148,9 @@ public class Utils {
                 return  false;
             }
         }
+    }
 
+    private static void print (String message){
+        System.out.println(message);
     }
 }

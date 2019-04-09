@@ -21,10 +21,10 @@ public class UploadProcess implements Process {
     private boolean acknowledgementToStop = false;
 
     public boolean isInterrupted = false;
-    private boolean receivedAnAck = false;
+    private boolean receivedAnAck = false; //is for timer
 
-    public UploadProcess(int processID, File file, NetworkUser networkUser, boolean isClient){
-        slidingWindow = new SlidingWindow();
+    public UploadProcess(int processID, File file, NetworkUser networkUser, boolean isClient, SlidingWindow slidingWindow){
+        this.slidingWindow = slidingWindow;
         utils = new Utils();
         packetWithOwnHeader = new PacketWithOwnHeader();
         this.processID = processID;

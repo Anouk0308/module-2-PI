@@ -4,7 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.*;
 
-public class Server implements NetworkUser {
+public class Server implements NetworkUser, Runnable{
     private static boolean isClient = false;
     private String[] filesOnPI;
     private DatagramSocket socket;
@@ -16,10 +16,8 @@ public class Server implements NetworkUser {
     private Checksum checksum;
     private ProcessManager processManager;
     private SlidingWindow slidingWindow;
-    private int packetSize;
     private Receiver receiver;
     private int destinationPort;
-    private String destinationIPAdress;
     private InetAddress destinationAddress;
 
     public Server(int port) {
@@ -30,34 +28,24 @@ public class Server implements NetworkUser {
         statistics = new Statistics();
         checksum = new Checksum();
         slidingWindow = new SlidingWindow();
-        packetSize = slidingWindow.getPacketSize();
+        processManager = new ProcessManager(this, slidingWindow);
 
         filesOnPI = new String[2];
         filesOnPI[0] = "PIfile.java";
         filesOnPI[1] = "PItext.txt";
+    }
 
-        destinationPort = port; //todo hoeft ntl niet, je kan zelf per unit aangeven welke poort je wilt;
-        destinationIPAdress = "";//todo handshake sturen ofzo
-        try{
-            destinationAddress = InetAddress.getByName(destinationIPAdress);
-        } catch(UnknownHostException e){
-            print("unknownHostException" + e.getMessage());
-        }
-
-        print("1");
+    @Override
+    public void run() {
         connect();
-        print("2");
+        print("Connected");
     }
 
     public void connect(){
         try {
-            print("a");
             socket = new DatagramSocket(port);
-            print("b");
             receiver = new Receiver(socket, slidingWindow, this);
-            print("c");
             Thread receiverThread = new Thread(receiver);
-            print("d");
             receiverThread.start();
         } catch (SocketException e) {
             print("SocketException: " + e.getMessage());
@@ -65,21 +53,35 @@ public class Server implements NetworkUser {
     }
 
     public void inputHandler(DatagramPacket receivedPacketFromClient){
+        print("packet in IH:" + receivedPacketFromClient.toString());//todo weghalen
         DatagramPacket checkedPacket = checksum.checkingChecksum(receivedPacketFromClient);
-        while(checkedPacket != null) {
+        print("checkedPacket in IH:" + checkedPacket.toString());//todo weghalen
+        if(checkedPacket != null) {
             byte[] data = receivedPacketFromClient.getData();
+            print("data lenght" + data.length);//todo weghalen
             byte commandoByte = data[1];
-            byte byteProcessID1 = data[2];
-            byte byteProcessID2 = data[3];
-            byte bytePacketNumber1 = data[4];
-            byte bytePacketNumber2 = data[5];
-            byte[] rawData = utils.removeHeader(data);
-            int processID = utils.limitBytesToInteger(byteProcessID1, byteProcessID2);
-            int packetNumber = utils.limitBytesToInteger(bytePacketNumber1, bytePacketNumber2);
+            int processID = 0;
+            byte[] rawData = null;
+
+            if(data.length >= 4){
+                byte byteProcessID1 = data[2];
+                byte byteProcessID2 = data[3];
+                processID = utils.limitBytesToInteger(byteProcessID1, byteProcessID2);
+            }
+
+            if(data.length > 6){
+                rawData = utils.removeHeader(data);
+            }
+
             switch (utils.fromByteToInteger(commandoByte)) {
 
-                case 1:                 requestSendFileNames();
+                case 0:                 handshake(receivedPacketFromClient);
                                         break;
+                case 1:                 print("we zijn nu al bij case 1");//todo weghalen
+                                        requestSendFileNames();
+                                        break;
+                case 2:                 print("verstuurd naar zichzelf");//todo weghalen
+                                        break;//todo weghalen
                 case 3:                 requestStartDownloadProcess(rawData, processID);
                                         break;
                 case 4:                 requestStartUploadProcess(rawData, processID);
@@ -104,13 +106,23 @@ public class Server implements NetworkUser {
         }
     }
 
+    public void handshake(DatagramPacket packet){
+        destinationAddress = packet.getAddress();
+        destinationPort = packet.getPort();
+    }
+
     public void requestSendFileNames(){
         String files = filesToString();
+        print("1");//todo weghalen
         byte[] bytes = utils.fromStringToByteArr(files);
 
+        print("2"); //todo weghalen
         byte[] buffer = packetWithOwnHeader.commandoTwo(bytes);
+        print("3");//todo weghalen
         DatagramPacket giveFiles = new DatagramPacket(buffer, buffer.length);
+        print("4"); //todo weghalen
         send(giveFiles);
+        print("5"); // todo weghalen
     }
 
     public void requestStartDownloadProcess(byte[] rawData, int processID){
@@ -171,6 +183,7 @@ public class Server implements NetworkUser {
 
         try {
             socket.send(packet);
+            print("packetje verzonden");//todo weghalen
         } catch (IOException e) {
             print("Client error: " + e.getMessage());
         }
@@ -178,8 +191,8 @@ public class Server implements NetworkUser {
 
     public ProcessManager getProcessManager(){return processManager;}
 
-    private static void print (String message){
-        System.out.println("[PIVanAnouk😁]" + message);
+    public void print (String message){
+        System.out.println("[PIVanAnouk]" + message);
     }
 
 }

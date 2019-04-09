@@ -6,10 +6,8 @@ import java.net.DatagramPacket;
 public class DownloadProcess implements Process{
     private int processID;
     private String fileName;
-    private int packetSize;
-    private int windowSize;
+
     private DatagramPacket[] downloadingPackets = new DatagramPacket[100000]; //todo, kijken hoe dit op te lossen
-    private File file;
 
     private NetworkUser networkUser;
     private String filePath; // where are the files placed
@@ -18,18 +16,18 @@ public class DownloadProcess implements Process{
     private Utils utils;
     private PacketWithOwnHeader packetWithOwnHeader;
 
-    private boolean acknowledgementToStop = false;
-
     public boolean isInterrupted = false;
-    private boolean receivedAPacket = false;
+    private boolean receivedAPacket = false; // for timer
 
-    public DownloadProcess(int processID, String fileName, NetworkUser networkUser, String filePath, boolean isClient){
+    public DownloadProcess(int processID, String fileName, NetworkUser networkUser, String filePath, boolean isClient, SlidingWindow slidingWindow){
         this.processID = processID;
         this.fileName = fileName;
         this.networkUser = networkUser;
-        this.packetSize = slidingWindow.getPacketSize();
-        this.windowSize = slidingWindow.getWindowSize();
         this.filePath = filePath;
+        this.slidingWindow = slidingWindow;
+        utils = new Utils();
+        packetWithOwnHeader = new PacketWithOwnHeader();
+
         if(isClient){
             handshake();
         }

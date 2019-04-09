@@ -1,6 +1,5 @@
 package OwnCode;
 
-import javax.imageio.IIOException;
 import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
@@ -15,11 +14,11 @@ public class SlidingWindow {
     private int rawDataSpace = packetSize - headerSpace;
     private PacketWithOwnHeader packetWithOwnHeader = new PacketWithOwnHeader();
 
-    public void setWindowSize(int size){
+    public void setWindowSize(int size){//todo, voor als ik wil testen wat beste werkt qua grote
         this.windowSize = size;
     }
 
-    public void setPacketSize(int size){
+    public void setPacketSize(int size){//todo, voor als ik wil testen wat beste werkt qua grote
         this.packetSize = size;
     }
 
