@@ -246,7 +246,10 @@ public class UserInputHandler implements Runnable{
     }
 
     public void getStatistics(){
-        statistics.getStatistics();
+        int[] statisticsintarr = statistics.getStatistics();
+        print("The number corrupted packets received is: " + statisticsintarr[0]);
+        print("The highest up/download speed measured is: " + statisticsintarr[1]);
+        print("The average up/download speed measured is: " + statisticsintarr[2]);
     }
 
     public void setFilesPI(String[] filesPI) {

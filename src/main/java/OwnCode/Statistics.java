@@ -15,8 +15,13 @@ public class Statistics {
 
     }
 
-    public void getStatistics(){
-        //todo
+    public int[] getStatistics(){
+        int[] statistics = new int[3];
+        statistics[0]=corruptedPackets;
+        statistics[1]=highestDownloadSpeed;
+        statistics[2]=averageDownloadSpeed;
+
+        return statistics;
     }
 
     public void foundCorruptedPacket(){

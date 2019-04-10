@@ -36,7 +36,18 @@ public class Receiver implements Runnable{
                 }
                     */
 
-                networkUser.inputHandler(receivePacket);
+                int usefullDataLength = receivePacket.getLength();
+                if(usefullDataLength < slidingWindow.getPacketSize()){
+                    byte[] packetData = receivePacket.getData();
+                    byte[] usefullPacket = new byte[usefullDataLength];
+                    System.arraycopy(packetData,0,usefullDataLength,0,usefullDataLength);
+                    DatagramPacket packet = new DatagramPacket(usefullPacket,usefullDataLength);
+                    networkUser.inputHandler(packet);
+                } else{
+                    networkUser.inputHandler(receivePacket);
+                }
+
+
             }
         } catch (IOException e) {
             print("Client error: " + e.getMessage());
