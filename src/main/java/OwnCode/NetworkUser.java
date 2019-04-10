@@ -9,5 +9,6 @@ public interface NetworkUser {
     void send(DatagramPacket p);
     ProcessManager getProcessManager();
     void print(String s);
+    Statistics getStatics();
 
 }

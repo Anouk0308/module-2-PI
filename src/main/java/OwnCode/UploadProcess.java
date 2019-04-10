@@ -6,6 +6,7 @@ import java.net.DatagramPacket;
 public class UploadProcess implements Process {
     private int processID;
     private File file;
+    private int bytesToLoad;//todo dit nog uitlezen
     private String fileName = file.getName();
 
     private int packetSize;
@@ -60,6 +61,7 @@ public class UploadProcess implements Process {
     }
 
     public void startProcess(){
+
         //send first packets
         for(int i = 0; i < windowSize; i++){
             DatagramPacket startPacket = uploadingPackets[i];
@@ -147,6 +149,7 @@ public class UploadProcess implements Process {
     }
 
     public void kill(){
+        networkUser.getStatics().stoppingProcess(processID, bytesToLoad);
         networkUser.getProcessManager().stopSpecificProcess(processID);
     }
 

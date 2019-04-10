@@ -6,6 +6,7 @@ import java.net.DatagramPacket;
 public class DownloadProcess implements Process{
     private int processID;
     private String fileName;
+    private int bytesToLoad;//todo dit nog uitlezen
 
     private DatagramPacket[] downloadingPackets = new DatagramPacket[100000]; //todo, kijken hoe dit op te lossen
 
@@ -126,6 +127,7 @@ public class DownloadProcess implements Process{
     }
 
     public void kill(){
+        networkUser.getStatics().stoppingProcess(processID, bytesToLoad);
         networkUser.getProcessManager().stopSpecificProcess(processID);
     }
 

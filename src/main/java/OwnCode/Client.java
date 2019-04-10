@@ -29,7 +29,7 @@ public class Client implements NetworkUser, Runnable {
         statistics = new Statistics();
         checksum = new Checksum(statistics);
         slidingWindow = new SlidingWindow();
-        packetWithOwnHeader = new PacketWithOwnHeader();
+        packetWithOwnHeader = new PacketWithOwnHeader(this);
         processManager = new ProcessManager(this, slidingWindow);
         userInputHandler = new UserInputHandler(this, processManager, statistics);
     }
@@ -65,16 +65,14 @@ public class Client implements NetworkUser, Runnable {
 
     public void inputHandler(DatagramPacket receivedPacketFromServer){
         DatagramPacket checkedPacket = checksum.checkingChecksum(receivedPacketFromServer);
-        while(checkedPacket != null) {
+        if(checkedPacket != null){
             byte[] data = receivedPacketFromServer.getData();
             byte commandoByte = data[1];
-
             int processID = 0;
-            if(data.length >= 4){
-                byte byteProcessID1 = data[2];
-                byte byteProcessID2 = data[3];
-                processID = utils.limitBytesToInteger(byteProcessID1, byteProcessID2);
-            }
+            byte byteProcessID1 = data[2];
+            byte byteProcessID2 = data[3];
+            processID = utils.limitBytesToInteger(byteProcessID1, byteProcessID2);
+
 
             switch (utils.fromByteToInteger(commandoByte)) {
                 case 2:                 receivedFilesPI(data);
@@ -134,6 +132,8 @@ public class Client implements NetworkUser, Runnable {
     }
 
     public ProcessManager getProcessManager(){return processManager;}
+
+    public Statistics getStatics(){return statistics;}
 
     public void print (String message){
         System.out.println(message);

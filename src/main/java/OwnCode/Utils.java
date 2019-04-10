@@ -27,6 +27,12 @@ public class Utils {
         return s;
     }
 
+    public String[] fromIntToStringArr(int i){
+        String s = Integer.toString(i);
+        String[] sa = s.split("");
+        return sa;
+    }
+
     public Integer fromByteToInteger (byte b){
         Integer decodedIntegers =  (b & 0x000000ff);
         return decodedIntegers;

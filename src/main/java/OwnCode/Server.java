@@ -23,10 +23,10 @@ public class Server implements NetworkUser, Runnable{
     public Server(int port) {
         print("Starting server");
         this.port = port;
-        packetWithOwnHeader = new PacketWithOwnHeader();
+        packetWithOwnHeader = new PacketWithOwnHeader(this);
         utils = new Utils();
         statistics = new Statistics();
-        checksum = new Checksum();
+        checksum = new Checksum(statistics);
         slidingWindow = new SlidingWindow();
         processManager = new ProcessManager(this, slidingWindow);
 
@@ -59,16 +59,10 @@ public class Server implements NetworkUser, Runnable{
             byte commandoByte = data[1];
             int processID = 0;
             byte[] rawData = null;
-
-            if(data.length >= 4){
-                byte byteProcessID1 = data[2];
-                byte byteProcessID2 = data[3];
-                processID = utils.limitBytesToInteger(byteProcessID1, byteProcessID2);
-            }
-
-            if(data.length > 6){
-                rawData = utils.removeHeader(data);
-            }
+            byte byteProcessID1 = data[2];
+            byte byteProcessID2 = data[3];
+            processID = utils.limitBytesToInteger(byteProcessID1, byteProcessID2);
+            rawData = utils.removeHeader(data);
 
             switch (utils.fromByteToInteger(commandoByte)) {
 
@@ -179,6 +173,8 @@ public class Server implements NetworkUser, Runnable{
     }
 
     public ProcessManager getProcessManager(){return processManager;}
+
+    public Statistics getStatics(){return statistics;}
 
     public void print (String message){
         System.out.println("[PIVanAnouk]" + message);

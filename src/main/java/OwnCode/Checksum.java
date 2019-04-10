@@ -2,9 +2,10 @@ package OwnCode;
 
 import java.net.DatagramPacket;
 
-public class Checksum { //https://www.slideshare.net/sandeep101026/crc-java-code
+public class Checksum {
     private int polynomial = 100000111;//CRC-8
     private Utils utils;
+    private String[] polynomialStringArray = utils.fromIntToStringArr(polynomial);
     private Statistics statistics;
 
 
@@ -13,24 +14,15 @@ public class Checksum { //https://www.slideshare.net/sandeep101026/crc-java-code
         utils = new Utils();
     }
 
-    public byte [] creatingChecksum(byte[] data){
+    public byte[] creatingChecksum(byte[] data){
         String bitString = utils.fromByteArrToStringBit(data);
         String[] bitStringArray = bitString.split("");
+        String[] reminderArr = gettingReminderArr(bitStringArray);
         String reminder = "";
 
-        //remove 0 vooraan, tot eerste een 1 is
-
-        //als groter is dan lengte generator:
-            //pak eerste aantal van bitStringArray (even veel als dat generatorPolynimial groot is)
-            //voor elk van deze, controleer met elkaar:
-                //zijn ze zelfde?, verander bitStringArray die plek naar 0
-                //zijn ze niet zelfde? verander bitStringArray die plek naar 1
-
-        //als lengte dan kleiner is dan generatorPolynomial, stuur door als reminder
-            //for (int i = 0; i < overgeblevenBitStringArray; i++){
-                //reminder = reminder + overgeblevenBitStringArray[i];
-            //}
-
+        for(int i = 0; i < reminderArr.length; i++){
+            reminder = reminder + reminderArr[i];
+        }
 
         byte[] checksum = new byte [1];
         checksum = utils.fromStringToByteArr(reminder);
@@ -38,19 +30,66 @@ public class Checksum { //https://www.slideshare.net/sandeep101026/crc-java-code
         return checksum;
     }
 
+    public String[] gettingReminderArr(String[] bitStringArray){
+        String[] reminderArr = null;
+        String[] noFrontZerosBitStringArray = removingFirstZeros(bitStringArray);
+
+        if(noFrontZerosBitStringArray.length > polynomialStringArray.length){
+            String[] newBitStringArray = binaryRules(noFrontZerosBitStringArray, polynomialStringArray);
+            gettingReminderArr(newBitStringArray);
+        } else{
+            reminderArr = bitStringArray;
+        }
+
+        return reminderArr;
+    }
+
+    public String[] removingFirstZeros(String[] bitStringArray){
+        String[] newBitStringArray = null;
+
+        if(bitStringArray[0].equals("0")){
+            String[] bitStringArrayTemp = new String[bitStringArray.length-1];
+            System.arraycopy(bitStringArray, 1, bitStringArrayTemp, 0, bitStringArray.length-1);
+            removingFirstZeros(bitStringArrayTemp);
+        } else{
+            newBitStringArray = bitStringArray;
+        }
+
+        return newBitStringArray;
+    }
+
+    public String[] binaryRules(String[] bitStringArray, String[] polynomialStringArray){
+        String[] newBitStringArray = new String[bitStringArray.length];
+
+        for(int i = 0; i < polynomialStringArray.length; i++){
+            if(bitStringArray[i].equals(polynomialStringArray[i])){
+                newBitStringArray[i] = "0";
+            } else{
+                newBitStringArray[i] = "1";
+            }
+        }
+        System.arraycopy(bitStringArray, polynomialStringArray.length, newBitStringArray, polynomialStringArray.length, bitStringArray.length-polynomialStringArray.length);
+
+        return newBitStringArray;
+    }
+
     public DatagramPacket checkingChecksum(DatagramPacket packet){
         DatagramPacket checkedPacket = null;
-        //lees checkssum uit packet (checksum a)
-        //stuur packet zonder checkssum door creatingChechsum(packet zonder checksum) (checksum b)
 
-        //als a en b gelijk zijn:
-            //stuur packetje zoncer checksum a door
-        //als a en b niet gelijk zijn:
-            //checkedPacket = =null
-            //statistics.foundCorruptedPacket();
+        byte[] data = packet.getData();
+        byte[] checksum = new byte[1];//todo kijken of dit mooier kan
+        checksum[0] = data[0];
+        byte[] dataWithOutChecksum = new byte[data.length-1];
+        System.arraycopy(data,1,dataWithOutChecksum,0,data.length-1);
 
+        byte[] ownCalculatedChecksum = creatingChecksum(dataWithOutChecksum);
 
-        return packet;
+        if(checksum == ownCalculatedChecksum){
+            checkedPacket = packet;
+        } else{
+            statistics.foundCorruptedPacket();
+        }
+        return checkedPacket;
 
     }
 }

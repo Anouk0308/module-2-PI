@@ -31,22 +31,26 @@ public class ProcessManager {
 
         UploadProcess upload = new UploadProcess(processID, file, networkUser, isClient, slidingWindow);
         runningProcesses[processID] = upload;
+        networkUser.getStatics().startingProcess(processID);
     }
 
     public void createDownloadProcess(String fileName, String filePath, NetworkUser networkUser, boolean isClient){
         int processID = getAProcessID();
         DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, filePath, isClient, slidingWindow);
         runningProcesses[processID] = download;
+        networkUser.getStatics().startingProcess(processID);
     }
 
     public void createUploadProcessWithProcessID(File file, NetworkUser networkUser, int processID, boolean isClient){
         UploadProcess upload = new UploadProcess(processID, file, networkUser, isClient, slidingWindow);
         runningProcesses[processID] = upload;
+        networkUser.getStatics().startingProcess(processID);
     }
 
     public void createDownloadProcessWithProcessID(String fileName, String filePath, NetworkUser networkUser, int processID, boolean isClient){
         DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, filePath, isClient, slidingWindow);
         runningProcesses[processID] = download;
+        networkUser.getStatics().startingProcess(processID);
     }
 
     public void printRunningProcesses(){
