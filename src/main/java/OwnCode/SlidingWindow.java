@@ -41,8 +41,8 @@ public class SlidingWindow {
         Path path = Paths.get(file.getAbsolutePath());
         try{
             byte[] rawData = Files.readAllBytes(path);
-            double rawDataLenght = rawData.length;
-            int numberPackets = (int) Math.ceil(rawDataLenght/(double) rawDataSpace);
+            int rawDataLenght = rawData.length;
+            int numberPackets = (int) Math.ceil((double)rawDataLenght/(double) rawDataSpace);
             sendingPackets = new DatagramPacket[numberPackets];
 
             for(int i = 0; i < numberPackets-1; i++){//last packet gets another header
@@ -56,8 +56,9 @@ public class SlidingWindow {
             }
 
             //last packet
-            byte[] rawDataLastPart = new byte[rawDataSpace];//todo, rawDataSpace is wss groter dan laatste packetje groot hoeft te zijn
-            System.arraycopy(rawData, (numberPackets-1)*rawDataSpace, rawDataLastPart, 0, rawDataSpace);
+            int lenghtLastPart = rawDataLenght%numberPackets;
+            byte[] rawDataLastPart = new byte[lenghtLastPart];//todo, rawDataSpace is wss groter dan laatste packetje groot hoeft te zijn
+            System.arraycopy(rawData, (numberPackets-1)*lenghtLastPart, rawDataLastPart, 0, lenghtLastPart);
             byte[] lastPacketInBytes = packetWithOwnHeader.commandoEight(processID, numberPackets-1,rawDataLastPart);
             DatagramPacket lastPacket = new DatagramPacket(lastPacketInBytes, lastPacketInBytes.length);
             sendingPackets[numberPackets-1] = null;
@@ -72,27 +73,25 @@ public class SlidingWindow {
         DatagramPacket[] sendingPackets = null;
         byte[]rawData = byteArr;
 
-            double rawDataLenght = rawData.length;
-            int numberPackets = (int) Math.ceil(rawDataLenght/(double) rawDataSpace);
+            int rawDataLenght = rawData.length;
+            int numberPackets = (int) Math.ceil((double)rawDataLenght/(double) rawDataSpace);
             sendingPackets = new DatagramPacket[numberPackets];
 
             for(int i = 0; i < numberPackets-1; i++){//last packet gets another header
                 byte[] rawDataPart = new byte[rawDataSpace];
                 System.arraycopy(rawData, i*rawDataSpace, rawDataPart, 0,  rawDataSpace);
-
                 byte[] packetInBytes = packetWithOwnHeader.commandoSix(processID, i, rawDataPart);
                 DatagramPacket packet = new DatagramPacket(packetInBytes, packetInBytes.length);
-
                 sendingPackets[i] = packet;
             }
-
             //last packet
-            byte[] rawDataLastPart = new byte[rawDataSpace];//todo, rawDataSpace is wss groter dan laatste packetje groot hoeft te zijn
-            System.arraycopy(rawData, (numberPackets-1)*rawDataSpace, rawDataLastPart, 0, rawDataSpace);
+            int lenghtLastPart = rawDataLenght%numberPackets;
+
+            byte[] rawDataLastPart = new byte[lenghtLastPart];
+            System.arraycopy(rawData, (numberPackets-1)*lenghtLastPart, rawDataLastPart, 0, lenghtLastPart);
             byte[] lastPacketInBytes = packetWithOwnHeader.commandoEight(processID, numberPackets-1,rawDataLastPart);
             DatagramPacket lastPacket = new DatagramPacket(lastPacketInBytes, lastPacketInBytes.length);
             sendingPackets[numberPackets-1] = null;
-
 
         return sendingPackets;
     }
@@ -102,7 +101,3 @@ public class SlidingWindow {
     }
 
 }
-
-/*
-
-*/

@@ -4,16 +4,15 @@ public class PacketWithOwnHeader {
     private Utils utils = new Utils();
     private Checksum checksum = new Checksum();
 
-    private byte[] checksumBytes = new byte[1];
+    int checksumPosition = 0;
+    private byte[] checksumBytes = new byte[8];
+    int commandoPosition = checksumPosition + checksumBytes.length;
     private byte[] commandoByte = new byte[1];
+    int processIDPosition = commandoPosition + commandoByte.length;
     private byte[] processIDbytes = new byte[2];
+    int packetNumberPosition = processIDPosition + processIDbytes.length;
     private byte[] packetNumberBytes= new byte[2];
-
-    public PacketWithOwnHeader(){
-    }
-    /*
-        A header will be 1-6 bytes. When raw data will be send, the header most be 6 bytes, in order to remove the header from the raw data correctly
-     */
+    int headerLength = packetNumberPosition + packetNumberBytes.length;
 
     public byte[] commandoZero(){ //client to PI: handshake
         commandoByte[0]= utils.fromIntegerToByte(100);//0 would not go well with creating a checksum

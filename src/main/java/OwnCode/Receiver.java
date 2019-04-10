@@ -9,15 +9,18 @@ public class Receiver implements Runnable{
     private DatagramSocket socket;
     private SlidingWindow slidingWindow;
     private NetworkUser networkUser;
+    private PacketWithOwnHeader packetWithOwnHeader;
 
     public Receiver(DatagramSocket socket, SlidingWindow slidingWindow, NetworkUser networkUser){
         this.socket = socket;
         this.slidingWindow = slidingWindow;
         this.networkUser = networkUser;
+        packetWithOwnHeader = new PacketWithOwnHeader();
     }
 
     @Override
     public void run() {
+        print("Receiver started");//todo weghalen
         try{
             while (true) { //receive
                 byte[] buffer = new byte[slidingWindow.getPacketSize()];//packet grootte
@@ -25,6 +28,14 @@ public class Receiver implements Runnable{
                 socket.receive(receivePacket);
                 InetAddress sourceAddress = receivePacket.getAddress();
                 print("Received packet from: " + sourceAddress);
+                print("commando number: " + receivePacket.getData()[packetWithOwnHeader.commandoPosition]);
+
+                /*
+                for (int i = 0; i < 10; i++){
+                    print(Byte.toString(receivePacket.getData()[i]));
+                }
+                    */
+
                 networkUser.inputHandler(receivePacket);
             }
         } catch (IOException e) {

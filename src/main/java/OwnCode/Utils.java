@@ -71,11 +71,10 @@ public class Utils {
     //packets related
     public byte[] removeHeader(byte[] b){ //get only the raw data
         byte[] rawData = null;
-        if(b.length > 6) {
-            rawData = new byte[b.length - 6]; //header is 6 bytes long
-            System.arraycopy(b, 6, rawData, 0, rawData.length);
-            return rawData;
-        }
+        int headerLength = 9;//todo controleren
+
+        rawData = new byte[b.length - headerLength]; //header is 9 bytes long
+        System.arraycopy(b, headerLength, rawData, 0, rawData.length);
         return rawData;
     }
 

@@ -10,5 +10,6 @@ public interface NetworkUser {
     ProcessManager getProcessManager();
     void print(String s);
     Statistics getStatics();
+    PacketWithOwnHeader getPacketWithOwnHeader();
 
 }

@@ -7,7 +7,9 @@ public class Main {
     private Main() {}
 
     public static void main(String[] args) {
-        Server server = new Server(8888);
+        int portServer = 8888;
+        int portClient = 8000;
+        Server server = new Server(portClient,portServer);
         Thread serverThread = new Thread(server);
         serverThread.start();
     }

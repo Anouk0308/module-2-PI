@@ -25,6 +25,7 @@ public class FakeUploadProcess implements Process {
     private boolean receivedAnAck = false; //is for timer
 
     public FakeUploadProcess(int processID, byte[] byteArrToLoad, NetworkUser networkUser, boolean isClient, SlidingWindow slidingWindow){
+        this.networkUser = networkUser;
         this.slidingWindow = slidingWindow;
         utils = new Utils();
         packetWithOwnHeader = new PacketWithOwnHeader();
@@ -33,14 +34,16 @@ public class FakeUploadProcess implements Process {
         this.packetSize = slidingWindow.getPacketSize();
         this.windowSize = slidingWindow.getWindowSize();
         this.uploadingPackets = slidingWindow.fakeSlice(byteArrToLoad,processID);
-        this.networkUser = networkUser;
+
         if(isClient){
             handshake();
         }
+        print("fakeUpload initiated");//todo weghalen
         startProcess();
     }
 
     public void handshake(){
+        print("fake upload handshake started");//todo weghalen
         byte[] buffer = packetWithOwnHeader.commandoThree(processID, fileName);
         DatagramPacket startPacket = new DatagramPacket(buffer, buffer.length);
         try {
@@ -61,6 +64,7 @@ public class FakeUploadProcess implements Process {
     }
 
     public void startProcess(){
+        print("fake upload startprocess started");//todo weghalen
 
         //send first packets
         for(int i = 0; i < windowSize; i++){
@@ -95,7 +99,7 @@ public class FakeUploadProcess implements Process {
 
         while(!isInterrupted) {//Can only receive packets when running/not interrupted
             byte[] packetData = packet.getData();
-            int packetNumber = utils.limitBytesToInteger(packetData[4], packetData[5]);
+            int packetNumber = utils.limitBytesToInteger(packetData[packetWithOwnHeader.packetNumberPosition], packetData[packetWithOwnHeader.packetNumberPosition+1]);
 
             //set counter
             if(packetNumber != AckNumber){
@@ -161,7 +165,7 @@ public class FakeUploadProcess implements Process {
         isInterrupted = b;
     }
 
-    private static void print (String message){
-        System.out.println(message);
+    private void print (String message){
+        networkUser.print(message);
     }
 }

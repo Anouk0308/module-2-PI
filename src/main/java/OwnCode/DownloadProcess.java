@@ -62,7 +62,7 @@ public class DownloadProcess implements Process{
 
         while(!isInterrupted){//Can only receive packets when running/not interrupted
             byte[] packetData = packet.getData();
-            int packetNumber = utils.limitBytesToInteger(packetData[4], packetData[5]);
+            int packetNumber = utils.limitBytesToInteger(packetData[packetWithOwnHeader.packetNumberPosition], packetData[packetWithOwnHeader.packetNumberPosition+1]);
             downloadingPackets[packetNumber] = packet;
 
             int packetNumberSuccessive = -1;
@@ -82,7 +82,7 @@ public class DownloadProcess implements Process{
     public void receiveLastPacket(DatagramPacket packet){
         while(!isInterrupted) {//Can only receive packets when running/not interrupted
             byte[] packetData = packet.getData();
-            int packetNumber = utils.limitBytesToInteger(packetData[4], packetData[5]);
+            int packetNumber = utils.limitBytesToInteger(packetData[packetWithOwnHeader.packetNumberPosition], packetData[packetWithOwnHeader.packetNumberPosition+1]);
             downloadingPackets[packetNumber] = packet;
 
             int packetNumberSuccessive = -1;

@@ -6,8 +6,8 @@ import java.net.*;
 
 public class Client implements NetworkUser, Runnable {
     private DatagramSocket socket;
-    private String destinationIPAdress;
     private int destinationPort;
+    private int ownPort;
     private InetAddress destinationAddress;
 
 
@@ -20,9 +20,9 @@ public class Client implements NetworkUser, Runnable {
     private SlidingWindow slidingWindow;
     private PacketWithOwnHeader packetWithOwnHeader;
 
-    public Client(String destinationIPAdress, int destinationPort){
-        this.destinationIPAdress = destinationIPAdress;
+    public Client(InetAddress destinationAdress, int destinationPort, int ownPort){
         this.destinationPort = destinationPort;
+        this.ownPort = ownPort;
         //todo: vul FilesClient aan met de namen in daadwerkelijke map
 
         utils = new Utils();
@@ -36,6 +36,7 @@ public class Client implements NetworkUser, Runnable {
 
     @Override
     public void run() {
+        print("1");//todo weghalen
         connect();
 
         Thread userInputHandlerThread = new Thread(userInputHandler);
@@ -43,21 +44,22 @@ public class Client implements NetworkUser, Runnable {
     }
 
     public void connect(){
+        print("2");//todo weghalen
         try {
-            destinationAddress = InetAddress.getByName(destinationIPAdress);
             socket = new DatagramSocket();
+            print("3");//todo weghalen
             receiver = new Receiver(socket, slidingWindow, this);
             Thread receiverThread = new Thread(receiver);
             receiverThread.start();
+            print("4");//todo weghalen
 
             byte[] buffer = packetWithOwnHeader.commandoZero();
             DatagramPacket handshake = new DatagramPacket(buffer, buffer.length);
             send(handshake);
+            print("5");//todo weghalen
 
         } catch (SocketException e) {
             print("Timeout error: " + e.getMessage());
-        } catch (UnknownHostException e){
-            print("UnknownHostError" + e.getMessage());
         }
     }
 
@@ -67,11 +69,10 @@ public class Client implements NetworkUser, Runnable {
         DatagramPacket checkedPacket = checksum.checkingChecksum(receivedPacketFromServer);
         if(checkedPacket != null){
             byte[] data = receivedPacketFromServer.getData();
-            byte commandoByte = data[1];
-            int processID = 0;
-            byte byteProcessID1 = data[2];
-            byte byteProcessID2 = data[3];
-            processID = utils.limitBytesToInteger(byteProcessID1, byteProcessID2);
+            byte commandoByte = data[packetWithOwnHeader.commandoPosition];
+            byte byteProcessID1 = data[packetWithOwnHeader.processIDPosition];
+            byte byteProcessID2 = data[packetWithOwnHeader.processIDPosition+1];
+            int processID = utils.limitBytesToInteger(byteProcessID1, byteProcessID2);
 
 
             switch (utils.fromByteToInteger(commandoByte)) {
@@ -124,9 +125,16 @@ public class Client implements NetworkUser, Runnable {
     public void send(DatagramPacket p){
         byte[] buf = p.getData();
         int length = p.getLength();
-        DatagramPacket packet = new DatagramPacket(buf, length, destinationAddress, destinationPort);
+        //to PI:
+        // DatagramPacket packet = new DatagramPacket(buf, length, destinationAddress, destinationPort);
+
 
         try {
+            //to computer
+            destinationAddress = InetAddress.getLocalHost();
+
+            DatagramPacket packet = new DatagramPacket(buf, length, destinationAddress, destinationPort);
+
             socket.send(packet);
         } catch (IOException e) {
             print("Client error: " + e.getMessage());
@@ -136,6 +144,8 @@ public class Client implements NetworkUser, Runnable {
     public ProcessManager getProcessManager(){return processManager;}
 
     public Statistics getStatics(){return statistics;}
+
+    public PacketWithOwnHeader getPacketWithOwnHeader(){return packetWithOwnHeader;}
 
     public void print (String message){
         System.out.println(message);

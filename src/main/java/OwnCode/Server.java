@@ -8,7 +8,6 @@ public class Server implements NetworkUser, Runnable{
     private static boolean isClient = false;
     private String[] filesOnPI;
     private DatagramSocket socket;
-    private int port;
     private String filePath = "pi/src/"; // where are the files placed
     private PacketWithOwnHeader packetWithOwnHeader;
     private Utils utils;
@@ -18,11 +17,13 @@ public class Server implements NetworkUser, Runnable{
     private SlidingWindow slidingWindow;
     private Receiver receiver;
     private int destinationPort;
+    private int ownPort;
     private InetAddress destinationAddress;
 
-    public Server(int port) {
+    public Server(int destinationPort, int ownPort) {
         print("Starting server");
-        this.port = port;
+        this.destinationPort = destinationPort;
+        this.ownPort = ownPort;
         packetWithOwnHeader = new PacketWithOwnHeader();
         utils = new Utils();
         statistics = new Statistics();
@@ -43,7 +44,7 @@ public class Server implements NetworkUser, Runnable{
 
     public void connect(){
         try {
-            socket = new DatagramSocket(port);
+            socket = new DatagramSocket(ownPort);
             receiver = new Receiver(socket, slidingWindow, this);
             Thread receiverThread = new Thread(receiver);
             receiverThread.start();
@@ -53,20 +54,22 @@ public class Server implements NetworkUser, Runnable{
     }
 
     public void inputHandler(DatagramPacket receivedPacketFromClient){
+        print("server packet in IH");//todo weghalen
         DatagramPacket checkedPacket = checksum.checkingChecksum(receivedPacketFromClient);
+        print("server checked packet" + checkedPacket);//todo weghalen
+
         if(checkedPacket != null) {
             byte[] data = receivedPacketFromClient.getData();
-            byte commandoByte = data[1];
-            int processID = 0;
-            byte[] rawData = null;
-            byte byteProcessID1 = data[2];
-            byte byteProcessID2 = data[3];
-            processID = utils.limitBytesToInteger(byteProcessID1, byteProcessID2);
-            rawData = utils.removeHeader(data);
+            byte commandoByte = data[packetWithOwnHeader.commandoPosition];
+            print("server commando byte in ih: " + commandoByte );//todo weghalen
+            byte byteProcessID1 = data[packetWithOwnHeader.processIDPosition];
+            byte byteProcessID2 = data[packetWithOwnHeader.processIDPosition+1];
+            int processID = utils.limitBytesToInteger(byteProcessID1, byteProcessID2);
+            byte[] rawData = utils.removeHeader(data);
 
             switch (utils.fromByteToInteger(commandoByte)) {
 
-                case 0:                 handshake(receivedPacketFromClient);
+                case 100:                 handshake(receivedPacketFromClient);
                                         break;
                 case 1:                 requestSendFileNames();
                                         break;
@@ -98,6 +101,7 @@ public class Server implements NetworkUser, Runnable{
     }
 
     public void handshake(DatagramPacket packet){
+        print("binnen");//todo weghalen
         destinationAddress = packet.getAddress();
         destinationPort = packet.getPort();
     }
@@ -112,11 +116,14 @@ public class Server implements NetworkUser, Runnable{
     }
 
     public void requestStartDownloadProcess(byte[] rawData, int processID){
+        print("server is starting download process");//todo weghalen
         String fileName = utils.fromByteArrToString(rawData);
         processManager.createDownloadProcessWithProcessID(fileName, filePath, this, processID, isClient);
+        print("server download process is created");//todo weghalen
 
         byte[] buffer = packetWithOwnHeader.commandoFive(processID);
         DatagramPacket acknowlegement = new DatagramPacket(buffer, buffer.length);
+        print("server acknowledgement packet created");//todo weghalen
         send(acknowlegement);
     }
 
@@ -178,6 +185,8 @@ public class Server implements NetworkUser, Runnable{
     public ProcessManager getProcessManager(){return processManager;}
 
     public Statistics getStatics(){return statistics;}
+
+    public PacketWithOwnHeader getPacketWithOwnHeader(){return packetWithOwnHeader;}
 
     public void print (String message){
         System.out.println("[PIVanAnouk]" + message);

@@ -26,7 +26,6 @@ public class UploadProcess implements Process {
 
     public UploadProcess(int processID, File file, NetworkUser networkUser, boolean isClient, SlidingWindow slidingWindow){
         this.slidingWindow = slidingWindow;
-        utils = new Utils();
         packetWithOwnHeader = new PacketWithOwnHeader();
         this.processID = processID;
         this.file = file;
@@ -34,6 +33,7 @@ public class UploadProcess implements Process {
         this.windowSize = slidingWindow.getWindowSize();
         this.uploadingPackets = slidingWindow.slice(file,processID);
         this.networkUser = networkUser;
+        utils = new Utils();
         if(isClient){
             handshake();
         }
@@ -95,7 +95,7 @@ public class UploadProcess implements Process {
 
         while(!isInterrupted) {//Can only receive packets when running/not interrupted
             byte[] packetData = packet.getData();
-            int packetNumber = utils.limitBytesToInteger(packetData[4], packetData[5]);
+            int packetNumber = utils.limitBytesToInteger(packetData[packetWithOwnHeader.packetNumberPosition], packetData[packetWithOwnHeader.packetNumberPosition+1]);
 
             //set counter
             if(packetNumber != AckNumber){
