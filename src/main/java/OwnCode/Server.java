@@ -23,10 +23,10 @@ public class Server implements NetworkUser, Runnable{
     public Server(int port) {
         print("Starting server");
         this.port = port;
-        packetWithOwnHeader = new PacketWithOwnHeader(this);
+        packetWithOwnHeader = new PacketWithOwnHeader();
         utils = new Utils();
         statistics = new Statistics();
-        checksum = new Checksum(statistics);
+        checksum = new Checksum();
         slidingWindow = new SlidingWindow();
         processManager = new ProcessManager(this, slidingWindow);
 
@@ -91,6 +91,9 @@ public class Server implements NetworkUser, Runnable{
                 default:                print("Packet received without correct commando byte");
                                         break;
             }
+        }
+        else{
+            statistics.foundCorruptedPacket();
         }
     }
 

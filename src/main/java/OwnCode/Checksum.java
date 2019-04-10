@@ -6,11 +6,10 @@ public class Checksum {
     private int polynomial = 100000111;//CRC-8
     private Utils utils;
     private String[] polynomialStringArray = utils.fromIntToStringArr(polynomial);
-    private Statistics statistics;
 
 
-    public Checksum(Statistics statistics){
-        this.statistics = statistics;
+
+    public Checksum(){
         utils = new Utils();
     }
 
@@ -86,8 +85,6 @@ public class Checksum {
 
         if(checksum == ownCalculatedChecksum){
             checkedPacket = packet;
-        } else{
-            statistics.foundCorruptedPacket();
         }
         return checkedPacket;
 

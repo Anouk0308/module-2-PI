@@ -27,9 +27,9 @@ public class Client implements NetworkUser, Runnable {
 
         utils = new Utils();
         statistics = new Statistics();
-        checksum = new Checksum(statistics);
+        checksum = new Checksum();
         slidingWindow = new SlidingWindow();
-        packetWithOwnHeader = new PacketWithOwnHeader(this);
+        packetWithOwnHeader = new PacketWithOwnHeader();
         processManager = new ProcessManager(this, slidingWindow);
         userInputHandler = new UserInputHandler(this, processManager, statistics);
     }
@@ -96,6 +96,8 @@ public class Client implements NetworkUser, Runnable {
                 default:                print("Packet received without correct commando byte");
                                         break;
             }
+        } else{
+            statistics.foundCorruptedPacket();
         }
     }
 

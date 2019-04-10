@@ -2,16 +2,14 @@ package OwnCode;
 
 public class PacketWithOwnHeader {
     private Utils utils = new Utils();
-    private Statistics statistics;
-    private Checksum checksum = new Checksum(statistics);
+    private Checksum checksum = new Checksum();
 
     private byte[] checksumBytes = new byte[1];
     private byte[] commandoByte = new byte[1];
     private byte[] processIDbytes = new byte[2];
     private byte[] packetNumberBytes= new byte[2];
 
-    public PacketWithOwnHeader(NetworkUser networkUser){
-        statistics = networkUser.getStatics();
+    public PacketWithOwnHeader(){
     }
     /*
         A header will be 1-6 bytes. When raw data will be send, the header most be 6 bytes, in order to remove the header from the raw data correctly
