@@ -3,11 +3,9 @@ package OwnCode;
 import java.net.DatagramPacket;
 
 public class Checksum {
-    private int polynomial = 100000111;//CRC-8
+    private String polynomial = "100000111";//CRC-8
+    private String[] polynomialStringArray = polynomial.split("");
     private Utils utils;
-    private String[] polynomialStringArray = utils.fromIntToStringArr(polynomial);
-
-
 
     public Checksum(){
         utils = new Utils();
@@ -31,7 +29,8 @@ public class Checksum {
 
     public String[] gettingReminderArr(String[] bitStringArray){
         String[] reminderArr = null;
-        String[] noFrontZerosBitStringArray = removingFirstZeros(bitStringArray);
+        String[] noNullInArray = removeLastNulls(bitStringArray);
+        String[] noFrontZerosBitStringArray = removingFirstZeros(noNullInArray);
 
         if(noFrontZerosBitStringArray.length > polynomialStringArray.length){
             String[] newBitStringArray = binaryRules(noFrontZerosBitStringArray, polynomialStringArray);
@@ -43,19 +42,31 @@ public class Checksum {
         return reminderArr;
     }
 
-    public String[] removingFirstZeros(String[] bitStringArray){
-        String[] newBitStringArray = null;
+    public String[] removeLastNulls(String[] bitStringArray){
+        if(bitStringArray[bitStringArray.length-1] == null){
+            String[] bitStringArrayTemp = new String[bitStringArray.length-1];
+            System.arraycopy(bitStringArray, 0, bitStringArrayTemp, 0, bitStringArray.length-1);
+            removeLastNulls(bitStringArrayTemp);
+        } else {
+            return bitStringArray;
+        }
+        return bitStringArray;
+    }
 
+    public String[] removingFirstZeros(String[] bitStringArray){
         if(bitStringArray[0].equals("0")){
             String[] bitStringArrayTemp = new String[bitStringArray.length-1];
             System.arraycopy(bitStringArray, 1, bitStringArrayTemp, 0, bitStringArray.length-1);
             removingFirstZeros(bitStringArrayTemp);
-        } else{
-            newBitStringArray = bitStringArray;
+        } else {
+            return bitStringArray;
         }
-
-        return newBitStringArray;
+        return bitStringArray;
     }
+
+    private static void print (String message){
+        System.out.println(message);
+    }//todo weghalen
 
     public String[] binaryRules(String[] bitStringArray, String[] polynomialStringArray){
         String[] newBitStringArray = new String[bitStringArray.length];

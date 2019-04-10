@@ -16,7 +16,7 @@ public class PacketWithOwnHeader {
      */
 
     public byte[] commandoZero(){ //client to PI: handshake
-        commandoByte[0]= utils.fromIntegerToByte(0);
+        commandoByte[0]= utils.fromIntegerToByte(100);//0 would not go well with creating a checksum
 
         checksumBytes = checksum.creatingChecksum(commandoByte);
         byte[] header = utils.combineByteArr(checksumBytes, commandoByte);
