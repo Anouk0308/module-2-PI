@@ -27,7 +27,7 @@ public class DownloadProcess implements Process{
         this.filePath = filePath;
         this.slidingWindow = slidingWindow;
         utils = new Utils();
-        packetWithOwnHeader = new PacketWithOwnHeader(networkUser);
+        packetWithOwnHeader = new PacketWithOwnHeader();
 
         if(isClient){
             handshake();

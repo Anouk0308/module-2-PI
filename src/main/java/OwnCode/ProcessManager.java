@@ -26,6 +26,16 @@ public class ProcessManager {
         return processID;
     }
 
+    public void createFakeUploadProcess(byte[] fakeFile, NetworkUser networkUser, boolean isClient){//todo FAKE
+        int processID = getAProcessID();
+
+        FakeUploadProcess fakeUploadProcess = new FakeUploadProcess(processID, fakeFile, networkUser, isClient, slidingWindow);
+        runningProcesses[processID] = fakeUploadProcess;
+        networkUser.getStatics().startingProcess(processID);
+    }
+
+
+
     public void createUploadProcess(File file, NetworkUser networkUser, boolean isClient){
         int processID = getAProcessID();
 

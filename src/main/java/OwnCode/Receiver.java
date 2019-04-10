@@ -23,8 +23,8 @@ public class Receiver implements Runnable{
                 byte[] buffer = new byte[slidingWindow.getPacketSize()];//packet grootte
                 DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
                 socket.receive(receivePacket);
-                InetAddress clientAddress = receivePacket.getAddress();
-
+                InetAddress sourceAddress = receivePacket.getAddress();
+                print("Received packet from: " + sourceAddress);
                 networkUser.inputHandler(receivePacket);
             }
         } catch (IOException e) {

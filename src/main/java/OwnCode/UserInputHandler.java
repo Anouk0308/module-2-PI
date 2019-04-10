@@ -146,8 +146,13 @@ public class UserInputHandler implements Runnable{
                 if(Arrays.asList(filesClient).contains(thisLine)){
                     String filename = thisLine;
                     String pathname = filePath + filename;//todo:kijken of dit zo werkt?
-                    File file = new File(pathname);
-                    processManager.createUploadProcess(file, client, isClient);
+                    //File file = new File(pathname); //todo dit is de goede variant
+
+                    byte[] fakeFile = new byte[10];//todo dit is fake
+
+                    //processManager.createUploadProcess(file, client, isClient);//todo dit is de goede variant
+                    processManager.createFakeUploadProcess(fakeFile, client, isClient);//todo dit is fake
+
                 } else{
                     print("That is not a correct filename, these are the files to choose from:");
                     printOwnFiles();

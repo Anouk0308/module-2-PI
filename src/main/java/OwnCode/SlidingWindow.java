@@ -68,6 +68,35 @@ public class SlidingWindow {
         return sendingPackets;
     }
 
+    public DatagramPacket[] fakeSlice(byte[] byteArr, int processID){//todo fake
+        DatagramPacket[] sendingPackets = null;
+        byte[]rawData = byteArr;
+
+            double rawDataLenght = rawData.length;
+            int numberPackets = (int) Math.ceil(rawDataLenght/(double) rawDataSpace);
+            sendingPackets = new DatagramPacket[numberPackets];
+
+            for(int i = 0; i < numberPackets-1; i++){//last packet gets another header
+                byte[] rawDataPart = new byte[rawDataSpace];
+                System.arraycopy(rawData, i*rawDataSpace, rawDataPart, 0,  rawDataSpace);
+
+                byte[] packetInBytes = packetWithOwnHeader.commandoSix(processID, i, rawDataPart);
+                DatagramPacket packet = new DatagramPacket(packetInBytes, packetInBytes.length);
+
+                sendingPackets[i] = packet;
+            }
+
+            //last packet
+            byte[] rawDataLastPart = new byte[rawDataSpace];//todo, rawDataSpace is wss groter dan laatste packetje groot hoeft te zijn
+            System.arraycopy(rawData, (numberPackets-1)*rawDataSpace, rawDataLastPart, 0, rawDataSpace);
+            byte[] lastPacketInBytes = packetWithOwnHeader.commandoEight(processID, numberPackets-1,rawDataLastPart);
+            DatagramPacket lastPacket = new DatagramPacket(lastPacketInBytes, lastPacketInBytes.length);
+            sendingPackets[numberPackets-1] = null;
+
+
+        return sendingPackets;
+    }
+
     private static void print (String message){
         System.out.println(message);
     }
