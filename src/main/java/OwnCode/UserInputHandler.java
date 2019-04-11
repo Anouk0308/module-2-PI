@@ -156,6 +156,8 @@ public class UserInputHandler implements Runnable{
                     //processManager.createUploadProcess(file, client, isClient);//todo dit is de goede variant
                     processManager.createFakeUploadProcess(fakeFile, client, isClient);//todo dit is fake
 
+                    print("Would you like to do something else?");
+                    startMenu();
 
                 } else{
                     print("That is not a correct filename, these are the files to choose from:");
@@ -172,13 +174,31 @@ public class UserInputHandler implements Runnable{
     }
 
     public void downloadFile(){
-        print("Which file would you like to download?");
+        print("These are the files you can chose:");
         try {
+            byte[] buffer = packetWithOwnHeader.commandoOne();
+            DatagramPacket askFiles = new DatagramPacket(buffer, buffer.length);
+
+            client.send(askFiles);
+
+            while (!updatedFilesPI) {//wait till FilesPI are received & updated
+                Thread.sleep(10);
+            }
+
+            for (int i = 0; i < filesPI.length-1; i++) {//last in array is empty
+                print(filesPI[i]);
+            }
+            print("");//empty row
+            updatedFilesPI = false;
+
+            print("Which file would you like to download?");
             if (userInput != null) {
                 String thisLine = userInput.readLine();
-                if(Arrays.asList(filesClient).contains(thisLine)){
+                if(Arrays.asList(filesPI).contains(thisLine)){
                     String filename = thisLine;
                     processManager.createDownloadProcess(filename, filePath, client, isClient);
+
+                    //todo: startMenu();
                 } else{
                     print("That is not a correct filename, these are the files to choose from:");
                     printPIFiles();
@@ -187,6 +207,8 @@ public class UserInputHandler implements Runnable{
             }
         } catch (IOException e){
             print("Something went wrong" + e.getMessage());
+        } catch (InterruptedException e){
+            print(e.getMessage());
         }
     }
 

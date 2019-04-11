@@ -142,8 +142,18 @@ public class Server implements NetworkUser, Runnable{
 
     public void requestStartUploadProcess(byte[] rawData, int processID){
         String fileName = utils.fromByteArrToString(rawData);
-        File file = new File(filePath+fileName);//todo: kijken of dit zo werkt
+
+        byte[] fakeFile = new byte[3000];//todo dit is fake
+        for(int i = 0; i < 3000; i++){
+            fakeFile[i]= 2;
+        }
+        processManager.createFakeUploadProcess(fakeFile, this, isClient);//todo dit is fake
+
+
+        /*
+        File file = new File(filePath+fileName);//todo: kijken of dit zo werkt + dit is voor echte packetjes
         processManager.createUploadProcessWithProcessID(file, this, processID, isClient);
+        */
     }
 
     public void sendAckProcessPaused(int processID){

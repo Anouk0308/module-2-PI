@@ -1,7 +1,7 @@
 package OwnCode;
 
 public class ZZZtodoLijstVoorMezelf {
-    
+
     // met fake packet laptop-laptop download
     //met fake packet laptop-pi upload
     //met fake packet laptop-pi download

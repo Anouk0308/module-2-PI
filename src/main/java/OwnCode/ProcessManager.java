@@ -77,18 +77,22 @@ public class ProcessManager {
     public void printRunningProcesses(){
         for(int i = 0; i < runningProcesses.length; i++){
             Process process = runningProcesses[i];
-            int processID = process.getProcessID();
-            String filename = process.getFileName();
-            print("Process "+ processID+ " is uploading file "+ filename);
+            if(process != null){
+                int processID = process.getProcessID();
+                String filename = process.getFileName();
+                print("Process "+ processID+ " is uploading file "+ filename);
+            }
         }
     }
 
     public void printPausedProcesses(){
         for(int i = 0; i < pausedProcesses.length; i++){
             Process process = pausedProcesses[i];
-            int processID = process.getProcessID();
-            String filename = process.getFileName();
-            print("Process "+ processID+ " is paused while uploading file "+ filename);
+            if(process != null){
+                int processID = process.getProcessID();
+                String filename = process.getFileName();
+                print("Process "+ processID+ " is paused while uploading file "+ filename);
+            }
         }
     }
 
