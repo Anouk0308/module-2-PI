@@ -3,7 +3,7 @@ package OwnCode;
 import java.io.File;
 import java.net.DatagramPacket;
 
-public class FakeUploadProcess implements Process {
+public class FakeUploadProcess implements Process, Runnable{
     private int processID;
     private byte[] byteArrToLoad;
     private int bytesToLoad;//todo dit nog uitlezen
@@ -20,6 +20,7 @@ public class FakeUploadProcess implements Process {
 
     private boolean acknowledgementToStart = false;
     private boolean acknowledgementToStop = false;
+    private boolean isClient;
 
     public boolean isInterrupted = false;
     private boolean receivedAnAck = false; //is for timer
@@ -34,11 +35,16 @@ public class FakeUploadProcess implements Process {
         this.packetSize = slidingWindow.getPacketSize();
         this.windowSize = slidingWindow.getWindowSize();
         this.uploadingPackets = slidingWindow.fakeSlice(byteArrToLoad,processID);
+        this.isClient = isClient;
+        print("fakeUpload initiated");//todo weghalen
 
+    }
+
+    @Override
+    public void run() {
         if(isClient){
             handshake();
         }
-        print("fakeUpload initiated");//todo weghalen
         startProcess();
     }
 
@@ -61,6 +67,7 @@ public class FakeUploadProcess implements Process {
     }
 
     public void setAcknowledgementToStartTrue(){
+        print("received acknowledgement to start for process " + processID);//todo weghalen
         acknowledgementToStart = true;
     }
 

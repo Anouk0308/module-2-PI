@@ -153,11 +153,9 @@ public class UserInputHandler implements Runnable{
                         fakeFile[i]= 2;
                     }
 
-                    print("1");//todo weghalen
                     //processManager.createUploadProcess(file, client, isClient);//todo dit is de goede variant
                     processManager.createFakeUploadProcess(fakeFile, client, isClient);//todo dit is fake
 
-                    print("Process to upload the file " + filename + " is started");//todo weghalen
 
                 } else{
                     print("That is not a correct filename, these are the files to choose from:");

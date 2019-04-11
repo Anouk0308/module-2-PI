@@ -38,7 +38,6 @@ public class Client implements NetworkUser, Runnable {
 
     @Override
     public void run() {
-        print("1");//todo weghalen
         connect();
 
         Thread userInputHandlerThread = new Thread(userInputHandler);
@@ -46,19 +45,16 @@ public class Client implements NetworkUser, Runnable {
     }
 
     public void connect(){
-        print("2");//todo weghalen
         try {
             socket = new DatagramSocket(ownPort);
             ownAddress = socket.getLocalAddress();
             receiver = new Receiver(socket, slidingWindow, this);
             Thread receiverThread = new Thread(receiver);
             receiverThread.start();
-            print("4");//todo weghalen
 
             byte[] buffer = packetWithOwnHeader.commandoZero();
             DatagramPacket handshake = new DatagramPacket(buffer, buffer.length);
             send(handshake);
-            print("5");//todo weghalen
 
         } catch (SocketException e) {
             print("Timeout error: " + e.getMessage());

@@ -3,7 +3,7 @@ package OwnCode;
 import java.io.File;
 import java.net.DatagramPacket;
 
-public class UploadProcess implements Process {
+public class UploadProcess implements Process, Runnable {
     private int processID;
     private File file;
     private int bytesToLoad;//todo dit nog uitlezen
@@ -20,6 +20,7 @@ public class UploadProcess implements Process {
 
     private boolean acknowledgementToStart = false;
     private boolean acknowledgementToStop = false;
+    private boolean isClient;
 
     public boolean isInterrupted = false;
     private boolean receivedAnAck = false; //is for timer
@@ -34,6 +35,10 @@ public class UploadProcess implements Process {
         this.uploadingPackets = slidingWindow.slice(file,processID);
         this.networkUser = networkUser;
         utils = new Utils();
+    }
+
+    @Override
+    public void run() {
         if(isClient){
             handshake();
         }

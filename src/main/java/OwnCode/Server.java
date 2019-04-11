@@ -54,15 +54,14 @@ public class Server implements NetworkUser, Runnable{
     }
 
     public void inputHandler(DatagramPacket receivedPacketFromClient){
-        print("server packet in IH");//todo weghalen
         DatagramPacket checkedPacket = checksum.checkingChecksum(receivedPacketFromClient);
         print("server checked packet" + checkedPacket);//todo weghalen
 
         if(checkedPacket != null) {
             byte[] data = receivedPacketFromClient.getData();
-            for(int i = 0; i < data.length; i++){//todo weghalen
+            /*for(int i = 0; i < data.length; i++){//todo weghalen
                 print(Byte.toString(data[i]));
-            }
+            }*/
             byte commandoByte = data[packetWithOwnHeader.commandoPosition];
             print("server commando byte in ih: " + commandoByte );//todo weghalen
             int processID = 0;
@@ -107,7 +106,7 @@ public class Server implements NetworkUser, Runnable{
     }
 
     public void handshake(DatagramPacket packet){
-        print("binnen");//todo weghalen
+        print("handshake received");//todo weghalen
         //destinationAddress = packet.getAddress();//todo dit gebruiken met PI
     }
 
@@ -121,7 +120,6 @@ public class Server implements NetworkUser, Runnable{
     }
 
     public void requestStartDownloadProcess(byte[] rawData, int processID){
-        print("server is starting download process");//todo weghalen
         String fileName = utils.fromByteArrToString(rawData);
         processManager.createDownloadProcessWithProcessID(fileName, filePath, this, processID, isClient);
         print("server download process is created");//todo weghalen
@@ -131,11 +129,9 @@ public class Server implements NetworkUser, Runnable{
             print(Byte.toString(buffer[i]));
         }
 
-
         DatagramPacket acknowlegement = new DatagramPacket(buffer, buffer.length);
-        print("server acknowledgement packet created");//todo weghalen
         send(acknowlegement);
-        print("packetje verzonden");//todo weghalen
+        print("start download process done, waiting for client to send packets");//todo weghalen
     }
 
     public void requestStartUploadProcess(byte[] rawData, int processID){

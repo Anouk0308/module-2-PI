@@ -3,7 +3,7 @@ package OwnCode;
 import java.io.File;
 import java.net.DatagramPacket;
 
-public class DownloadProcess implements Process{
+public class DownloadProcess implements Process, Runnable{
     private int processID;
     private String fileName;
     private int bytesToLoad;//todo dit nog uitlezen
@@ -19,6 +19,7 @@ public class DownloadProcess implements Process{
 
     public boolean isInterrupted = false;
     private boolean receivedAPacket = false; // for timer
+    private boolean isClient;
 
     public DownloadProcess(int processID, String fileName, NetworkUser networkUser, String filePath, boolean isClient, SlidingWindow slidingWindow){
         this.processID = processID;
@@ -28,11 +29,16 @@ public class DownloadProcess implements Process{
         this.slidingWindow = slidingWindow;
         utils = new Utils();
         packetWithOwnHeader = new PacketWithOwnHeader();
+        this.isClient = isClient;
+    }
 
+    @Override
+    public void run() {
         if(isClient){
             handshake();
         }
     }
+
 
     public void handshake(){
         byte[] buffer = packetWithOwnHeader.commandoFour(processID, fileName);
