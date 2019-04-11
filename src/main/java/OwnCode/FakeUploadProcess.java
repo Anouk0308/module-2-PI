@@ -49,6 +49,7 @@ public class FakeUploadProcess implements Process {
         try {
             networkUser.send(startPacket);
 
+            print("waiting on server");//todo weghalen
             while (!acknowledgementToStart) {//wait till PI tells that the uploading process can start
                 Thread.sleep(10);
             }

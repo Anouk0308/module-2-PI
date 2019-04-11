@@ -11,10 +11,9 @@ public class Main {
         try{
             String PIstring = "172.16.1.1";
             InetAddress PI = InetAddress.getByName(PIstring);
-            InetAddress own = InetAddress.getLocalHost();
             int portServer = 8888;
             int portClient = 8000;
-            Client client = new Client( own, portServer, portClient);//todo to pi
+            Client client = new Client( PI, portServer, portClient);//todo to pi
             Thread clientThread = new Thread(client);
             clientThread.start();
         } catch(IOException e){

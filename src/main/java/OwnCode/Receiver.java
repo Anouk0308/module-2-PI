@@ -40,7 +40,7 @@ public class Receiver implements Runnable{
                 if(usefullDataLength < slidingWindow.getPacketSize()){
                     byte[] packetData = receivePacket.getData();
                     byte[] usefullPacket = new byte[usefullDataLength];
-                    System.arraycopy(packetData,0,usefullDataLength,0,usefullDataLength);
+                    System.arraycopy(packetData,0,usefullPacket,0,usefullDataLength);
                     DatagramPacket packet = new DatagramPacket(usefullPacket,usefullDataLength);
                     networkUser.inputHandler(packet);
                 } else{

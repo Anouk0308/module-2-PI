@@ -60,16 +60,22 @@ public class Server implements NetworkUser, Runnable{
 
         if(checkedPacket != null) {
             byte[] data = receivedPacketFromClient.getData();
+            for(int i = 0; i < data.length; i++){//todo weghalen
+                print(Byte.toString(data[i]));
+            }
             byte commandoByte = data[packetWithOwnHeader.commandoPosition];
             print("server commando byte in ih: " + commandoByte );//todo weghalen
-            byte byteProcessID1 = data[packetWithOwnHeader.processIDPosition];
-            byte byteProcessID2 = data[packetWithOwnHeader.processIDPosition+1];
-            int processID = utils.limitBytesToInteger(byteProcessID1, byteProcessID2);
+            int processID = 0;
+            if(data.length > packetWithOwnHeader.processIDPosition){
+                byte byteProcessID1 = data[packetWithOwnHeader.processIDPosition];
+                byte byteProcessID2 = data[packetWithOwnHeader.processIDPosition+1];
+                processID = utils.limitBytesToInteger(byteProcessID1, byteProcessID2);
+            }
             byte[] rawData = utils.removeHeader(data);
 
             switch (utils.fromByteToInteger(commandoByte)) {
 
-                case 100:                 handshake(receivedPacketFromClient);
+                case 100:               handshake(receivedPacketFromClient);
                                         break;
                 case 1:                 requestSendFileNames();
                                         break;
@@ -102,8 +108,7 @@ public class Server implements NetworkUser, Runnable{
 
     public void handshake(DatagramPacket packet){
         print("binnen");//todo weghalen
-        destinationAddress = packet.getAddress();
-        destinationPort = packet.getPort();
+        //destinationAddress = packet.getAddress();//todo dit gebruiken met PI
     }
 
     public void requestSendFileNames(){
@@ -122,9 +127,15 @@ public class Server implements NetworkUser, Runnable{
         print("server download process is created");//todo weghalen
 
         byte[] buffer = packetWithOwnHeader.commandoFive(processID);
+        for(int i = 0; i < buffer.length; i++){//todo weghalen
+            print(Byte.toString(buffer[i]));
+        }
+
+
         DatagramPacket acknowlegement = new DatagramPacket(buffer, buffer.length);
         print("server acknowledgement packet created");//todo weghalen
         send(acknowlegement);
+        print("packetje verzonden");//todo weghalen
     }
 
     public void requestStartUploadProcess(byte[] rawData, int processID){
@@ -173,9 +184,13 @@ public class Server implements NetworkUser, Runnable{
     public void send(DatagramPacket p){
         byte[] buf = p.getData();
         int lenght = p.getLength();
+        print(Integer.toString(destinationPort));//todo
+        try {
+        destinationAddress = InetAddress.getLocalHost();//todo nu voor computer niet PI
+
         DatagramPacket packet = new DatagramPacket(buf, lenght, destinationAddress, destinationPort);
 
-        try {
+
             socket.send(packet);
         } catch (IOException e) {
             print("Client error: " + e.getMessage());

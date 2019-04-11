@@ -8,6 +8,7 @@ public class Client implements NetworkUser, Runnable {
     private DatagramSocket socket;
     private int destinationPort;
     private int ownPort;
+    private InetAddress ownAddress;
     private InetAddress destinationAddress;
 
 
@@ -23,6 +24,7 @@ public class Client implements NetworkUser, Runnable {
     public Client(InetAddress destinationAdress, int destinationPort, int ownPort){
         this.destinationPort = destinationPort;
         this.ownPort = ownPort;
+        //this.destinationAddress = destinationAdress;//todo for PI wel gebruiken
         //todo: vul FilesClient aan met de namen in daadwerkelijke map
 
         utils = new Utils();
@@ -46,8 +48,8 @@ public class Client implements NetworkUser, Runnable {
     public void connect(){
         print("2");//todo weghalen
         try {
-            socket = new DatagramSocket();
-            print("3");//todo weghalen
+            socket = new DatagramSocket(ownPort);
+            ownAddress = socket.getLocalAddress();
             receiver = new Receiver(socket, slidingWindow, this);
             Thread receiverThread = new Thread(receiver);
             receiverThread.start();

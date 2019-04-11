@@ -22,11 +22,11 @@ public class Checksum {
         buffer.putLong(value);
         byte[] tooLong =  buffer.array();
 
-        /*
+
         byte[] correct = new byte[4];
         System.arraycopy(tooLong,4,correct,0,4);
-        */
-        return tooLong;
+
+        return correct;
     }
 
     private static void print (String message){

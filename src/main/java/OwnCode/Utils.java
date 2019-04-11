@@ -71,9 +71,15 @@ public class Utils {
     //packets related
     public byte[] removeHeader(byte[] b){ //get only the raw data
         byte[] rawData = null;
-        int headerLength = 9;//todo controleren
+        int headerLength = 5;//always checksum and commandonumber//todo controleren
+        if(b.length>5){//has processID
+            headerLength = 7;//todo controleren
+            if(b.length>7){//has packetNumber
+                headerLength = 9;//todo controleren
+            }
+        }
 
-        rawData = new byte[b.length - headerLength]; //header is 9 bytes long
+        rawData = new byte[b.length - headerLength];
         System.arraycopy(b, headerLength, rawData, 0, rawData.length);
         return rawData;
     }
