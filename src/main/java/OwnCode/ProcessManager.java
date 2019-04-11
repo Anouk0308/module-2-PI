@@ -272,10 +272,6 @@ public class ProcessManager {
     }
 
     public void receiveUploadAcknowledgement(int processID){
-        print("received acknowledgement to start sending packets for process: " + processID);//todo weghalen
-
-        System.out.println(runningProcesses[processID]);//todo weghalen
-
         if(runningProcesses[processID] != null && runningProcesses[processID] instanceof FakeUploadProcess){ //todo is voor echte packetjes
             FakeUploadProcess fakeUploadProcess = (FakeUploadProcess) runningProcesses[processID];
             fakeUploadProcess.setAcknowledgementToStartTrue();

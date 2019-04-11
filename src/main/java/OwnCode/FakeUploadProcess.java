@@ -36,7 +36,6 @@ public class FakeUploadProcess implements Process, Runnable{
         this.windowSize = slidingWindow.getWindowSize();
         this.uploadingPackets = slidingWindow.fakeSlice(byteArrToLoad,processID);
         this.isClient = isClient;
-        print("fakeUpload initiated");//todo weghalen
     }
 
     @Override
@@ -80,7 +79,6 @@ public class FakeUploadProcess implements Process, Runnable{
         if(uploadingPackets.length < windowSize){
             for(int i = 0; i < uploadingPackets.length-1; i++){
                 DatagramPacket startPacket = uploadingPackets[i];
-                System.out.println(startPacket);//todo weghalen
                 networkUser.send(startPacket);
                 print("packetje verzonden!!");//todo weghalen
             }
@@ -147,7 +145,6 @@ public class FakeUploadProcess implements Process, Runnable{
     public void sendLastPacket(){
         if(!acknowledgementToStop){
             DatagramPacket lastPacket = uploadingPackets[uploadingPackets.length-1];
-            System.out.println(lastPacket);//todo weghalen
 
             try {
                 networkUser.send(lastPacket);

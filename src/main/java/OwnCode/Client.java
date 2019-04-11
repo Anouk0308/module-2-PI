@@ -86,6 +86,7 @@ public class Client implements NetworkUser, Runnable {
                                         break;
                 case 9:                 processManager.receiveAcknowledgementLastPacketForProcess(processID);
                                         break;
+                case 12:                break;
                 case 13:                receivedAckProcessPaused(processID);
                                         break;
                 case 14:                receivedAckProcessContinued(processID);
@@ -101,9 +102,10 @@ public class Client implements NetworkUser, Runnable {
     }
 
     public void receivedFilesPI(byte[] data){
-        byte[] rawData = utils.removeHeader(data);
+        byte[] rawData = utils.removeHeader(data);//todo weghalen
         String filesString = utils.fromByteArrToString(rawData);
         String[] filesArr = filesString.split("\\+");
+
         userInputHandler.setFilesPI(filesArr);
         userInputHandler.setUpdatedFilesPI(true);
     }

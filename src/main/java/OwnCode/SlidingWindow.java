@@ -75,7 +75,6 @@ public class SlidingWindow {
 
         int rawDataLenght = rawData.length;
         int numberPackets = (int) Math.ceil((double)rawDataLenght/(double) rawDataSpace);
-        System.out.println("number of packets: "+numberPackets);//todo weghalen
 
         sendingPackets = new DatagramPacket[numberPackets];
 
@@ -83,38 +82,20 @@ public class SlidingWindow {
             byte[] rawDataPart = new byte[rawDataSpace];
             System.arraycopy(rawData, i*rawDataSpace, rawDataPart, 0,  rawDataSpace);
 
-            for(int in = 0; in < rawDataPart.length; in++){
-                System.out.println("byte in packet on place " + in + ":"+ rawDataPart[in]); //todo weghalen
-            }
-
             byte[] packetInBytes = packetWithOwnHeader.commandoSix(processID, i, rawDataPart);
             DatagramPacket packet = new DatagramPacket(packetInBytes, packetInBytes.length);
             sendingPackets[i] = packet;
         }
-        for(int i = 0; i < sendingPackets.length; i++){
-            System.out.println("packet to send on place"+i+":"+sendingPackets[i]);//todo weghalen
-        }
-
 
         //last packet
         int lenghtLastPart = rawDataLenght%numberPackets;
-        System.out.println("lenght last part" + lenghtLastPart);
 
         byte[] rawDataLastPart = new byte[lenghtLastPart];
         System.arraycopy(rawData, (numberPackets-1)*lenghtLastPart, rawDataLastPart, 0, lenghtLastPart);
 
-        for(int in = 0; in < rawDataLastPart.length; in++){
-            System.out.println("byte in packet on place " + in + ":"+ rawDataLastPart[in]); //todo weghalen
-        }
-
         byte[] lastPacketInBytes = packetWithOwnHeader.commandoEight(processID, numberPackets-1,rawDataLastPart);
         DatagramPacket lastPacket = new DatagramPacket(lastPacketInBytes, lastPacketInBytes.length);
-        System.out.println(lastPacket);//todo weghalen
         sendingPackets[numberPackets-1] = lastPacket;
-
-        for(int i = 0; i < sendingPackets.length; i++){
-            System.out.println("packet to send on place"+i+":"+sendingPackets[i]);//todo weghalen
-        }
 
         return sendingPackets;
     }

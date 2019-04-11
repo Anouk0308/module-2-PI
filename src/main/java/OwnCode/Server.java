@@ -55,13 +55,7 @@ public class Server implements NetworkUser, Runnable{
     }
 
     public void inputHandler(DatagramPacket receivedPacketFromClient){
-        print("server received packet" + receivedPacketFromClient);//todo weghalen
-
         DatagramPacket checkedPacket = checksum.checkingChecksum(receivedPacketFromClient);
-        print("server checked packet" + checkedPacket);//todo weghalen
-
-        //todo zijn nu hier
-        //todo versturen packet vanaf client is wel packet, maar checked packet is null (alleen bij commando 6)
 
         if(checkedPacket != null) {
             byte[] data = receivedPacketFromClient.getData();
@@ -69,7 +63,7 @@ public class Server implements NetworkUser, Runnable{
                 print(Byte.toString(data[i]));
             }*/
             byte commandoByte = data[packetWithOwnHeader.commandoPosition];
-            print("server commando byte in ih: " + commandoByte );//todo weghalen
+            print("server received packet with commando: " + commandoByte );//todo weghalen
             int processID = 0;
             if(data.length > packetWithOwnHeader.processIDPosition){
                 byte byteProcessID1 = data[packetWithOwnHeader.processIDPosition];
@@ -131,13 +125,9 @@ public class Server implements NetworkUser, Runnable{
         print("server download process is created");//todo weghalen
 
         byte[] buffer = packetWithOwnHeader.commandoFive(processID);
-        for(int i = 0; i < buffer.length; i++){//todo weghalen
-            print(Byte.toString(buffer[i]));
-        }
 
         DatagramPacket acknowlegement = new DatagramPacket(buffer, buffer.length);
         send(acknowlegement);
-        print("start download process done, waiting for client to send packets");//todo weghalen
     }
 
     public void requestStartUploadProcess(byte[] rawData, int processID){

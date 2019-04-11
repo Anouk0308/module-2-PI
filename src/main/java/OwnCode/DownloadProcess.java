@@ -63,14 +63,12 @@ public class DownloadProcess implements Process, Runnable{
     }
 
     public void receivePacket(DatagramPacket packet){
-        print("packetje ontvangen");//todo weghalen
-
         receivedAPacket = true;//for timer in handshake()
 
         if(!isInterrupted){//Can only receive packets when running/not interrupted
             byte[] packetData = packet.getData();
             int packetNumber = utils.limitBytesToInteger(packetData[packetWithOwnHeader.packetNumberPosition], packetData[packetWithOwnHeader.packetNumberPosition+1]);
-            print("namelijk packetnummer" + packetNumber);//todo weghalen
+            print("com6, packetje ontvangen met packetnummer" + packetNumber);//todo weghalen
             downloadingPackets[packetNumber] = packet;
 
             int packetNumberSuccessive = -1;
@@ -85,7 +83,6 @@ public class DownloadProcess implements Process, Runnable{
             byte[] buffer = packetWithOwnHeader.commandoSeven(processID, packetNumberSuccessive);
             DatagramPacket acknowledgePacket = new DatagramPacket(buffer, buffer.length);
             networkUser.send(acknowledgePacket);
-            print("ack packet gestuurd");//todo weghalen
         }
     }
 
@@ -93,6 +90,7 @@ public class DownloadProcess implements Process, Runnable{
         if(!isInterrupted) {//Can only receive packets when running/not interrupted
             byte[] packetData = packet.getData();
             int packetNumber = utils.limitBytesToInteger(packetData[packetWithOwnHeader.packetNumberPosition], packetData[packetWithOwnHeader.packetNumberPosition+1]);
+            print("com8, packetje ontvangen met packetnummer" + packetNumber);//todo weghalen
             downloadingPackets[packetNumber] = packet;
 
             int packetNumberSuccessive = -1;
@@ -109,16 +107,10 @@ public class DownloadProcess implements Process, Runnable{
                 DatagramPacket acknowledgePacket = new DatagramPacket(buffer, buffer.length);
                 networkUser.send(acknowledgePacket);
 
-                //create file from packetlist
-                int newPacketsArrayLenght = downloadingPackets.length;
-                for (int i = 0; i < downloadingPackets.length; i++) {
-                    if (downloadingPackets[i] == null) {
-                        newPacketsArrayLenght--;
-                    }
-                }
-                DatagramPacket[] newPacketArray = new DatagramPacket[newPacketsArrayLenght];
-                System.arraycopy(downloadingPackets, 0, newPacketArray, 0, newPacketsArrayLenght);
-               // File file = utils.packetsToFile(newPacketArray, filePath, slidingWindow.getRawDataSpace());
+
+
+                createFile();
+
 
                 //save file
                 //todo savennnnn
@@ -133,6 +125,50 @@ public class DownloadProcess implements Process, Runnable{
                 networkUser.send(acknowledgePacket);
             }
         }
+
+    }
+
+    public void createFile(){
+        for (int i = 0; i < downloadingPackets.length; i++) {
+            if (downloadingPackets[i] != null) {
+                System.out.println(downloadingPackets[i]);
+            }
+        }
+
+
+        int newPacketsArrayLenght = downloadingPackets.length; //todo, als dowloadingpackets niet meer 1000000 is, hoeft dit allemaal niet
+        for (int i = 0; i < downloadingPackets.length; i++) {
+            if (downloadingPackets[i] == null) {
+                newPacketsArrayLenght--;
+            }
+        }
+        DatagramPacket[] newPacketArray = new DatagramPacket[newPacketsArrayLenght];
+        System.arraycopy(downloadingPackets, 0, newPacketArray, 0, newPacketsArrayLenght);
+
+        int offspring = 0;
+        byte[] allBytesTogether = new byte[newPacketsArrayLenght * slidingWindow.getRawDataSpace()];
+        for(int i = 0; i < newPacketsArrayLenght; i++){
+            byte[] rawData = utils.removeHeader(newPacketArray[i].getData());
+            System.arraycopy(rawData, 0, allBytesTogether, offspring, rawData.length);
+            offspring = rawData.length;
+        }
+
+        byte[] originalFakeFile = new byte[3000];//todo dit is fake
+        for(int i = 0; i < 3000; i++){
+            originalFakeFile[i]= 2;
+        }
+
+        if(allBytesTogether.equals(originalFakeFile)){//todo weghalen
+            print("zelfde packetje woop woop");
+        } else{
+            print("something went wrong, packetje is niet goed binnen gekomen");
+        }
+
+
+
+
+
+        // File file = utils.packetsToFile(newPacketArray, filePath, slidingWindow.getRawDataSpace());
 
     }
 

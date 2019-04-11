@@ -124,7 +124,7 @@ public class UserInputHandler implements Runnable{
                 Thread.sleep(10);
             }
 
-            for (int i = 0; i < filesPI.length-1; i++) {//last in array is empty
+            for (int i = 0; i < filesPI.length; i++) {//last in array is empty
                 print(filesPI[i]);
             }
             print("");//empty row
@@ -185,7 +185,7 @@ public class UserInputHandler implements Runnable{
                 Thread.sleep(10);
             }
 
-            for (int i = 0; i < filesPI.length-1; i++) {//last in array is empty
+            for (int i = 0; i < filesPI.length; i++) {//last in array is empty
                 print(filesPI[i]);
             }
             print("");//empty row

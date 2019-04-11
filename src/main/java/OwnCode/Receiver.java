@@ -26,9 +26,11 @@ public class Receiver implements Runnable{
                 byte[] buffer = new byte[slidingWindow.getPacketSize()];//packet grootte
                 DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
                 socket.receive(receivePacket);
+                /*
                 InetAddress sourceAddress = receivePacket.getAddress();
                 print("Received packet from: " + sourceAddress);
                 print("commando number: " + receivePacket.getData()[packetWithOwnHeader.commandoPosition]);
+                */
 
                 /*
                 for (int i = 0; i < 10; i++){

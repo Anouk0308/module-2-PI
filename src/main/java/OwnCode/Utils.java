@@ -86,7 +86,6 @@ public class Utils {
 
     public File packetsToFile(DatagramPacket[] packets, String FilePath, int rawDataSpace){
         byte[] bytesFile = new byte[packets.length*rawDataSpace];
-        print(Integer.toString(bytesFile.length));//todo weghalen
 
         for(int i = 0; i < packets.length; i++){
             byte[] packetBytes = packets[i].getData();
@@ -108,19 +107,15 @@ public class Utils {
     }
 
     public byte[] combineByteArr(byte[] a, byte[] b, byte[] c){
-        byte[] d = new byte[a.length + b.length + c.length];
-        System.arraycopy(a, 0, d, 0, a.length);
-        System.arraycopy(b, 0, d, a.length, b.length);
-        System.arraycopy(c, 0, d, b.length, c.length);
+        byte[] temp = combineByteArr(a,b);
+        byte[] d = combineByteArr(temp,c);
         return d;
     }
 
     public byte[] combineByteArr(byte[] a, byte[] b, byte[] c, byte[] d){
-        byte[] e = new byte[a.length + b.length + c.length + d.length];
-        System.arraycopy(a, 0, e, 0, a.length);
-        System.arraycopy(b, 0, e, a.length, b.length);
-        System.arraycopy(c, 0, e, b.length, c.length);
-        System.arraycopy(d, 0, e, c.length, d.length);
+        byte[] temp = combineByteArr(a,b);
+        byte[] tempp = combineByteArr(c,d);
+        byte[] e = combineByteArr(temp, tempp);
         return e;
     }
 
@@ -140,7 +135,7 @@ public class Utils {
     public int limitBytesToInteger(byte firstByte, byte secondByte){
         int firstInt = fromByteToInteger(firstByte);
         int secondInt = fromByteToInteger(secondByte);
-        int number = firstInt*secondInt;
+        int number = (firstInt+1 )*secondInt;
 
         return number;
     }
