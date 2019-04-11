@@ -76,13 +76,11 @@ public class FakeUploadProcess implements Process, Runnable{
             System.out.println(uploadingPackets[i]);
         }
 
-        //todo nu hier :D
-        //todo uploadingPackets lijkt niks te bevatten
-
         //send first packets
         if(uploadingPackets.length < windowSize){
             for(int i = 0; i < uploadingPackets.length-1; i++){
                 DatagramPacket startPacket = uploadingPackets[i];
+                System.out.println(startPacket);//todo weghalen
                 networkUser.send(startPacket);
                 print("packetje verzonden!!");//todo weghalen
             }
@@ -93,7 +91,7 @@ public class FakeUploadProcess implements Process, Runnable{
                 networkUser.send(startPacket);
 
                 //set timer
-                Utils.Timer timer = utils.new Timer(1000);
+                Utils.Timer timer = utils.new Timer(5000);
                 try{
                     while (!timer.isTooLate()) {
                         Thread.sleep(10);
@@ -118,7 +116,7 @@ public class FakeUploadProcess implements Process, Runnable{
 
         receivedAnAck = true;//for timer in startProcess()
 
-        while(!isInterrupted) {//Can only receive packets when running/not interrupted
+        if(!isInterrupted) {//Can only receive packets when running/not interrupted
             byte[] packetData = packet.getData();
             int packetNumber = utils.limitBytesToInteger(packetData[packetWithOwnHeader.packetNumberPosition], packetData[packetWithOwnHeader.packetNumberPosition+1]);
 
@@ -147,28 +145,30 @@ public class FakeUploadProcess implements Process, Runnable{
     }
 
     public void sendLastPacket(){
-        DatagramPacket lastPacket = uploadingPackets[uploadingPackets.length-1];
-        System.out.println(lastPacket);//todo weghalen
+        if(!acknowledgementToStop){
+            DatagramPacket lastPacket = uploadingPackets[uploadingPackets.length-1];
+            System.out.println(lastPacket);//todo weghalen
 
-        try {
-            networkUser.send(lastPacket);
-            print("laatste packetje verzonden");//todo weghalen
+            try {
+                networkUser.send(lastPacket);
+                print("laatste packetje verzonden");//todo weghalen
 
-            //set timer
-            Utils.Timer timer = utils.new Timer(1000);
-            while(!timer.isTooLate()){//while timer didn't went of yet
+                //set timer
+                Utils.Timer timer = utils.new Timer(500);
+                while(!timer.isTooLate()){//while timer didn't went of yet
+                        Thread.sleep(10);
+                    }
                 if (acknowledgementToStop) {
                     print("Uploading " + fileName + " is finished.");
-                    kill();//process is killed, timer will not go off
-                } else { //wait till PI tells that the uploading process can stop
-                    Thread.sleep(10);
+                    networkUser.getProcessManager().stopSpecificProcess(processID);
+                } else { //timer went off, still no acknowledgement to stop
+                    sendLastPacket();
                 }
+            } catch (InterruptedException e) {
+                print("Client error: " + e.getMessage());
             }
-            //timer went off, still no acknowledgement to stop
-            sendLastPacket();
-        } catch (InterruptedException e) {
-            print("Client error: " + e.getMessage());
         }
+
     }
 
     public void setAcknowledgementToStopTrue(){
@@ -177,7 +177,6 @@ public class FakeUploadProcess implements Process, Runnable{
 
     public void kill(){
         networkUser.getStatics().stoppingProcess(processID, bytesToLoad);
-        networkUser.getProcessManager().stopSpecificProcess(processID);
     }
 
     public int getProcessID(){return processID;}

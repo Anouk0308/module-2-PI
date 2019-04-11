@@ -86,14 +86,16 @@ public class Utils {
 
     public File packetsToFile(DatagramPacket[] packets, String FilePath, int rawDataSpace){
         byte[] bytesFile = new byte[packets.length*rawDataSpace];
+        print(Integer.toString(bytesFile.length));//todo weghalen
+
         for(int i = 0; i < packets.length; i++){
             byte[] packetBytes = packets[i].getData();
             byte[] rawPacketBytes = removeHeader(packetBytes);
-            System.arraycopy(rawPacketBytes,0,bytesFile,i*rawDataSpace, rawDataSpace);
+            System.arraycopy(rawPacketBytes,0,bytesFile,i*rawDataSpace, rawPacketBytes.length);
         }
         //todo, byte array to file
 
-        File file = new File(FilePath);
+        File file = null;
         return file;
     }
 

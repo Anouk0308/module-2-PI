@@ -3,6 +3,7 @@ package OwnCode;
 import java.io.File;
 import java.io.IOException;
 import java.net.*;
+import java.nio.ByteBuffer;
 
 public class Server implements NetworkUser, Runnable{
     private static boolean isClient = false;
@@ -54,8 +55,13 @@ public class Server implements NetworkUser, Runnable{
     }
 
     public void inputHandler(DatagramPacket receivedPacketFromClient){
+        print("server received packet" + receivedPacketFromClient);//todo weghalen
+
         DatagramPacket checkedPacket = checksum.checkingChecksum(receivedPacketFromClient);
         print("server checked packet" + checkedPacket);//todo weghalen
+
+        //todo zijn nu hier
+        //todo versturen packet vanaf client is wel packet, maar checked packet is null (alleen bij commando 6)
 
         if(checkedPacket != null) {
             byte[] data = receivedPacketFromClient.getData();
@@ -157,11 +163,14 @@ public class Server implements NetworkUser, Runnable{
     }
 
     public void sendAckProcessStopped(int processID){
-        processManager.stopSpecificProcess(processID);
+        if(processManager.containsProcess(processID)){
+            processManager.stopSpecificProcess(processID);
 
-        byte[] buffer = packetWithOwnHeader.commandoFiveteen(processID);
-        DatagramPacket acknowlegement = new DatagramPacket(buffer, buffer.length);
-        send(acknowlegement);
+            byte[] buffer = packetWithOwnHeader.commandoFiveteen(processID);
+            DatagramPacket acknowlegement = new DatagramPacket(buffer, buffer.length);
+            send(acknowlegement);
+        }
+
     }
 
 
@@ -180,7 +189,6 @@ public class Server implements NetworkUser, Runnable{
     public void send(DatagramPacket p){
         byte[] buf = p.getData();
         int lenght = p.getLength();
-        print(Integer.toString(destinationPort));//todo
         try {
         destinationAddress = InetAddress.getLocalHost();//todo nu voor computer niet PI
 

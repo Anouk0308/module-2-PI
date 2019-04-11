@@ -23,10 +23,11 @@ public class Checksum {
         byte[] tooLong =  buffer.array();
 
 
+        /*
         byte[] correct = new byte[4];
         System.arraycopy(tooLong,4,correct,0,4);
-
-        return correct;
+*/
+        return tooLong;
     }
 
     private static void print (String message){
@@ -38,18 +39,26 @@ public class Checksum {
         DatagramPacket checkedPacket = null;
 
         byte[] data = packet.getData();
-        byte[] checksum = new byte[4];
-        System.arraycopy(data,0,checksum,0,4);//todo hier naar kijken
+        byte[] checksum = new byte[8];
+        System.arraycopy(data,0,checksum,0,8);//todo hier naar kijken
 
-        byte[] dataWithOutChecksum = new byte[data.length-4];
-        System.arraycopy(data,4,dataWithOutChecksum,0,data.length-4);
+        byte[] dataWithOutChecksum = new byte[data.length-8];
+        System.arraycopy(data,8,dataWithOutChecksum,0,data.length-8);
 
         byte[] ownCalculatedChecksum = creatingChecksum(dataWithOutChecksum);
 
-        if(checksum[0] == ownCalculatedChecksum[0] && checksum[1] == ownCalculatedChecksum[1] && checksum[2] == ownCalculatedChecksum[2] && checksum[3] == ownCalculatedChecksum[3]){
+        if(checksum[0] == ownCalculatedChecksum[0] && checksum[1] == ownCalculatedChecksum[1] && checksum[2] == ownCalculatedChecksum[2] && checksum[3] == ownCalculatedChecksum[3] && checksum[4] == ownCalculatedChecksum[4] && checksum[5] == ownCalculatedChecksum[5] && checksum[6] == ownCalculatedChecksum[6] && checksum[7] == ownCalculatedChecksum[7]){
             checkedPacket = packet;
+        } else{//statistics is updated in the inputHandler()
+           for(int i = 0; i < 8; i++){
+               print(Byte.toString(checksum[i]));
+           }
+            for(int i = 0; i < 8; i++){
+                print(Byte.toString(ownCalculatedChecksum[i]));
+            }
+
         }
-        return checkedPacket;
+        return packet;//todo hier moet checkedPacket, maar dat klopt niet bij header 6?
 
     }
 }

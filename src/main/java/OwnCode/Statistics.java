@@ -29,11 +29,14 @@ public class Statistics {
     }
 
     public void startingProcess(int processID){
+        /*
         int startingTime = (int) System.currentTimeMillis();
         hmapRunning.put(processID, startingTime);
+        */
     }
 
     public void stoppingProcess(int processID, int bytesToLoad){
+        /*
         int stoppingTime = (int) System.currentTimeMillis();
         int startingTime = hmapRunning.get(processID);
         hmapRunning.remove(processID);
@@ -41,9 +44,11 @@ public class Statistics {
         LoadingInformation loadingInformationTemp = new LoadingInformation(processID, timeToLoad, bytesToLoad);
         calculateHighestDownLoadSpeed();
         calculateAverageDownloadSpeed();
+        */
     }
 
     public void calculateHighestDownLoadSpeed(){
+        /*
         int stoppedProcessed = loadingInformations.length;
         for(int i = 0; i < stoppedProcessed; i++){
             LoadingInformation loadingInformationTemp = loadingInformations[i];
@@ -56,9 +61,11 @@ public class Statistics {
                 highestDownloadSpeed = downloadSpeedProcessI;
             }
         }
+        */
     }
 
     public void calculateAverageDownloadSpeed(){
+        /*
         int stoppedProcessed = loadingInformations.length;
         int totalDownloadSpeed = 0;
         for(int i = 0; i < stoppedProcessed; i++){
@@ -71,5 +78,6 @@ public class Statistics {
             totalDownloadSpeed = totalDownloadSpeed + downloadSpeedProcessI;
         }
         averageDownloadSpeed = totalDownloadSpeed/stoppedProcessed;
+        */
     }
 }

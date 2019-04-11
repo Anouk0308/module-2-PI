@@ -82,7 +82,7 @@ public class UploadProcess implements Process, Runnable {
             }
 
             //set timer
-            Utils.Timer timer = utils.new Timer(1000);
+            Utils.Timer timer = utils.new Timer(5000);
             try {
                 while (!timer.isTooLate()) {
                     Thread.sleep(10);
@@ -105,7 +105,7 @@ public class UploadProcess implements Process, Runnable {
 
         receivedAnAck = true;//for timer in startProcess()
 
-        while(!isInterrupted) {//Can only receive packets when running/not interrupted
+        if(!isInterrupted) {//Can only receive packets when running/not interrupted
             byte[] packetData = packet.getData();
             int packetNumber = utils.limitBytesToInteger(packetData[packetWithOwnHeader.packetNumberPosition], packetData[packetWithOwnHeader.packetNumberPosition+1]);
 
@@ -134,25 +134,27 @@ public class UploadProcess implements Process, Runnable {
     }
 
     public void sendLastPacket(){
-        DatagramPacket lastPacket = uploadingPackets[uploadingPackets.length-1];
+        if(!acknowledgementToStop) {
+            DatagramPacket lastPacket = uploadingPackets[uploadingPackets.length - 1];
 
-        try {
-            networkUser.send(lastPacket);
+            try {
+                networkUser.send(lastPacket);
 
-            //set timer
-            Utils.Timer timer = utils.new Timer(1000);
-            while(!timer.isTooLate()){//while timer didn't went of yet
-                if (acknowledgementToStop) {
-                    print("Uploading " + file.getName() + " is finished.");
-                    kill();//process is killed, timer will not go off
-                } else { //wait till PI tells that the uploading process can stop
-                    Thread.sleep(10);
+                //set timer
+                Utils.Timer timer = utils.new Timer(1000);
+                while (!timer.isTooLate()) {//while timer didn't went of yet
+                    if (acknowledgementToStop) {
+                        print("Uploading " + file.getName() + " is finished.");
+                        networkUser.getProcessManager().stopSpecificProcess(processID);
+                    } else { //wait till PI tells that the uploading process can stop
+                        Thread.sleep(10);
+                    }
                 }
+                //timer went off, still no acknowledgement to stop
+                sendLastPacket();
+            } catch (InterruptedException e) {
+                print("Client error: " + e.getMessage());
             }
-            //timer went off, still no acknowledgement to stop
-            sendLastPacket();
-        } catch (InterruptedException e) {
-            print("Client error: " + e.getMessage());
         }
     }
 
@@ -162,7 +164,6 @@ public class UploadProcess implements Process, Runnable {
 
     public void kill(){
         networkUser.getStatics().stoppingProcess(processID, bytesToLoad);
-        networkUser.getProcessManager().stopSpecificProcess(processID);
     }
 
     public int getProcessID(){return processID;}

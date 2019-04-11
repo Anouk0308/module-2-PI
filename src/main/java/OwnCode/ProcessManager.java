@@ -102,7 +102,7 @@ public class ProcessManager {
         int processID = 0;
 
         for(int i = 0; i < runningProcesses.length; i++){
-            if(runningProcesses[i].getProcessID() == userIDSugested){
+            if(runningProcesses[i] != null && runningProcesses[i].getProcessID() == userIDSugested){
                 IDfound = 1;
                 processID = i;
             }
@@ -150,7 +150,7 @@ public class ProcessManager {
         int processID = 0;
 
         for(int i = 0; i < pausedProcesses.length; i++){
-            if(pausedProcesses[i].getProcessID() == userIDSugested){
+            if(pausedProcesses[i] != null && pausedProcesses[i].getProcessID() == userIDSugested){
                 IDfound = 1;
                 processID = i;
             }
@@ -199,14 +199,14 @@ public class ProcessManager {
         String state = "";
 
         for(int i = 0; i < runningProcesses.length; i++){
-            if(runningProcesses[i].getProcessID() == userIDSugested){
-                IDfound = 1;
-                processID = i;
-                state = "RUNNING";
+            if(runningProcesses[i] != null && runningProcesses[i].getProcessID() == userIDSugested) {
+                    IDfound = 1;
+                    processID = i;
+                    state = "RUNNING";
             }
         }
         for(int i = 0; i < pausedProcesses.length; i++){
-            if(pausedProcesses[i].getProcessID() == userIDSugested){
+            if(pausedProcesses[i] != null && pausedProcesses[i].getProcessID() == userIDSugested){
                 IDfound = 1;
                 processID = i;
                 state = "PAUSED";
@@ -214,7 +214,7 @@ public class ProcessManager {
         }
 
         if(IDfound == 1){
-            print("Process "+ processID + "is stopped");
+            print("Process "+ processID + " is stopped");
             if(state.equals("RUNNING")){
                 runningProcesses[processID].kill();
                 runningProcesses[processID] = null;
@@ -288,13 +288,20 @@ public class ProcessManager {
             DownloadProcess downloadProcess = (DownloadProcess) runningProcesses[processID];
             downloadProcess.receivePacket(receivedPacked);
         }
+
     }
 
     public void receiveAcknowledgementPacketForProcess(int processID, DatagramPacket receivedPacked){
-        if (runningProcesses[processID] != null && runningProcesses[processID] instanceof UploadProcess){
+        if (runningProcesses[processID] != null && runningProcesses[processID] instanceof FakeUploadProcess){
+            FakeUploadProcess fakeUploadProcess = (FakeUploadProcess) runningProcesses[processID];
+            fakeUploadProcess.receiveAcknowledgementPacket(receivedPacked);
+        }
+
+        /*
+        if (runningProcesses[processID] != null && runningProcesses[processID] instanceof UploadProcess){//todo voor niet echt packetjes
             UploadProcess uploadProcess = (UploadProcess) runningProcesses[processID];
             uploadProcess.receiveAcknowledgementPacket(receivedPacked);
-        }
+        }*/
     }
 
     public void receiveLastPacketForProcess(int processID, DatagramPacket receivedPacked){
@@ -305,13 +312,29 @@ public class ProcessManager {
     }
 
     public void receiveAcknowledgementLastPacketForProcess(int processID){
+        if(runningProcesses[processID] != null && runningProcesses[processID] instanceof FakeUploadProcess){
+            FakeUploadProcess fakeUploadProcess = (FakeUploadProcess) runningProcesses[processID];
+            fakeUploadProcess.setAcknowledgementToStopTrue();
+        }
+
+        /*
         if(runningProcesses[processID] != null && runningProcesses[processID] instanceof UploadProcess){
             UploadProcess upload = (UploadProcess) runningProcesses[processID];
             upload.setAcknowledgementToStopTrue();
         }
+         */
     }
 
-    private static void print (String message){
-        System.out.println(message);
+    public boolean containsProcess(int processID){
+        for(int i = 0; i < 1000; i ++){
+            if(runningProcesses[i] != null && runningProcesses[i].getProcessID() == processID || pausedProcesses[i] != null && pausedProcesses[i].getProcessID() == processID) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private void print (String message){
+        networkUser.print(message);
     }
 }

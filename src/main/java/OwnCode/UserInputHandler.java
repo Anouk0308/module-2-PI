@@ -148,8 +148,8 @@ public class UserInputHandler implements Runnable{
                     String pathname = filePath + filename;//todo:kijken of dit zo werkt?
                     //File file = new File(pathname); //todo dit is de goede variant
 
-                    byte[] fakeFile = new byte[1000];//todo dit is fake
-                    for(int i = 0; i < 1000; i++){
+                    byte[] fakeFile = new byte[3000];//todo dit is fake
+                    for(int i = 0; i < 3000; i++){
                         fakeFile[i]= 2;
                     }
 

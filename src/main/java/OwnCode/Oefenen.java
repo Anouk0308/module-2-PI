@@ -8,6 +8,7 @@ public class Oefenen {
     Checksum checksum;
     Server server;
     PacketWithOwnHeader packetWithOwnHeader;
+    SlidingWindow slidingWindow;
 
     public static void main(String[] args) {
         Oefenen oefenen = new Oefenen();
@@ -15,12 +16,16 @@ public class Oefenen {
 
     public Oefenen(){
         startUp();
-        byte[] oefenen = new byte[10];
-        DatagramPacket oefenpacket = new DatagramPacket(oefenen, oefenen.length);
-        server.connect();
-        print("1");
-        server.send(oefenpacket);
-        print("packetje verstuurd");
+        byte[] fakeFile = new byte[3000];//todo dit is fake
+        for(int i = 0; i < 1000; i++){
+            fakeFile[i]= 2;
+        }
+
+        slidingWindow.fakeSlice(fakeFile, 1);
+
+
+
+
 
 
         /*
@@ -63,6 +68,7 @@ public class Oefenen {
         int portServer = 8888;
         int portClient = 8000;
         server = new Server(portClient, portServer);
+        slidingWindow = new SlidingWindow();
     }
 
 

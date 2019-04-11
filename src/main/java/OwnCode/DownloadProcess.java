@@ -63,12 +63,14 @@ public class DownloadProcess implements Process, Runnable{
     }
 
     public void receivePacket(DatagramPacket packet){
+        print("packetje ontvangen");//todo weghalen
 
         receivedAPacket = true;//for timer in handshake()
 
-        while(!isInterrupted){//Can only receive packets when running/not interrupted
+        if(!isInterrupted){//Can only receive packets when running/not interrupted
             byte[] packetData = packet.getData();
             int packetNumber = utils.limitBytesToInteger(packetData[packetWithOwnHeader.packetNumberPosition], packetData[packetWithOwnHeader.packetNumberPosition+1]);
+            print("namelijk packetnummer" + packetNumber);//todo weghalen
             downloadingPackets[packetNumber] = packet;
 
             int packetNumberSuccessive = -1;
@@ -78,15 +80,17 @@ public class DownloadProcess implements Process, Runnable{
                     break;
                 }
             }
+            print("packetnumber succesive:" + packetNumberSuccessive);//todo weghalen
 
             byte[] buffer = packetWithOwnHeader.commandoSeven(processID, packetNumberSuccessive);
             DatagramPacket acknowledgePacket = new DatagramPacket(buffer, buffer.length);
             networkUser.send(acknowledgePacket);
+            print("ack packet gestuurd");//todo weghalen
         }
     }
 
     public void receiveLastPacket(DatagramPacket packet){
-        while(!isInterrupted) {//Can only receive packets when running/not interrupted
+        if(!isInterrupted) {//Can only receive packets when running/not interrupted
             byte[] packetData = packet.getData();
             int packetNumber = utils.limitBytesToInteger(packetData[packetWithOwnHeader.packetNumberPosition], packetData[packetWithOwnHeader.packetNumberPosition+1]);
             downloadingPackets[packetNumber] = packet;
@@ -114,14 +118,14 @@ public class DownloadProcess implements Process, Runnable{
                 }
                 DatagramPacket[] newPacketArray = new DatagramPacket[newPacketsArrayLenght];
                 System.arraycopy(downloadingPackets, 0, newPacketArray, 0, newPacketsArrayLenght);
-                utils.packetsToFile(newPacketArray, filePath, slidingWindow.getRawDataSpace());
+               // File file = utils.packetsToFile(newPacketArray, filePath, slidingWindow.getRawDataSpace());
 
                 //save file
                 //todo savennnnn
 
                 //print download is done
                 print("Downloading " + fileName + " is finished.");
-                kill();
+                networkUser.getProcessManager().stopSpecificProcess(processID);
 
             } else {
                 byte[] buffer = packetWithOwnHeader.commandoSeven(processID, packetNumberSuccessive);
@@ -134,7 +138,6 @@ public class DownloadProcess implements Process, Runnable{
 
     public void kill(){
         networkUser.getStatics().stoppingProcess(processID, bytesToLoad);
-        networkUser.getProcessManager().stopSpecificProcess(processID);
     }
 
     public int getProcessID(){return processID;}

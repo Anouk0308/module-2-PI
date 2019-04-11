@@ -7,7 +7,7 @@ public class PacketWithOwnHeader {
     private Checksum checksum = new Checksum();
 
     int checksumPosition = 0;
-    private byte[] checksumBytes = new byte[4];
+    private byte[] checksumBytes = new byte[8];
     int commandoPosition = checksumPosition + checksumBytes.length;
     private byte[] commandoByte = new byte[1];
     int processIDPosition = commandoPosition + commandoByte.length;
