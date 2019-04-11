@@ -37,7 +37,6 @@ public class FakeUploadProcess implements Process, Runnable{
         this.uploadingPackets = slidingWindow.fakeSlice(byteArrToLoad,processID);
         this.isClient = isClient;
         print("fakeUpload initiated");//todo weghalen
-
     }
 
     @Override
@@ -73,28 +72,42 @@ public class FakeUploadProcess implements Process, Runnable{
 
     public void startProcess(){
         print("fake upload startprocess started");//todo weghalen
+        for(int i = 0; i < uploadingPackets.length; i++){
+            System.out.println(uploadingPackets[i]);
+        }
+
+        //todo nu hier :D
+        //todo uploadingPackets lijkt niks te bevatten
 
         //send first packets
-        for(int i = 0; i < windowSize; i++){
-            DatagramPacket startPacket = uploadingPackets[i];
-            networkUser.send(startPacket);
-        }
-
-        //set timer
-        Utils.Timer timer = utils.new Timer(1000);
-        try{
-            while (!timer.isTooLate()) {
-                Thread.sleep(10);
+        if(uploadingPackets.length < windowSize){
+            for(int i = 0; i < uploadingPackets.length-1; i++){
+                DatagramPacket startPacket = uploadingPackets[i];
+                networkUser.send(startPacket);
+                print("packetje verzonden!!");//todo weghalen
             }
-            //timer went off
-            if(receivedAnAck=false){//if there is still no acknowledgement packet received:
-                startProcess();
+            sendLastPacket();
+        } else{
+            for(int i = 0; i < windowSize; i++){
+                DatagramPacket startPacket = uploadingPackets[i];
+                networkUser.send(startPacket);
+
+                //set timer
+                Utils.Timer timer = utils.new Timer(1000);
+                try{
+                    while (!timer.isTooLate()) {
+                        Thread.sleep(10);
+                    }
+                    //timer went off
+                    if(receivedAnAck=false){//if there is still no acknowledgement packet received:
+                        startProcess();
+                    }
+
+                } catch (InterruptedException e) {
+                    print("Client error: " + e.getMessage());
+                }
             }
-
-        } catch (InterruptedException e) {
-            print("Client error: " + e.getMessage());
         }
-
 
     }
 
@@ -135,9 +148,11 @@ public class FakeUploadProcess implements Process, Runnable{
 
     public void sendLastPacket(){
         DatagramPacket lastPacket = uploadingPackets[uploadingPackets.length-1];
+        System.out.println(lastPacket);//todo weghalen
 
         try {
             networkUser.send(lastPacket);
+            print("laatste packetje verzonden");//todo weghalen
 
             //set timer
             Utils.Timer timer = utils.new Timer(1000);

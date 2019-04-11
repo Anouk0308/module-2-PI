@@ -68,27 +68,34 @@ public class UploadProcess implements Process, Runnable {
     public void startProcess(){
 
         //send first packets
-        for(int i = 0; i < windowSize; i++){
-            DatagramPacket startPacket = uploadingPackets[i];
-            networkUser.send(startPacket);
-        }
-
-        //set timer
-        Utils.Timer timer = utils.new Timer(1000);
-        try{
-            while (!timer.isTooLate()) {
-                Thread.sleep(10);
+        if(uploadingPackets.length < windowSize){
+            for(int i = 0; i < uploadingPackets.length-1; i++){
+                DatagramPacket startPacket = uploadingPackets[i];
+                networkUser.send(startPacket);
+                print("packetje verzonden!!");//todo weghalen
             }
-            //timer went off
-            if(receivedAnAck=false){//if there is still no acknowledgement packet received:
-                startProcess();
+            sendLastPacket();
+        } else {
+            for (int i = 0; i < windowSize; i++) {
+                DatagramPacket startPacket = uploadingPackets[i];
+                networkUser.send(startPacket);
             }
 
-        } catch (InterruptedException e) {
-            print("Client error: " + e.getMessage());
+            //set timer
+            Utils.Timer timer = utils.new Timer(1000);
+            try {
+                while (!timer.isTooLate()) {
+                    Thread.sleep(10);
+                }
+                //timer went off
+                if (receivedAnAck = false) {//if there is still no acknowledgement packet received:
+                    startProcess();
+                }
+
+            } catch (InterruptedException e) {
+                print("Client error: " + e.getMessage());
+            }
         }
-
-
     }
 
     int AckNumber = 0;//for counter
