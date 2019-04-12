@@ -120,8 +120,11 @@ public class Server implements NetworkUser, Runnable{
     }
 
     public void requestStartDownloadProcess(byte[] rawData, int processID){
-        String fileName = utils.fromByteArrToString(rawData);
-        processManager.createDownloadProcessWithProcessID(fileName, filePath, this, processID, isClient);
+        String fileNameAndNumberOfBytesToLoad = utils.fromByteArrToString(rawData);
+        String[] stringArr = fileNameAndNumberOfBytesToLoad.split("\\+");
+        String fileName = stringArr[0];
+        int numberOfBytesToLoad = Integer.parseInt(stringArr[1]);
+        processManager.createDownloadProcessWithProcessID(fileName, filePath, this, processID, isClient, numberOfBytesToLoad);
         print("server download process is created");//todo weghalen
 
         byte[] buffer = packetWithOwnHeader.commandoFive(processID);
@@ -131,13 +134,16 @@ public class Server implements NetworkUser, Runnable{
     }
 
     public void requestStartUploadProcess(byte[] rawData, int processID){
-        String fileName = utils.fromByteArrToString(rawData);
+        String fileNameAndNumberOfBytesToLoad = utils.fromByteArrToString(rawData);
+        String[] stringArr = fileNameAndNumberOfBytesToLoad.split("\\+");
+        String fileName = stringArr[0];
+        int numberOfBytesToLoad = Integer.parseInt(stringArr[1]);
 
         byte[] fakeFile = new byte[3000];//todo dit is fake
-        for(int i = 0; i < 3000; i++){
+        for(int i = 0; i < fakeFile.length; i++){
             fakeFile[i]= 2;
         }
-        processManager.createFakeUploadProcess(fakeFile, this, isClient);//todo dit is fake
+        processManager.createFakeUploadProcess(fakeFile, this, isClient, numberOfBytesToLoad);//todo dit is fake
 
 
         /*

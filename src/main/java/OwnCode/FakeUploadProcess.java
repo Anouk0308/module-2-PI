@@ -8,6 +8,7 @@ public class FakeUploadProcess implements Process, Runnable{
     private byte[] byteArrToLoad;
     private int bytesToLoad;//todo dit nog uitlezen
     private String fileName = "woopwoop.woop";
+    private String fileNameAndNumberOfBytesToLoad;
 
     private int packetSize;
     private int windowSize;
@@ -25,7 +26,7 @@ public class FakeUploadProcess implements Process, Runnable{
     public boolean isInterrupted = false;
     private boolean receivedAnAck = false; //is for timer
 
-    public FakeUploadProcess(int processID, byte[] byteArrToLoad, NetworkUser networkUser, boolean isClient, SlidingWindow slidingWindow){
+    public FakeUploadProcess(int processID, byte[] byteArrToLoad, NetworkUser networkUser, boolean isClient, SlidingWindow slidingWindow, int numberOfBytesToLoad){
         this.networkUser = networkUser;
         this.slidingWindow = slidingWindow;
         utils = new Utils();
@@ -36,6 +37,7 @@ public class FakeUploadProcess implements Process, Runnable{
         this.windowSize = slidingWindow.getWindowSize();
         this.uploadingPackets = slidingWindow.fakeSlice(byteArrToLoad,processID);
         this.isClient = isClient;
+        this.fileNameAndNumberOfBytesToLoad = fileName + "+" + Integer.toString(numberOfBytesToLoad);
     }
 
     @Override
@@ -48,7 +50,7 @@ public class FakeUploadProcess implements Process, Runnable{
 
     public void handshake(){
         print("fake upload handshake started");//todo weghalen
-        byte[] buffer = packetWithOwnHeader.commandoThree(processID, fileName);
+        byte[] buffer = packetWithOwnHeader.commandoThree(processID, fileNameAndNumberOfBytesToLoad);
         DatagramPacket startPacket = new DatagramPacket(buffer, buffer.length);
         try {
             networkUser.send(startPacket);

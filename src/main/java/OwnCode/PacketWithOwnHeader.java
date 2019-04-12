@@ -41,13 +41,13 @@ public class PacketWithOwnHeader {
         return header;
     }
 
-    public byte[] commandoThree(int processID, String fileName){//client to PI: I am going to download, so start an upload
+    public byte[] commandoThree(int processID, String fileNameAndNumberOfBytesToLoad){//client to PI: I am going to download, so start an upload
         commandoByte[0]= utils.fromIntegerToByte(3);
 
         processIDbytes[0] = utils.limitByteFirstByte(processID);
         processIDbytes[1]= utils.limitByteSecondByte(processID);
 
-        byte[] fileNamebytes = utils.fromStringToByteArr(fileName);
+        byte[] fileNamebytes = utils.fromStringToByteArr(fileNameAndNumberOfBytesToLoad);
 
         byte[] headerTemp = utils.combineByteArr(commandoByte, processIDbytes, packetNumberBytes, fileNamebytes);
 
@@ -56,13 +56,13 @@ public class PacketWithOwnHeader {
         return header;
     }
 
-    public byte[] commandoFour(int processID, String fileName){//client to PI: I am going to upload, so start a download
+    public byte[] commandoFour(int processID, String fileNameAndNumberOfBytesToLoad){//client to PI: I am going to upload, so start a download
         commandoByte[0]= utils.fromIntegerToByte(4);
 
         processIDbytes[0] = utils.limitByteFirstByte(processID);
         processIDbytes[1]= utils.limitByteSecondByte(processID);
 
-        byte[] fileNamebytes = utils.fromStringToByteArr(fileName);
+        byte[] fileNamebytes = utils.fromStringToByteArr(fileNameAndNumberOfBytesToLoad);
 
         byte[] headerTemp = utils.combineByteArr(commandoByte, processIDbytes, packetNumberBytes, fileNamebytes);
 

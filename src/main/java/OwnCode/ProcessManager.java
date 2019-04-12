@@ -26,10 +26,10 @@ public class ProcessManager {
         return processID;
     }
 
-    public void createFakeUploadProcess(byte[] fakeFile, NetworkUser networkUser, boolean isClient){//todo FAKE
+    public void createFakeUploadProcess(byte[] fakeFile, NetworkUser networkUser, boolean isClient, int numberOfBytesToLoad){//todo FAKE
         int processID = getAProcessID();
 
-        FakeUploadProcess fakeUploadProcess = new FakeUploadProcess(processID, fakeFile, networkUser, isClient, slidingWindow);
+        FakeUploadProcess fakeUploadProcess = new FakeUploadProcess(processID, fakeFile, networkUser, isClient, slidingWindow, numberOfBytesToLoad);
         Thread thread = new Thread(fakeUploadProcess);
         runningProcesses[processID] = fakeUploadProcess;
         thread.start();
@@ -39,35 +39,35 @@ public class ProcessManager {
 
 
 
-    public void createUploadProcess(File file, NetworkUser networkUser, boolean isClient){
+    public void createUploadProcess(File file, NetworkUser networkUser, boolean isClient, int numberOfBytesToLoad){
         int processID = getAProcessID();
 
-        UploadProcess upload = new UploadProcess(processID, file, networkUser, isClient, slidingWindow);
+        UploadProcess upload = new UploadProcess(processID, file, networkUser, isClient, slidingWindow, numberOfBytesToLoad);
         Thread thread = new Thread(upload);
         runningProcesses[processID] = upload;
         thread.start();
         networkUser.getStatics().startingProcess(processID);
     }
 
-    public void createDownloadProcess(String fileName, String filePath, NetworkUser networkUser, boolean isClient){
+    public void createDownloadProcess(String fileName, String filePath, NetworkUser networkUser, boolean isClient, int numberOfBytesToLoad){
         int processID = getAProcessID();
-        DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, filePath, isClient, slidingWindow);
+        DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, filePath, isClient, slidingWindow, numberOfBytesToLoad);
         Thread thread = new Thread(download);
         runningProcesses[processID] = download;
         thread.start();
         networkUser.getStatics().startingProcess(processID);
     }
 
-    public void createUploadProcessWithProcessID(File file, NetworkUser networkUser, int processID, boolean isClient){
-        UploadProcess upload = new UploadProcess(processID, file, networkUser, isClient, slidingWindow);
+    public void createUploadProcessWithProcessID(File file, NetworkUser networkUser, int processID, boolean isClient, int numberOfBytesToLoad){
+        UploadProcess upload = new UploadProcess(processID, file, networkUser, isClient, slidingWindow, numberOfBytesToLoad);
         Thread thread = new Thread(upload);
         runningProcesses[processID] = upload;
         thread.start();
         networkUser.getStatics().startingProcess(processID);
     }
 
-    public void createDownloadProcessWithProcessID(String fileName, String filePath, NetworkUser networkUser, int processID, boolean isClient){
-        DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, filePath, isClient, slidingWindow);
+    public void createDownloadProcessWithProcessID(String fileName, String filePath, NetworkUser networkUser, int processID, boolean isClient, int numberOfBytesToLoad){
+        DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, filePath, isClient, slidingWindow, numberOfBytesToLoad);
         Thread thread = new Thread(download);
         runningProcesses[processID] = download;
         thread.start();

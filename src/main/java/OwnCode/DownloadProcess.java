@@ -6,7 +6,8 @@ import java.net.DatagramPacket;
 public class DownloadProcess implements Process, Runnable{
     private int processID;
     private String fileName;
-    private int bytesToLoad;//todo dit nog uitlezen
+    private int numberOfBytesToLoad;//todo dit nog uitlezen
+    private String fileNameAndNumberOfBytesToLoad;
 
     private DatagramPacket[] downloadingPackets = new DatagramPacket[100000]; //todo, kijken hoe dit op te lossen
 
@@ -21,7 +22,7 @@ public class DownloadProcess implements Process, Runnable{
     private boolean receivedAPacket = false; // for timer
     private boolean isClient;
 
-    public DownloadProcess(int processID, String fileName, NetworkUser networkUser, String filePath, boolean isClient, SlidingWindow slidingWindow){
+    public DownloadProcess(int processID, String fileName, NetworkUser networkUser, String filePath, boolean isClient, SlidingWindow slidingWindow, int numberOfBytesToLoad){
         this.processID = processID;
         this.fileName = fileName;
         this.networkUser = networkUser;
@@ -30,6 +31,8 @@ public class DownloadProcess implements Process, Runnable{
         utils = new Utils();
         packetWithOwnHeader = new PacketWithOwnHeader();
         this.isClient = isClient;
+        this.numberOfBytesToLoad = numberOfBytesToLoad;
+        this.fileNameAndNumberOfBytesToLoad = fileName + "+" + Integer.toString(numberOfBytesToLoad);
     }
 
     @Override
@@ -41,7 +44,7 @@ public class DownloadProcess implements Process, Runnable{
 
 
     public void handshake(){
-        byte[] buffer = packetWithOwnHeader.commandoFour(processID, fileName);
+        byte[] buffer = packetWithOwnHeader.commandoFour(processID, fileNameAndNumberOfBytesToLoad);
         DatagramPacket startPacket = new DatagramPacket(buffer, buffer.length);
         networkUser.send(startPacket);
         print("Starting downloading process...");
@@ -71,6 +74,11 @@ public class DownloadProcess implements Process, Runnable{
             print("com6, packetje ontvangen met packetnummer" + packetNumber);//todo weghalen
             downloadingPackets[packetNumber] = packet;
 
+            byte[] rawData = utils.removeHeader(packetData);//todo weghalen
+            for(int i = 0; i < rawData.length; i++){
+                System.out.println("packetnumber" + packetNumber + "byte rawdata" + rawData[i]);
+            }
+
             int packetNumberSuccessive = -1;
             for(int i = 0; i < downloadingPackets.length; i++){
                 if(downloadingPackets[i+1] == null){
@@ -89,9 +97,24 @@ public class DownloadProcess implements Process, Runnable{
     public void receiveLastPacket(DatagramPacket packet){
         if(!isInterrupted) {//Can only receive packets when running/not interrupted
             byte[] packetData = packet.getData();
+
+
+
+
             int packetNumber = utils.limitBytesToInteger(packetData[packetWithOwnHeader.packetNumberPosition], packetData[packetWithOwnHeader.packetNumberPosition+1]);
             print("com8, packetje ontvangen met packetnummer" + packetNumber);//todo weghalen
+
+            for(int i = 0; i < packetData.length; i++){//todo weghalen
+                System.out.println("packetnumber" + packetNumber + "byte rawdata" + packetData[i]);
+            }
+
+
             downloadingPackets[packetNumber] = packet;
+
+            byte[] rawData = utils.removeHeader(packetData);//todo weghalen
+            for(int i = 0; i < rawData.length; i++){
+                System.out.println("packetnumber" + packetNumber + "byte rawdata" + rawData[i]);
+            }
 
             int packetNumberSuccessive = -1;
             for (int i = 0; i < downloadingPackets.length; i++) {
@@ -129,7 +152,7 @@ public class DownloadProcess implements Process, Runnable{
     }
 
     public void createFile(){
-        for (int i = 0; i < downloadingPackets.length; i++) {
+        for (int i = 0; i < downloadingPackets.length; i++) {//todo weghalen
             if (downloadingPackets[i] != null) {
                 System.out.println(downloadingPackets[i]);
             }
@@ -144,21 +167,37 @@ public class DownloadProcess implements Process, Runnable{
         }
         DatagramPacket[] newPacketArray = new DatagramPacket[newPacketsArrayLenght];
         System.arraycopy(downloadingPackets, 0, newPacketArray, 0, newPacketsArrayLenght);
+        for (int i = 0; i < newPacketArray.length; i++) {//todo weghalen
+                System.out.println(newPacketArray[i]);
+        }
 
-        int offspring = 0;
-        byte[] allBytesTogether = new byte[newPacketsArrayLenght * slidingWindow.getRawDataSpace()];
+
+        byte[] allBytesTogether = new byte[0];
+
+        //hier gaat het fout FOUT
         for(int i = 0; i < newPacketsArrayLenght; i++){
             byte[] rawData = utils.removeHeader(newPacketArray[i].getData());
-            System.arraycopy(rawData, 0, allBytesTogether, offspring, rawData.length);
-            offspring = rawData.length;
+            allBytesTogether = utils.combineByteArr(allBytesTogether, rawData);
         }
 
         byte[] originalFakeFile = new byte[3000];//todo dit is fake
-        for(int i = 0; i < 3000; i++){
+        for(int i = 0; i < originalFakeFile.length; i++){
             originalFakeFile[i]= 2;
         }
 
-        if(allBytesTogether.equals(originalFakeFile)){//todo weghalen
+
+        //todo weghalen:
+
+        int bytesSame = 0;
+        for(int i = 0; i <allBytesTogether.length; i++){//todo weghalen
+            if(allBytesTogether[i] == originalFakeFile[i]){
+                bytesSame++;
+            }
+            System.out.println("all" + allBytesTogether[i] + "+ ori" + originalFakeFile[i]);
+        }
+        System.out.println(bytesSame);
+
+        if(bytesSame == allBytesTogether.length){//todo weghalen
             print("zelfde packetje woop woop");
         } else{
             print("something went wrong, packetje is niet goed binnen gekomen");
@@ -173,7 +212,7 @@ public class DownloadProcess implements Process, Runnable{
     }
 
     public void kill(){
-        networkUser.getStatics().stoppingProcess(processID, bytesToLoad);
+        networkUser.getStatics().stoppingProcess(processID, numberOfBytesToLoad);
     }
 
     public int getProcessID(){return processID;}

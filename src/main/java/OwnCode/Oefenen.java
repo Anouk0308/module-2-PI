@@ -17,8 +17,8 @@ public class Oefenen {
 
     public Oefenen(){
         startUp();
-       byte[] fakeFile = new byte[3000];//todo dit is fake
-        for(int i = 0; i < 1000; i++){
+       byte[] fakeFile = new byte[3500];//todo dit is fake
+        for(int i = 0; i < fakeFile.length; i++){
             fakeFile[i]= 2;
         }
 
@@ -26,7 +26,10 @@ public class Oefenen {
 
         for(int i = 0; i < packets.length; i++){
             int packetnumber = utils.limitBytesToInteger(packets[i].getData()[packetWithOwnHeader.packetNumberPosition], packets[i].getData()[packetWithOwnHeader.packetNumberPosition+1]);
-            System.out.println(packetnumber);
+            for(int ii = 0; ii < packets[i].getLength(); ii++){
+                byte[]rawData = packets[i].getData();
+                System.out.println("packetnumber"+ packetnumber + "byte data" + rawData[ii]);
+            }
         }
 
         System.out.println("");

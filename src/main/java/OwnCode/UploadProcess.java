@@ -8,6 +8,7 @@ public class UploadProcess implements Process, Runnable {
     private File file;
     private int bytesToLoad;//todo dit nog uitlezen
     private String fileName = file.getName();
+    private String fileNameAndNumberOfBytesToLoad;
 
     private int packetSize;
     private int windowSize;
@@ -25,7 +26,7 @@ public class UploadProcess implements Process, Runnable {
     public boolean isInterrupted = false;
     private boolean receivedAnAck = false; //is for timer
 
-    public UploadProcess(int processID, File file, NetworkUser networkUser, boolean isClient, SlidingWindow slidingWindow){
+    public UploadProcess(int processID, File file, NetworkUser networkUser, boolean isClient, SlidingWindow slidingWindow, int numberOfBytesToLoad){
         this.slidingWindow = slidingWindow;
         packetWithOwnHeader = new PacketWithOwnHeader();
         this.processID = processID;
@@ -35,6 +36,7 @@ public class UploadProcess implements Process, Runnable {
         this.uploadingPackets = slidingWindow.slice(file,processID);
         this.networkUser = networkUser;
         utils = new Utils();
+        this.fileNameAndNumberOfBytesToLoad = fileName + "+" + Integer.toString(numberOfBytesToLoad);
     }
 
     @Override
@@ -46,7 +48,7 @@ public class UploadProcess implements Process, Runnable {
     }
 
     public void handshake(){
-        byte[] buffer = packetWithOwnHeader.commandoThree(processID, fileName);
+        byte[] buffer = packetWithOwnHeader.commandoThree(processID, fileNameAndNumberOfBytesToLoad);
         DatagramPacket startPacket = new DatagramPacket(buffer, buffer.length);
         try {
             networkUser.send(startPacket);

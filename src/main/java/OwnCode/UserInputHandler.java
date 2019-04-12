@@ -139,6 +139,12 @@ public class UserInputHandler implements Runnable{
     }
 
     public void uploadFile(){
+        print("These are the files you can chose:");
+        for(int i = 0; i < filesClient.length; i++){
+            print(filesClient[i]);
+        }
+        print("");
+
         print("Which file would you like to upload?");
         try {
             if (userInput != null) {
@@ -149,12 +155,13 @@ public class UserInputHandler implements Runnable{
                     //File file = new File(pathname); //todo dit is de goede variant
 
                     byte[] fakeFile = new byte[3000];//todo dit is fake
-                    for(int i = 0; i < 3000; i++){
+                    for(int i = 0; i < fakeFile.length; i++){
                         fakeFile[i]= 2;
                     }
+                    int numberOfBytesToLoad = fakeFile.length;//todo dit is fake
 
                     //processManager.createUploadProcess(file, client, isClient);//todo dit is de goede variant
-                    processManager.createFakeUploadProcess(fakeFile, client, isClient);//todo dit is fake
+                    processManager.createFakeUploadProcess(fakeFile, client, isClient, numberOfBytesToLoad);//todo dit is fake
 
                     print("Would you like to do something else?");
                     startMenu();
@@ -196,7 +203,8 @@ public class UserInputHandler implements Runnable{
                 String thisLine = userInput.readLine();
                 if(Arrays.asList(filesPI).contains(thisLine)){
                     String filename = thisLine;
-                    processManager.createDownloadProcess(filename, filePath, client, isClient);
+                    int numberOfBytesToLoad = 3000;//todo hier naar kijken. aan PI namen en gelijk grootte vragen??
+                    processManager.createDownloadProcess(filename, filePath, client, isClient, numberOfBytesToLoad);
 
                     //todo: startMenu();
                 } else{

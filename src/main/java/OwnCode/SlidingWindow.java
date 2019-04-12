@@ -88,10 +88,12 @@ public class SlidingWindow {
         }
 
         //last packet
-        int lenghtLastPart = rawDataLenght%numberPackets;
+        int lenghtLastPart = rawDataLenght-((numberPackets-1) * rawDataSpace);
+        System.out.println(lenghtLastPart);//todo weghalen
+        byte[]rawDataExtra = byteArr;
 
         byte[] rawDataLastPart = new byte[lenghtLastPart];
-        System.arraycopy(rawData, (numberPackets-1)*lenghtLastPart, rawDataLastPart, 0, lenghtLastPart);
+        System.arraycopy(rawDataExtra, (numberPackets-1)*lenghtLastPart, rawDataLastPart, 0, lenghtLastPart);
 
         byte[] lastPacketInBytes = packetWithOwnHeader.commandoEight(processID, numberPackets-1,rawDataLastPart);
         DatagramPacket lastPacket = new DatagramPacket(lastPacketInBytes, lastPacketInBytes.length);
