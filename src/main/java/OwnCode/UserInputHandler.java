@@ -203,7 +203,7 @@ public class UserInputHandler implements Runnable{
                 String thisLine = userInput.readLine();
                 if(Arrays.asList(filesPI).contains(thisLine)){
                     String filename = thisLine;
-                    int numberOfBytesToLoad = 3000;//todo hier naar kijken. aan PI namen en gelijk grootte vragen??
+                    int numberOfBytesToLoad = 3000;//todo naar kijken. aan PI namen en gelijk grootte vragen??
                     processManager.createDownloadProcess(filename, filePath, client, isClient, numberOfBytesToLoad);
 
                     //todo: startMenu();

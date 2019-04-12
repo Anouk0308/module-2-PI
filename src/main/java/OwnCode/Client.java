@@ -68,6 +68,7 @@ public class Client implements NetworkUser, Runnable {
         if(checkedPacket != null){
             byte[] data = receivedPacketFromServer.getData();
             byte commandoByte = data[packetWithOwnHeader.commandoPosition];
+            print("client received packet with commando: " + commandoByte );//todo weghalen
             byte byteProcessID1 = data[packetWithOwnHeader.processIDPosition];
             byte byteProcessID2 = data[packetWithOwnHeader.processIDPosition+1];
             int processID = utils.limitBytesToInteger(byteProcessID1, byteProcessID2);
@@ -84,9 +85,10 @@ public class Client implements NetworkUser, Runnable {
                                         break;
                 case 8:                 processManager.receiveLastPacketForProcess(processID, receivedPacketFromServer);
                                         break;
-                case 9:                 processManager.receiveAcknowledgementLastPacketForProcess(processID);
+                case 9:                 processManager.receiveAcknowledgementLastPacketForProcess(processID); //hier
                                         break;
-                case 12:                break;
+                case 12:                userInputHandler.startMenu();
+                                        break;
                 case 13:                receivedAckProcessPaused(processID);
                                         break;
                 case 14:                receivedAckProcessContinued(processID);
@@ -134,7 +136,7 @@ public class Client implements NetworkUser, Runnable {
             destinationAddress = InetAddress.getLocalHost();
 
             DatagramPacket packet = new DatagramPacket(buf, length, destinationAddress, destinationPort);
-
+            print("verzend nu packet met commando nummer:" + buf[packetWithOwnHeader.commandoPosition]);//todo weghalen
             socket.send(packet);
         } catch (IOException e) {
             print("Client error: " + e.getMessage());

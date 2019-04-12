@@ -85,7 +85,6 @@ public class FakeUploadProcess implements Process, Runnable{
             }
             sendLastPacket();
             lock.unlock();
-            //Hier: sendlastpacket hoeft dus niet als windowsize groter is dan packetjes
 
 
         } else{
@@ -155,34 +154,20 @@ public class FakeUploadProcess implements Process, Runnable{
         }
     }
 
+
     public void sendLastPacket(){
         if(!acknowledgementToStop){
             DatagramPacket lastPacket = uploadingPackets[uploadingPackets.length-1];
+            networkUser.send(lastPacket);
+            print("laatste packetje verzonden");//todo weghalen
 
-            try {
-                networkUser.send(lastPacket);
-                print("laatste packetje verzonden");//todo weghalen
-
-                //set timer
-                Utils.Timer timer = utils.new Timer(500);
-                while(!timer.isTooLate()){//while timer didn't went of yet
-                        Thread.sleep(10);
-                    }
-                if (acknowledgementToStop) {
-                    print("Uploading " + fileName + " is finished.");
-                    networkUser.getProcessManager().stopSpecificProcess(processID);
-                } else { //timer went off, still no acknowledgement to stop
-                    sendLastPacket();
-                }
-            } catch (InterruptedException e) {
-                print("Client error: " + e.getMessage());
-            }
+            //todo bedenken wat te doen als dit packet niet aan komt. hier een timer zetten blokkeert receiver
         }
-
     }
 
     public void setAcknowledgementToStopTrue(){
-        acknowledgementToStop = true;
+        print("Uploading " + fileName + " is finished.");
+        networkUser.getProcessManager().stopSpecificProcess(processID);
     }
 
     public void kill(){

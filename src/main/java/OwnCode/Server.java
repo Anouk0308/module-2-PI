@@ -190,11 +190,12 @@ public class Server implements NetworkUser, Runnable{
 
     public void send(DatagramPacket p){
         byte[] buf = p.getData();
-        int lenght = p.getLength();
+        int length = p.getLength();
         try {
         destinationAddress = InetAddress.getLocalHost();//todo nu voor computer niet PI
 
-        DatagramPacket packet = new DatagramPacket(buf, lenght, destinationAddress, destinationPort);
+        DatagramPacket packet = new DatagramPacket(buf, length, destinationAddress, destinationPort);
+        print("verzend nu packet met commando nummer:" + buf[packetWithOwnHeader.commandoPosition]);//todo weghalen
 
 
             socket.send(packet);

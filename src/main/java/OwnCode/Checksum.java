@@ -38,7 +38,7 @@ public class Checksum {
 
         byte[] data = packet.getData();
         byte[] checksum = new byte[4];
-        System.arraycopy(data,0,checksum,0,4);//todo hier naar kijken
+        System.arraycopy(data,0,checksum,0,4);//todo checken
 
         byte[] dataWithOutChecksum = new byte[data.length-4];
         System.arraycopy(data,4,dataWithOutChecksum,0,data.length-4);
@@ -58,7 +58,7 @@ public class Checksum {
             }
 */
         }
-        return packet;//todo hier moet checkedPacket, maar dat klopt niet bij header 6?
+        return packet;//todo moet checkedPacket, maar dat klopt niet bij header 6?
 
     }
 }

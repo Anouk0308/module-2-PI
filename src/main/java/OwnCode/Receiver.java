@@ -4,6 +4,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
 import java.net.InetAddress;
+import java.util.Arrays;
 
 public class Receiver implements Runnable{
     private DatagramSocket socket;
@@ -26,6 +27,7 @@ public class Receiver implements Runnable{
                 byte[] buffer = new byte[slidingWindow.getPacketSize()];//packet grootte
                 DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
                 socket.receive(receivePacket);
+                print(Arrays.toString(receivePacket.getData()));
                 /*
                 InetAddress sourceAddress = receivePacket.getAddress();
                 print("Received packet from: " + sourceAddress);
@@ -38,12 +40,14 @@ public class Receiver implements Runnable{
                 }
                     */
 
-                int usefullDataLength = receivePacket.getLength();
-                if(usefullDataLength < slidingWindow.getPacketSize()){
+                int usefulDataLength = receivePacket.getLength();
+                if(usefulDataLength < slidingWindow.getPacketSize()){
                     byte[] packetData = receivePacket.getData();
-                    byte[] usefullPacket = new byte[usefullDataLength];
-                    System.arraycopy(packetData,0,usefullPacket,0,usefullDataLength);
-                    DatagramPacket packet = new DatagramPacket(usefullPacket,usefullDataLength);
+                    byte[] usefulPacket = new byte[usefulDataLength];
+                    System.arraycopy(packetData,0,usefulPacket,0,usefulDataLength);
+                    DatagramPacket packet = new DatagramPacket(usefulPacket,usefulDataLength);
+                    print("packet received with commandonumber" + Byte.toString(packetData[packetWithOwnHeader.commandoPosition]));
+
                     networkUser.inputHandler(packet);
                 } else{
                     networkUser.inputHandler(receivePacket);

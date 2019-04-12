@@ -2,6 +2,7 @@ package OwnCode;
 
 import java.io.File;
 import java.net.DatagramPacket;
+import java.util.Arrays;
 
 public class DownloadProcess implements Process, Runnable{
     private int processID;
@@ -56,7 +57,7 @@ public class DownloadProcess implements Process, Runnable{
                 Thread.sleep(10);
             }
             //timer went off
-            if(receivedAPacket=false){//if there is still no packet received:
+            if(!receivedAPacket){//if there is still no packet received:
                 handshake();
             }
 
@@ -112,8 +113,14 @@ public class DownloadProcess implements Process, Runnable{
             if (packetNumberSuccessive == packetNumber) {//everything is received
                 //tell the other that everything is received
                 byte[] buffer = packetWithOwnHeader.commandoNine(processID, packetNumberSuccessive);
-                DatagramPacket acknowledgePacket = new DatagramPacket(buffer, buffer.length);
-                networkUser.send(acknowledgePacket);
+                DatagramPacket acknowledgeLastPacket = new DatagramPacket(buffer, buffer.length);
+               print(Arrays.toString(acknowledgeLastPacket.getData()));
+                networkUser.send(acknowledgeLastPacket);
+                print("commando nine verzonden");//todo weghalen
+
+
+
+                //todo timer. als ander niet commando 9 binnen krijgt, dan moet je die nog ene keer sturen
 
 
 
@@ -136,6 +143,8 @@ public class DownloadProcess implements Process, Runnable{
 
     }
 
+
+
     public void createFile(){
 
 
@@ -150,7 +159,6 @@ public class DownloadProcess implements Process, Runnable{
 
         byte[] allBytesTogether = new byte[0];
 
-        //hier gaat het fout FOUT
         for(int i = 0; i < newPacketsArrayLenght; i++){
             byte[] rawData = utils.removeHeader(newPacketArray[i].getData());
             allBytesTogether = utils.combineByteArr(allBytesTogether, rawData);
@@ -169,9 +177,7 @@ public class DownloadProcess implements Process, Runnable{
             if(allBytesTogether[i] == originalFakeFile[i]){
                 bytesSame++;
             }
-            System.out.println("all" + allBytesTogether[i] + "+ ori" + originalFakeFile[i]);
         }
-        System.out.println(bytesSame);
 
         if(bytesSame == allBytesTogether.length){//todo weghalen
             print("zelfde packetje woop woop");

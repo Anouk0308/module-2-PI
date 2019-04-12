@@ -3,9 +3,9 @@ package OwnCode;
 import java.io.IOException;
 import java.net.InetAddress;
 
-public class Main {
+public class MainClient {
 
-    private Main() {}
+    private MainClient() {}
 
     public static void main(String[] args) {
         try{

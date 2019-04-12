@@ -145,6 +145,9 @@ public class PacketWithOwnHeader {
 
         checksumBytes = checksum.creatingChecksum(headerTemp);
         byte[] header = utils.combineByteArr(checksumBytes, headerTemp);
+        for(int i = 0; i < header.length; i++){//todo weghalen
+            print(Byte.toString(header[i]));
+        }
         return header;
     }
 
