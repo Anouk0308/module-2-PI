@@ -8,7 +8,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 
 public class SlidingWindow {
-    private int windowSize = 10;
+    private int windowSize = 3;
     private int packetSize = 512;
     private static int headerSpace = 6;
     private int rawDataSpace = packetSize - headerSpace;
@@ -89,7 +89,6 @@ public class SlidingWindow {
 
         //last packet
         int lenghtLastPart = rawDataLenght-((numberPackets-1) * rawDataSpace);
-        System.out.println(lenghtLastPart);//todo weghalen
         byte[]rawDataExtra = byteArr;
 
         byte[] rawDataLastPart = new byte[lenghtLastPart];

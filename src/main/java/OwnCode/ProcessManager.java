@@ -34,7 +34,6 @@ public class ProcessManager {
         runningProcesses[processID] = fakeUploadProcess;
         thread.start();
         networkUser.getStatics().startingProcess(processID);
-        print("createFakeUpload succes");//todo weghalen
     }
 
 

@@ -102,7 +102,7 @@ public class Client implements NetworkUser, Runnable {
     }
 
     public void receivedFilesPI(byte[] data){
-        byte[] rawData = utils.removeHeader(data);//todo weghalen
+        byte[] rawData = utils.removeHeader(data);
         String filesString = utils.fromByteArrToString(rawData);
         String[] filesArr = filesString.split("\\+");
 

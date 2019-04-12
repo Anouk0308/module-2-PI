@@ -2,6 +2,7 @@ package OwnCode;
 
 import java.io.File;
 import java.net.DatagramPacket;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class UploadProcess implements Process, Runnable {
     private int processID;
@@ -18,6 +19,7 @@ public class UploadProcess implements Process, Runnable {
     private SlidingWindow slidingWindow;
     private Utils utils;
     private PacketWithOwnHeader packetWithOwnHeader;
+    private ReentrantLock lock = new ReentrantLock();
 
     private boolean acknowledgementToStart = false;
     private boolean acknowledgementToStop = false;
@@ -71,17 +73,21 @@ public class UploadProcess implements Process, Runnable {
 
         //send first packets
         if(uploadingPackets.length < windowSize){
+            lock.lock();
             for(int i = 0; i < uploadingPackets.length-1; i++){
                 DatagramPacket startPacket = uploadingPackets[i];
                 networkUser.send(startPacket);
                 print("packetje verzonden!!");//todo weghalen
             }
             sendLastPacket();
+            lock.unlock();
         } else {
+            lock.lock();
             for (int i = 0; i < windowSize; i++) {
                 DatagramPacket startPacket = uploadingPackets[i];
                 networkUser.send(startPacket);
             }
+            lock.unlock();
 
             //set timer
             Utils.Timer timer = utils.new Timer(5000);
@@ -122,6 +128,8 @@ public class UploadProcess implements Process, Runnable {
             int nextPacketNumber;
             if(counter >= 5){//when received 5 times the same acknowledgementPacket, send packet after this acknowledgementPacket
                 nextPacketNumber = packetNumber + 1;
+
+
             } else {
                 nextPacketNumber = packetNumber + windowSize;
             }

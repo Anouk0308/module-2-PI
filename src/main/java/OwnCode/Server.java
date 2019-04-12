@@ -59,9 +59,6 @@ public class Server implements NetworkUser, Runnable{
 
         if(checkedPacket != null) {
             byte[] data = receivedPacketFromClient.getData();
-            /*for(int i = 0; i < data.length; i++){//todo weghalen
-                print(Byte.toString(data[i]));
-            }*/
             byte commandoByte = data[packetWithOwnHeader.commandoPosition];
             print("server received packet with commando: " + commandoByte );//todo weghalen
             int processID = 0;
@@ -125,7 +122,6 @@ public class Server implements NetworkUser, Runnable{
         String fileName = stringArr[0];
         int numberOfBytesToLoad = Integer.parseInt(stringArr[1]);
         processManager.createDownloadProcessWithProcessID(fileName, filePath, this, processID, isClient, numberOfBytesToLoad);
-        print("server download process is created");//todo weghalen
 
         byte[] buffer = packetWithOwnHeader.commandoFive(processID);
 

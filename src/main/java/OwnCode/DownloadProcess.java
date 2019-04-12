@@ -74,11 +74,6 @@ public class DownloadProcess implements Process, Runnable{
             print("com6, packetje ontvangen met packetnummer" + packetNumber);//todo weghalen
             downloadingPackets[packetNumber] = packet;
 
-            byte[] rawData = utils.removeHeader(packetData);//todo weghalen
-            for(int i = 0; i < rawData.length; i++){
-                System.out.println("packetnumber" + packetNumber + "byte rawdata" + rawData[i]);
-            }
-
             int packetNumberSuccessive = -1;
             for(int i = 0; i < downloadingPackets.length; i++){
                 if(downloadingPackets[i+1] == null){
@@ -104,17 +99,7 @@ public class DownloadProcess implements Process, Runnable{
             int packetNumber = utils.limitBytesToInteger(packetData[packetWithOwnHeader.packetNumberPosition], packetData[packetWithOwnHeader.packetNumberPosition+1]);
             print("com8, packetje ontvangen met packetnummer" + packetNumber);//todo weghalen
 
-            for(int i = 0; i < packetData.length; i++){//todo weghalen
-                System.out.println("packetnumber" + packetNumber + "byte rawdata" + packetData[i]);
-            }
-
-
             downloadingPackets[packetNumber] = packet;
-
-            byte[] rawData = utils.removeHeader(packetData);//todo weghalen
-            for(int i = 0; i < rawData.length; i++){
-                System.out.println("packetnumber" + packetNumber + "byte rawdata" + rawData[i]);
-            }
 
             int packetNumberSuccessive = -1;
             for (int i = 0; i < downloadingPackets.length; i++) {
@@ -152,11 +137,6 @@ public class DownloadProcess implements Process, Runnable{
     }
 
     public void createFile(){
-        for (int i = 0; i < downloadingPackets.length; i++) {//todo weghalen
-            if (downloadingPackets[i] != null) {
-                System.out.println(downloadingPackets[i]);
-            }
-        }
 
 
         int newPacketsArrayLenght = downloadingPackets.length; //todo, als dowloadingpackets niet meer 1000000 is, hoeft dit allemaal niet
@@ -167,10 +147,6 @@ public class DownloadProcess implements Process, Runnable{
         }
         DatagramPacket[] newPacketArray = new DatagramPacket[newPacketsArrayLenght];
         System.arraycopy(downloadingPackets, 0, newPacketArray, 0, newPacketsArrayLenght);
-        for (int i = 0; i < newPacketArray.length; i++) {//todo weghalen
-                System.out.println(newPacketArray[i]);
-        }
-
 
         byte[] allBytesTogether = new byte[0];
 
@@ -202,10 +178,6 @@ public class DownloadProcess implements Process, Runnable{
         } else{
             print("something went wrong, packetje is niet goed binnen gekomen");
         }
-
-
-
-
 
         // File file = utils.packetsToFile(newPacketArray, filePath, slidingWindow.getRawDataSpace());
 

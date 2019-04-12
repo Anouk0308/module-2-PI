@@ -2,6 +2,7 @@ package OwnCode;
 
 import java.io.File;
 import java.net.DatagramPacket;
+import java.util.concurrent.locks.ReentrantLock;
 
 public class FakeUploadProcess implements Process, Runnable{
     private int processID;
@@ -18,6 +19,7 @@ public class FakeUploadProcess implements Process, Runnable{
     private SlidingWindow slidingWindow;
     private Utils utils;
     private PacketWithOwnHeader packetWithOwnHeader;
+    private ReentrantLock lock = new ReentrantLock();
 
     private boolean acknowledgementToStart = false;
     private boolean acknowledgementToStop = false;
@@ -59,7 +61,6 @@ public class FakeUploadProcess implements Process, Runnable{
             while (!acknowledgementToStart) {//wait till PI tells that the uploading process can start
                 Thread.sleep(10);
             }
-            print("Starting upload process " + processID);
 
         } catch (InterruptedException e) {
             print("Client error: " + e.getMessage());
@@ -72,41 +73,46 @@ public class FakeUploadProcess implements Process, Runnable{
     }
 
     public void startProcess(){
-        print("fake upload startprocess started");//todo weghalen
-        for(int i = 0; i < uploadingPackets.length; i++){
-            System.out.println(uploadingPackets[i]);
-        }
+        print("start upload process");//todo weghalen
 
         //send first packets
         if(uploadingPackets.length < windowSize){
+            lock.lock();
             for(int i = 0; i < uploadingPackets.length-1; i++){
                 DatagramPacket startPacket = uploadingPackets[i];
                 networkUser.send(startPacket);
-                print("packetje verzonden!!");//todo weghalen
+                print("packetje nummer " + i + " verzonden!!");//todo weghalen
             }
             sendLastPacket();
+            lock.unlock();
+            //Hier: sendlastpacket hoeft dus niet als windowsize groter is dan packetjes
+
+
         } else{
-            for(int i = 0; i < windowSize; i++){
+            lock.lock();
+            for(int i = 0; i < windowSize; i++) {
                 DatagramPacket startPacket = uploadingPackets[i];
                 networkUser.send(startPacket);
-
-                //set timer
-                Utils.Timer timer = utils.new Timer(5000);
-                try{
-                    while (!timer.isTooLate()) {
-                        Thread.sleep(10);
-                    }
-                    //timer went off
-                    if(receivedAnAck=false){//if there is still no acknowledgement packet received:
-                        startProcess();
-                    }
-
-                } catch (InterruptedException e) {
-                    print("Client error: " + e.getMessage());
-                }
+                print("packetje nummer " + i + " verzonden!!");//todo weghalen
             }
-        }
+            lock.unlock();
 
+            //set timer
+            Utils.Timer timer = utils.new Timer(5000);
+            try{
+                while (!timer.isTooLate()) {
+                    Thread.sleep(10);
+                }
+                //timer went off
+                if(receivedAnAck=false){//if there is still no acknowledgement packet received:
+                    startProcess();
+                }
+
+            } catch (InterruptedException e) {
+                print("Client error: " + e.getMessage());
+            }
+
+        }
     }
 
     int AckNumber = 0;//for counter
@@ -120,7 +126,11 @@ public class FakeUploadProcess implements Process, Runnable{
             byte[] packetData = packet.getData();
             int packetNumber = utils.limitBytesToInteger(packetData[packetWithOwnHeader.packetNumberPosition], packetData[packetWithOwnHeader.packetNumberPosition+1]);
 
+            System.out.println("acknowledgement for number" + packetNumber);//todo weghalen
+
             //set counter
+            //todo, als je dan een ackPacketnumber terug krijgt die groter is dan deze ackPacketnumber, stuur er dan weer aantal(windowsize) tegelijk, want anders blijf je na 1 keer packet loss maar windowsixe=1 sturen
+
             if(packetNumber != AckNumber){
                 AckNumber = packetNumber;
                 counter = 0;
@@ -138,7 +148,8 @@ public class FakeUploadProcess implements Process, Runnable{
             if (nextPacketNumber < uploadingPackets.length - 1) { //not the last packet
                 DatagramPacket nextPacket = uploadingPackets[nextPacketNumber];
                 networkUser.send(nextPacket);
-            } else if (nextPacketNumber == uploadingPackets.length - 1) { //last packet
+                print("packetje nummer " + nextPacketNumber + " verzonden!!");//todo weghalen
+            } else if (nextPacketNumber >= uploadingPackets.length - 1) { //last packet
                 sendLastPacket();
             } //packetNumber that does not exist, does noet have to be send
         }

@@ -49,13 +49,14 @@ public class Checksum {
             //&& checksum[4] == ownCalculatedChecksum[4] && checksum[5] == ownCalculatedChecksum[5] && checksum[6] == ownCalculatedChecksum[6] && checksum[7] == ownCalculatedChecksum[7]){
             checkedPacket = packet;
         } else{//statistics is updated in the inputHandler()
-           for(int i = 0; i < 4; i++){
+           /*
+            for(int i = 0; i < 4; i++){
                print(Byte.toString(checksum[i]));
            }
             for(int i = 0; i < 4; i++){
                 print(Byte.toString(ownCalculatedChecksum[i]));
             }
-
+*/
         }
         return packet;//todo hier moet checkedPacket, maar dat klopt niet bij header 6?
 
