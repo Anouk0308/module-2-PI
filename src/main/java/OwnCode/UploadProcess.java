@@ -90,7 +90,6 @@ public class UploadProcess implements Process, Runnable {
             lock.lock();
             for(int i = 0; i < uploadingPackets.length-1; i++){
                 DatagramPacket startPacket = uploadingPackets[i];
-                System.out.println("eerste packetjes"+Arrays.toString(startPacket.getData()));//todo nu weghalen
                 networkUser.send(startPacket);
                 print("packetje nummer " + i + " verzonden!!");//todo weghalen
             }
@@ -100,7 +99,6 @@ public class UploadProcess implements Process, Runnable {
             lock.lock();
             for (int i = 0; i < windowSize; i++) {
                 DatagramPacket startPacket = uploadingPackets[i];
-                System.out.println("laatste packetje"+Arrays.toString(startPacket.getData()));//todo nu weghalen
                 networkUser.send(startPacket);
                 print("packetje nummer " + i + " verzonden!!");//todo weghalen
             }
