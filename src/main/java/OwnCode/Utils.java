@@ -84,20 +84,6 @@ public class Utils {
         return rawData;
     }
 
-    public File packetsToFile(DatagramPacket[] packets, String FilePath, int rawDataSpace){
-        byte[] bytesFile = new byte[packets.length*rawDataSpace];
-
-        for(int i = 0; i < packets.length; i++){
-            byte[] packetBytes = packets[i].getData();
-            byte[] rawPacketBytes = removeHeader(packetBytes);
-            System.arraycopy(rawPacketBytes,0,bytesFile,i*rawDataSpace, rawPacketBytes.length);
-        }
-        //todo, byte array to file
-
-        File file = null;
-        return file;
-    }
-
     //combining byte arrays
     public byte[] combineByteArr(byte[] a, byte[] b){
         byte[] c = new byte[a.length + b.length];

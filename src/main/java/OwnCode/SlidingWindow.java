@@ -10,7 +10,7 @@ import java.nio.file.Paths;
 public class SlidingWindow {
     private int windowSize = 3;
     private int packetSize = 512;
-    private static int headerSpace = 6;
+    private static int headerSpace = 9;
     private int rawDataSpace = packetSize - headerSpace;
     private PacketWithOwnHeader packetWithOwnHeader = new PacketWithOwnHeader();
 

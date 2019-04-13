@@ -81,7 +81,8 @@ public class Oefenen {
         packetWithOwnHeader = new PacketWithOwnHeader();
         int portServer = 8888;
         int portClient = 8000;
-        server = new Server(portClient, portServer);
+        Hardcoded hardcoded = new Hardcoded();
+        server = new Server(hardcoded.getInetAdressComputer(), portClient, portServer);
         slidingWindow = new SlidingWindow();
     }
 

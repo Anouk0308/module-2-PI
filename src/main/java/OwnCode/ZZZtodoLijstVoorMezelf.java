@@ -2,8 +2,9 @@ package OwnCode;
 
 public class ZZZtodoLijstVoorMezelf {
 
-    //checksum naar kijken
-    //while interupted in processen bekijken
+
+
+    //zooi niet kunnen verzenden?
 
     //met fake packet laptop-pi upload
     //met fake packet laptop-pi download
@@ -13,10 +14,12 @@ public class ZZZtodoLijstVoorMezelf {
     //met echt packet laptop-pi download
 
 
+    //checksum naar kijken
+
     //statics bekijken
     //UIH: 5-13, proccessmanager
     //UIH: 15
-    // inputstream want ram op pi
+    // inputstream want ram op pi buffered stream
     //broadcast
 
 

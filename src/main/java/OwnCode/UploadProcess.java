@@ -1,15 +1,18 @@
 package OwnCode;
 
 import java.io.File;
+import java.io.IOException;
 import java.net.DatagramPacket;
+import java.nio.file.Files;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class UploadProcess implements Process, Runnable {
     private int processID;
     private File file;
-    private int bytesToLoad;//todo dit nog uitlezen
-    private String fileName = file.getName();
+    private int numberOfBytesToLoad;//todo dit nog uitlezen
+    private String fileName;
     private String fileNameAndNumberOfBytesToLoad;
+    private byte[] byteArrToLoad;
 
     private int packetSize;
     private int windowSize;
@@ -29,16 +32,26 @@ public class UploadProcess implements Process, Runnable {
     private boolean receivedAnAck = false; //is for timer
 
     public UploadProcess(int processID, File file, NetworkUser networkUser, boolean isClient, SlidingWindow slidingWindow, int numberOfBytesToLoad){
-        this.slidingWindow = slidingWindow;
-        packetWithOwnHeader = new PacketWithOwnHeader();
         this.processID = processID;
+
         this.file = file;
-        this.packetSize = slidingWindow.getPacketSize();
-        this.windowSize = slidingWindow.getWindowSize();
-        this.uploadingPackets = slidingWindow.slice(file,processID);
+        this.fileName = file.getName();
+        try {
+            this.byteArrToLoad = Files.readAllBytes(file.toPath());
+        } catch (IOException e){
+            System.out.println(e.getMessage());
+        }
         this.networkUser = networkUser;
-        utils = new Utils();
+        this.isClient = isClient;
+        this.slidingWindow = slidingWindow;
+        this.numberOfBytesToLoad = numberOfBytesToLoad;
         this.fileNameAndNumberOfBytesToLoad = fileName + "+" + Integer.toString(numberOfBytesToLoad);
+
+        packetWithOwnHeader = new PacketWithOwnHeader();
+        utils = new Utils();
+        packetSize = slidingWindow.getPacketSize();
+        windowSize = slidingWindow.getWindowSize();
+        uploadingPackets = slidingWindow.slice(file,processID);
     }
 
     @Override
@@ -55,10 +68,10 @@ public class UploadProcess implements Process, Runnable {
         try {
             networkUser.send(startPacket);
 
+            print("waiting on server");
             while (!acknowledgementToStart) {//wait till PI tells that the uploading process can start
                 Thread.sleep(10);
             }
-            print("Starting upload process " + processID);
 
         } catch (InterruptedException e) {
             print("Client error: " + e.getMessage());
@@ -77,7 +90,7 @@ public class UploadProcess implements Process, Runnable {
             for(int i = 0; i < uploadingPackets.length-1; i++){
                 DatagramPacket startPacket = uploadingPackets[i];
                 networkUser.send(startPacket);
-                print("packetje verzonden!!");//todo weghalen
+                print("packetje nummer " + i + " verzonden!!");//todo weghalen
             }
             sendLastPacket();
             lock.unlock();
@@ -86,6 +99,7 @@ public class UploadProcess implements Process, Runnable {
             for (int i = 0; i < windowSize; i++) {
                 DatagramPacket startPacket = uploadingPackets[i];
                 networkUser.send(startPacket);
+                print("packetje nummer " + i + " verzonden!!");//todo weghalen
             }
             lock.unlock();
 
@@ -128,8 +142,6 @@ public class UploadProcess implements Process, Runnable {
             int nextPacketNumber;
             if(counter >= 5){//when received 5 times the same acknowledgementPacket, send packet after this acknowledgementPacket
                 nextPacketNumber = packetNumber + 1;
-
-
             } else {
                 nextPacketNumber = packetNumber + windowSize;
             }
@@ -137,6 +149,7 @@ public class UploadProcess implements Process, Runnable {
             if (nextPacketNumber < uploadingPackets.length - 1) { //not the last packet
                 DatagramPacket nextPacket = uploadingPackets[nextPacketNumber];
                 networkUser.send(nextPacket);
+                print("packetje nummer " + nextPacketNumber + " verzonden!!");//todo weghalen
             } else if (nextPacketNumber == uploadingPackets.length - 1) { //last packet
                 sendLastPacket();
             } //packetNumber that does not exist, does noet have to be send
@@ -144,36 +157,23 @@ public class UploadProcess implements Process, Runnable {
     }
 
     public void sendLastPacket(){
-        if(!acknowledgementToStop) {
-            DatagramPacket lastPacket = uploadingPackets[uploadingPackets.length - 1];
+        if(!acknowledgementToStop){
+            DatagramPacket lastPacket = uploadingPackets[uploadingPackets.length-1];
+            networkUser.send(lastPacket);
+            print("laatste packetje verzonden");//todo weghalen
 
-            try {
-                networkUser.send(lastPacket);
-
-                //set timer
-                Utils.Timer timer = utils.new Timer(1000);
-                while (!timer.isTooLate()) {//while timer didn't went of yet
-                    if (acknowledgementToStop) {
-                        print("Uploading " + file.getName() + " is finished.");
-                        networkUser.getProcessManager().stopSpecificProcess(processID);
-                    } else { //wait till PI tells that the uploading process can stop
-                        Thread.sleep(10);
-                    }
-                }
-                //timer went off, still no acknowledgement to stop
-                sendLastPacket();
-            } catch (InterruptedException e) {
-                print("Client error: " + e.getMessage());
-            }
+            //todo bedenken wat te doen als dit packet niet aan komt. hier een timer zetten blokkeert receiver
         }
     }
 
     public void setAcknowledgementToStopTrue(){
         acknowledgementToStop = true;
+        print("Uploading " + fileName + " is finished.");
+        networkUser.getProcessManager().stopSpecificProcess(processID);
     }
 
     public void kill(){
-        networkUser.getStatics().stoppingProcess(processID, bytesToLoad);
+        networkUser.getStatics().stoppingProcess(processID, numberOfBytesToLoad);
     }
 
     public int getProcessID(){return processID;}

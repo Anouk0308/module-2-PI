@@ -5,6 +5,7 @@ import java.io.File;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.DatagramPacket;
+import java.nio.file.Files;
 import java.util.Arrays;
 
 public class UserInputHandler implements Runnable{
@@ -13,8 +14,10 @@ public class UserInputHandler implements Runnable{
     private Client client;
     private static boolean isClient = true;
 
-    private String[] filesClient;//todo get real files
-    private static String filePath = "Macintosh HD/Users/anouk.schoenmakers/Documents/raspberry/nu-module-2/src/"; // where are the files placed
+    private static String fileFolderPath = "/Users/anouk.schoenmakers/Desktop/ClientFiles"; // where are the files placed
+    private File fileFolder;
+    private File[] filesClient;//todo get real files
+    private String[] filesClientNames;
     private String[] filesPI;
     private boolean updatedFilesPI = false;
 
@@ -28,11 +31,19 @@ public class UserInputHandler implements Runnable{
         this.processManager = processManager;
         this.statistics = statistics;
         packetWithOwnHeader = new PacketWithOwnHeader();
+        fileFolder = new File(fileFolderPath);
+        System.out.println("filefolder: "+fileFolder);//todo weghalen
 
-        //fake todo: echte erin
-        filesClient = new String[2];
-        filesClient[0] = "file.java";
-        filesClient[1] = "text.txt";
+        filesClient = fileFolder.listFiles();
+        System.out.println(Arrays.toString(filesClient));//todo weghalen
+
+        filesClientNames = new String[filesClient.length];
+        if(filesClient!=null){
+            for(int i = 0; i < filesClient.length; i++){
+                filesClientNames[i]=filesClient[i].getName();
+            }
+        }
+
     }
 
     @Override
@@ -107,7 +118,7 @@ public class UserInputHandler implements Runnable{
 
     public void printOwnFiles(){
         for(int i = 0; i < filesClient.length; i++){
-            print(filesClient[i]);
+            print(filesClientNames[i]);
         }
         print("");
         startMenu();
@@ -141,7 +152,7 @@ public class UserInputHandler implements Runnable{
     public void uploadFile(){
         print("These are the files you can chose:");
         for(int i = 0; i < filesClient.length; i++){
-            print(filesClient[i]);
+            print(filesClientNames[i]);
         }
         print("");
 
@@ -151,25 +162,29 @@ public class UserInputHandler implements Runnable{
                 String thisLine = userInput.readLine();
                 if(Arrays.asList(filesClient).contains(thisLine)){
                     String filename = thisLine;
-                    String pathname = filePath + filename;//todo:kijken of dit zo werkt?
-                    //File file = new File(pathname); //todo dit is de goede variant
+                    String pathname = fileFolderPath + "/" + filename;
+                    File file = new File(pathname);
+                    byte[] fileBytes = Files.readAllBytes(file.toPath());
+                    int numberOfBytesToLoad = fileBytes.length;
 
+                    /*
                     byte[] fakeFile = new byte[3000];//todo dit is fake
                     for(int i = 0; i < fakeFile.length; i++){
                         fakeFile[i]= 2;
                     }
-                    int numberOfBytesToLoad = fakeFile.length;//todo dit is fake
+                    int numberOfBytesToLoad = fakeFile.length;
+                    */
 
-                    //processManager.createUploadProcess(file, client, isClient);//todo dit is de goede variant
-                    processManager.createFakeUploadProcess(fakeFile, client, isClient, numberOfBytesToLoad);//todo dit is fake
 
-                    print("Would you like to do something else?");
-                    startMenu();
+                    processManager.createUploadProcess(file, client, isClient, numberOfBytesToLoad);//todo dit is fake
+
+                   // print("Would you like to do something else?"); //todo aanzetten
+                   // startMenu(); //todo aanzetten
 
                 } else{
                     print("That is not a correct filename, these are the files to choose from:");
                     for(int i = 0; i < filesClient.length; i++){
-                        print(filesClient[i]);
+                        print(filesClientNames[i]);
                     }
                     print("");
                     uploadFile();
@@ -204,7 +219,7 @@ public class UserInputHandler implements Runnable{
                 if(Arrays.asList(filesPI).contains(thisLine)){
                     String filename = thisLine;
                     int numberOfBytesToLoad = 3000;//todo naar kijken. aan PI namen en gelijk grootte vragen??
-                    processManager.createDownloadProcess(filename, filePath, client, isClient, numberOfBytesToLoad);
+                    processManager.createDownloadProcess(filename, fileFolderPath, client, isClient, numberOfBytesToLoad);
 
                     //todo: startMenu();
                 } else{

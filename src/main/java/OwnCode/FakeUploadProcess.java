@@ -7,7 +7,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class FakeUploadProcess implements Process, Runnable{
     private int processID;
     private byte[] byteArrToLoad;
-    private int bytesToLoad;//todo dit nog uitlezen
+    private int numberOfBytesToLoad;//todo dit nog uitlezen
     private String fileName = "woopwoop.woop";
     private String fileNameAndNumberOfBytesToLoad;
 
@@ -40,10 +40,12 @@ public class FakeUploadProcess implements Process, Runnable{
         this.uploadingPackets = slidingWindow.fakeSlice(byteArrToLoad,processID);
         this.isClient = isClient;
         this.fileNameAndNumberOfBytesToLoad = fileName + "+" + Integer.toString(numberOfBytesToLoad);
+        this.numberOfBytesToLoad = numberOfBytesToLoad;
     }
 
     @Override
     public void run() {
+        print("3");//todo weghalen
         if(isClient){
             handshake();
         }
@@ -57,7 +59,7 @@ public class FakeUploadProcess implements Process, Runnable{
         try {
             networkUser.send(startPacket);
 
-            print("waiting on server");//todo weghalen
+            print("waiting on server");
             while (!acknowledgementToStart) {//wait till PI tells that the uploading process can start
                 Thread.sleep(10);
             }
@@ -166,12 +168,13 @@ public class FakeUploadProcess implements Process, Runnable{
     }
 
     public void setAcknowledgementToStopTrue(){
+        acknowledgementToStop = true;
         print("Uploading " + fileName + " is finished.");
         networkUser.getProcessManager().stopSpecificProcess(processID);
     }
 
     public void kill(){
-        networkUser.getStatics().stoppingProcess(processID, bytesToLoad);
+        networkUser.getStatics().stoppingProcess(processID, numberOfBytesToLoad);
     }
 
     public int getProcessID(){return processID;}

@@ -7,6 +7,7 @@ public class ProcessManager {
 
     private Process[] runningProcesses = new Process[1000];
     private Process[] pausedProcesses = new Process[1000];
+    private Thread[] threads = new Thread[1000];
 
     int processID = -1;
 
@@ -26,16 +27,17 @@ public class ProcessManager {
         return processID;
     }
 
+    /*
     public void createFakeUploadProcess(byte[] fakeFile, NetworkUser networkUser, boolean isClient, int numberOfBytesToLoad){//todo FAKE
         int processID = getAProcessID();
 
         FakeUploadProcess fakeUploadProcess = new FakeUploadProcess(processID, fakeFile, networkUser, isClient, slidingWindow, numberOfBytesToLoad);
         Thread thread = new Thread(fakeUploadProcess);
         runningProcesses[processID] = fakeUploadProcess;
+        threads[processID] = thread;
         thread.start();
         networkUser.getStatics().startingProcess(processID);
-    }
-
+    }*/
 
 
     public void createUploadProcess(File file, NetworkUser networkUser, boolean isClient, int numberOfBytesToLoad){
@@ -44,15 +46,17 @@ public class ProcessManager {
         UploadProcess upload = new UploadProcess(processID, file, networkUser, isClient, slidingWindow, numberOfBytesToLoad);
         Thread thread = new Thread(upload);
         runningProcesses[processID] = upload;
+        threads[processID] = thread;
         thread.start();
         networkUser.getStatics().startingProcess(processID);
     }
 
-    public void createDownloadProcess(String fileName, String filePath, NetworkUser networkUser, boolean isClient, int numberOfBytesToLoad){
+    public void createDownloadProcess(String fileName, String fileFolderPath, NetworkUser networkUser, boolean isClient, int numberOfBytesToLoad){
         int processID = getAProcessID();
-        DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, filePath, isClient, slidingWindow, numberOfBytesToLoad);
+        DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, fileFolderPath, isClient, slidingWindow, numberOfBytesToLoad);
         Thread thread = new Thread(download);
         runningProcesses[processID] = download;
+        threads[processID] = thread;
         thread.start();
         networkUser.getStatics().startingProcess(processID);
     }
@@ -61,14 +65,16 @@ public class ProcessManager {
         UploadProcess upload = new UploadProcess(processID, file, networkUser, isClient, slidingWindow, numberOfBytesToLoad);
         Thread thread = new Thread(upload);
         runningProcesses[processID] = upload;
+        threads[processID] = thread;
         thread.start();
         networkUser.getStatics().startingProcess(processID);
     }
 
-    public void createDownloadProcessWithProcessID(String fileName, String filePath, NetworkUser networkUser, int processID, boolean isClient, int numberOfBytesToLoad){
-        DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, filePath, isClient, slidingWindow, numberOfBytesToLoad);
+    public void createDownloadProcessWithProcessID(String fileName, String fileFolderPath, NetworkUser networkUser, int processID, boolean isClient, int numberOfBytesToLoad){
+        DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, fileFolderPath, isClient, slidingWindow, numberOfBytesToLoad);
         Thread thread = new Thread(download);
         runningProcesses[processID] = download;
+        threads[processID] = thread;
         thread.start();
         networkUser.getStatics().startingProcess(processID);
     }
@@ -271,15 +277,15 @@ public class ProcessManager {
     }
 
     public void receiveUploadAcknowledgement(int processID){
-        if(runningProcesses[processID] != null && runningProcesses[processID] instanceof FakeUploadProcess){ //todo is voor echte packetjes
+        /*if(runningProcesses[processID] != null && runningProcesses[processID] instanceof FakeUploadProcess){ //todo is voor echte packetjes
             FakeUploadProcess fakeUploadProcess = (FakeUploadProcess) runningProcesses[processID];
             fakeUploadProcess.setAcknowledgementToStartTrue();
-        }
-        /*
+        }*/
+
         if(runningProcesses[processID] != null && runningProcesses[processID] instanceof UploadProcess){ //todo is voor echte packetjes
             UploadProcess upload = (UploadProcess) runningProcesses[processID];
             upload.setAcknowledgementToStartTrue();
-        }*/
+        }
     }
 
     public void receivePacketForProcess(int processID, DatagramPacket receivedPacked){
@@ -291,16 +297,16 @@ public class ProcessManager {
     }
 
     public void receiveAcknowledgementPacketForProcess(int processID, DatagramPacket receivedPacked){
-        if (runningProcesses[processID] != null && runningProcesses[processID] instanceof FakeUploadProcess){
+        /*if (runningProcesses[processID] != null && runningProcesses[processID] instanceof FakeUploadProcess){
             FakeUploadProcess fakeUploadProcess = (FakeUploadProcess) runningProcesses[processID];
             fakeUploadProcess.receiveAcknowledgementPacket(receivedPacked);
-        }
+        }*/
 
-        /*
+
         if (runningProcesses[processID] != null && runningProcesses[processID] instanceof UploadProcess){//todo voor niet echt packetjes
             UploadProcess uploadProcess = (UploadProcess) runningProcesses[processID];
             uploadProcess.receiveAcknowledgementPacket(receivedPacked);
-        }*/
+        }
     }
 
     public void receiveLastPacketForProcess(int processID, DatagramPacket receivedPacked){
@@ -311,17 +317,17 @@ public class ProcessManager {
     }
 
     public void receiveAcknowledgementLastPacketForProcess(int processID){
-        if(runningProcesses[processID] != null && runningProcesses[processID] instanceof FakeUploadProcess){
+       /* if(runningProcesses[processID] != null && runningProcesses[processID] instanceof FakeUploadProcess){
             FakeUploadProcess fakeUploadProcess = (FakeUploadProcess) runningProcesses[processID];
             fakeUploadProcess.setAcknowledgementToStopTrue();
         }
+        */
 
-        /*
+
         if(runningProcesses[processID] != null && runningProcesses[processID] instanceof UploadProcess){
             UploadProcess upload = (UploadProcess) runningProcesses[processID];
             upload.setAcknowledgementToStopTrue();
         }
-         */
     }
 
     public boolean containsProcess(int processID){

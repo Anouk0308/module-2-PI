@@ -4,12 +4,17 @@ import java.io.File;
 import java.io.IOException;
 import java.net.*;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 
 public class Server implements NetworkUser, Runnable{
     private static boolean isClient = false;
-    private String[] filesOnPI;
     private DatagramSocket socket;
-    private String filePath = "pi/src/"; // where are the files placed
+
+    private static String folderPath = "/Users/anouk.schoenmakers/Desktop/ServerFiles/"; // where are the files placed //todo dit is voor computer
+    private File fileFolder;
+    private File[] filesOnPI;
+    private String[] filesOnPINames;
+
     private PacketWithOwnHeader packetWithOwnHeader;
     private Utils utils;
     private Statistics statistics;
@@ -21,8 +26,9 @@ public class Server implements NetworkUser, Runnable{
     private int ownPort;
     private InetAddress destinationAddress;
 
-    public Server(int destinationPort, int ownPort) {
+    public Server(InetAddress destinationAddress,int destinationPort, int ownPort) {
         print("Starting server");
+        this.destinationAddress = destinationAddress;
         this.destinationPort = destinationPort;
         this.ownPort = ownPort;
         packetWithOwnHeader = new PacketWithOwnHeader();
@@ -32,9 +38,15 @@ public class Server implements NetworkUser, Runnable{
         slidingWindow = new SlidingWindow();
         processManager = new ProcessManager(this, slidingWindow);
 
-        filesOnPI = new String[2];
-        filesOnPI[0] = "PIfile.java";
-        filesOnPI[1] = "PItext.txt";
+        fileFolder = new File(folderPath);
+        filesOnPI = fileFolder.listFiles();
+        filesOnPINames = new String[filesOnPI.length];
+        if(filesOnPI.length>0){
+            for(int i = 0; i < filesOnPI.length; i++){
+                filesOnPINames[i]=filesOnPI[i].getName();
+            }
+        }
+
     }
 
     @Override
@@ -55,9 +67,9 @@ public class Server implements NetworkUser, Runnable{
     }
 
     public void inputHandler(DatagramPacket receivedPacketFromClient){
-        DatagramPacket checkedPacket = checksum.checkingChecksum(receivedPacketFromClient);
+        //DatagramPacket checkedPacket = checksum.checkingChecksum(receivedPacketFromClient);
 
-        if(checkedPacket != null) {
+        if(true) {//checkedPacket != null
             byte[] data = receivedPacketFromClient.getData();
             byte commandoByte = data[packetWithOwnHeader.commandoPosition];
             print("server received packet with commando: " + commandoByte );//todo weghalen
@@ -71,7 +83,7 @@ public class Server implements NetworkUser, Runnable{
 
             switch (utils.fromByteToInteger(commandoByte)) {
 
-                case 100:               handshake(receivedPacketFromClient);
+                case 100:               handshake(receivedPacketFromClient, rawData);
                                         break;
                 case 1:                 requestSendFileNames();
                                         break;
@@ -102,15 +114,20 @@ public class Server implements NetworkUser, Runnable{
         }
     }
 
-    public void handshake(DatagramPacket packet){
-        print("handshake received");//todo weghalen
-        //destinationAddress = packet.getAddress();//todo dit gebruiken met PI
+    public void handshake(DatagramPacket packet, byte[] inetAddressBytes){
+        print("handshake received");
+       /*
+        try{
+            destinationAddress = InetAddress.getByAddress(inetAddressBytes);//todo voor PI
+        }catch (UnknownHostException e){
+            print(e.getMessage());
+        }
+        */
     }
 
     public void requestSendFileNames(){
         String files = filesToString();
         byte[] bytes = utils.fromStringToByteArr(files);
-
         byte[] buffer = packetWithOwnHeader.commandoTwo(bytes);
         DatagramPacket giveFiles = new DatagramPacket(buffer, buffer.length);
         send(giveFiles);
@@ -121,7 +138,7 @@ public class Server implements NetworkUser, Runnable{
         String[] stringArr = fileNameAndNumberOfBytesToLoad.split("\\+");
         String fileName = stringArr[0];
         int numberOfBytesToLoad = Integer.parseInt(stringArr[1]);
-        processManager.createDownloadProcessWithProcessID(fileName, filePath, this, processID, isClient, numberOfBytesToLoad);
+        processManager.createDownloadProcessWithProcessID(fileName, folderPath, this, processID, isClient, numberOfBytesToLoad);
 
         byte[] buffer = packetWithOwnHeader.commandoFive(processID);
 
@@ -134,12 +151,11 @@ public class Server implements NetworkUser, Runnable{
         String[] stringArr = fileNameAndNumberOfBytesToLoad.split("\\+");
         String fileName = stringArr[0];
         int numberOfBytesToLoad = Integer.parseInt(stringArr[1]);
+        String filePath = folderPath + "/" + fileName;
+        File file = new File(filePath);
 
-        byte[] fakeFile = new byte[3000];//todo dit is fake
-        for(int i = 0; i < fakeFile.length; i++){
-            fakeFile[i]= 2;
-        }
-        processManager.createFakeUploadProcess(fakeFile, this, isClient, numberOfBytesToLoad);//todo dit is fake
+
+        processManager.createUploadProcess(file, this, isClient, numberOfBytesToLoad);//todo dit is fake
 
 
         /*
@@ -181,9 +197,14 @@ public class Server implements NetworkUser, Runnable{
 
     public String filesToString(){
         String s = "";
-        for(int i = 0; i < filesOnPI.length; i++){
-            s = s + "+" + filesOnPI[i];
+        if(filesOnPINames.length == 0){
+            s="There are no files on the PI";
+        } else{
+            for(int i = 0; i < filesOnPINames.length; i++){
+                s = s + "+" + filesOnPINames[i];
+            }
         }
+
         s = s + "+";
         return s;
     }
@@ -192,9 +213,8 @@ public class Server implements NetworkUser, Runnable{
         byte[] buf = p.getData();
         int length = p.getLength();
         try {
-        destinationAddress = InetAddress.getLocalHost();//todo nu voor computer niet PI
-
         DatagramPacket packet = new DatagramPacket(buf, length, destinationAddress, destinationPort);
+        System.out.println(destinationAddress + "+"+destinationPort);//todo weghalen
         print("verzend nu packet met commando nummer:" + buf[packetWithOwnHeader.commandoPosition]);//todo weghalen
 
 

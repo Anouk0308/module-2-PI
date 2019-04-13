@@ -1,6 +1,9 @@
 package OwnCode;
 
 import java.io.File;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.net.DatagramPacket;
 import java.util.Arrays;
 
@@ -13,7 +16,7 @@ public class DownloadProcess implements Process, Runnable{
     private DatagramPacket[] downloadingPackets = new DatagramPacket[100000]; //todo, kijken hoe dit op te lossen
 
     private NetworkUser networkUser;
-    private String filePath; // where are the files placed
+    private String folderPath; // where are the files placed
 
     private SlidingWindow slidingWindow;
     private Utils utils;
@@ -23,11 +26,11 @@ public class DownloadProcess implements Process, Runnable{
     private boolean receivedAPacket = false; // for timer
     private boolean isClient;
 
-    public DownloadProcess(int processID, String fileName, NetworkUser networkUser, String filePath, boolean isClient, SlidingWindow slidingWindow, int numberOfBytesToLoad){
+    public DownloadProcess(int processID, String fileName, NetworkUser networkUser, String folderPath, boolean isClient, SlidingWindow slidingWindow, int numberOfBytesToLoad){
         this.processID = processID;
         this.fileName = fileName;
         this.networkUser = networkUser;
-        this.filePath = filePath;
+        this.folderPath = folderPath;
         this.slidingWindow = slidingWindow;
         utils = new Utils();
         packetWithOwnHeader = new PacketWithOwnHeader();
@@ -72,7 +75,6 @@ public class DownloadProcess implements Process, Runnable{
         if(!isInterrupted){//Can only receive packets when running/not interrupted
             byte[] packetData = packet.getData();
             int packetNumber = utils.limitBytesToInteger(packetData[packetWithOwnHeader.packetNumberPosition], packetData[packetWithOwnHeader.packetNumberPosition+1]);
-            print("com6, packetje ontvangen met packetnummer" + packetNumber);//todo weghalen
             downloadingPackets[packetNumber] = packet;
 
             int packetNumberSuccessive = -1;
@@ -82,8 +84,6 @@ public class DownloadProcess implements Process, Runnable{
                     break;
                 }
             }
-            print("packetnumber succesive:" + packetNumberSuccessive);//todo weghalen
-
             byte[] buffer = packetWithOwnHeader.commandoSeven(processID, packetNumberSuccessive);
             DatagramPacket acknowledgePacket = new DatagramPacket(buffer, buffer.length);
             networkUser.send(acknowledgePacket);
@@ -94,11 +94,7 @@ public class DownloadProcess implements Process, Runnable{
         if(!isInterrupted) {//Can only receive packets when running/not interrupted
             byte[] packetData = packet.getData();
 
-
-
-
             int packetNumber = utils.limitBytesToInteger(packetData[packetWithOwnHeader.packetNumberPosition], packetData[packetWithOwnHeader.packetNumberPosition+1]);
-            print("com8, packetje ontvangen met packetnummer" + packetNumber);//todo weghalen
 
             downloadingPackets[packetNumber] = packet;
 
@@ -111,27 +107,16 @@ public class DownloadProcess implements Process, Runnable{
             }
 
             if (packetNumberSuccessive == packetNumber) {//everything is received
+                //todo timer. als ander niet commando 9 binnen krijgt, dan moet je die nog ene keer sturen
+                createFile();
+
                 //tell the other that everything is received
                 byte[] buffer = packetWithOwnHeader.commandoNine(processID, packetNumberSuccessive);
                 DatagramPacket acknowledgeLastPacket = new DatagramPacket(buffer, buffer.length);
-               print(Arrays.toString(acknowledgeLastPacket.getData()));
+                print(Arrays.toString(acknowledgeLastPacket.getData()));
                 networkUser.send(acknowledgeLastPacket);
-                print("commando nine verzonden");//todo weghalen
 
-
-
-                //todo timer. als ander niet commando 9 binnen krijgt, dan moet je die nog ene keer sturen
-
-
-
-                createFile();
-
-
-                //save file
-                //todo savennnnn
-
-                //print download is done
-                print("Downloading " + fileName + " is finished.");
+                //stop procces self
                 networkUser.getProcessManager().stopSpecificProcess(processID);
 
             } else {
@@ -140,13 +125,9 @@ public class DownloadProcess implements Process, Runnable{
                 networkUser.send(acknowledgePacket);
             }
         }
-
     }
 
-
-
     public void createFile(){
-
 
         int newPacketsArrayLenght = downloadingPackets.length; //todo, als dowloadingpackets niet meer 1000000 is, hoeft dit allemaal niet
         for (int i = 0; i < downloadingPackets.length; i++) {
@@ -164,13 +145,11 @@ public class DownloadProcess implements Process, Runnable{
             allBytesTogether = utils.combineByteArr(allBytesTogether, rawData);
         }
 
+        /*
         byte[] originalFakeFile = new byte[3000];//todo dit is fake
         for(int i = 0; i < originalFakeFile.length; i++){
             originalFakeFile[i]= 2;
         }
-
-
-        //todo weghalen:
 
         int bytesSame = 0;
         for(int i = 0; i <allBytesTogether.length; i++){//todo weghalen
@@ -184,10 +163,20 @@ public class DownloadProcess implements Process, Runnable{
         } else{
             print("something went wrong, packetje is niet goed binnen gekomen");
         }
+        */
 
-        // File file = utils.packetsToFile(newPacketArray, filePath, slidingWindow.getRawDataSpace());
+        String filePath = folderPath + "/" + fileName;
+        File file = new File(filePath);
 
+        try{
+            OutputStream os = new FileOutputStream(file);
+            os.write(allBytesTogether);
+            print("file saved");
+        } catch (IOException e){
+            print(e.getMessage());
+        }
     }
+
 
     public void kill(){
         networkUser.getStatics().stoppingProcess(processID, numberOfBytesToLoad);

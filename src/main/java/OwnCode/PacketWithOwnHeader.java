@@ -1,6 +1,7 @@
 package OwnCode;
 
 import java.net.InetAddress;
+import java.util.Arrays;
 
 public class PacketWithOwnHeader {
     private Utils utils = new Utils();
@@ -16,11 +17,12 @@ public class PacketWithOwnHeader {
     private byte[] packetNumberBytes= new byte[2];
     int headerLength = packetNumberPosition + packetNumberBytes.length;
 
-    public byte[] commandoZero(){ //client to PI: handshake
+    public byte[] commandoZero(byte[] inetAdress){ //client to PI: handshake
         commandoByte[0]= utils.fromIntegerToByte(100);//0 would not go well with creating a checksum
+        byte[] headerTemp = utils.combineByteArr(commandoByte, processIDbytes, packetNumberBytes, inetAdress);
 
-        checksumBytes = checksum.creatingChecksum(commandoByte);
-        byte[] header = utils.combineByteArr(checksumBytes, commandoByte);
+        checksumBytes = checksum.creatingChecksum(headerTemp);
+        byte[] header = utils.combineByteArr(checksumBytes, headerTemp);
         return header;
     }
 
@@ -145,9 +147,6 @@ public class PacketWithOwnHeader {
 
         checksumBytes = checksum.creatingChecksum(headerTemp);
         byte[] header = utils.combineByteArr(checksumBytes, headerTemp);
-        for(int i = 0; i < header.length; i++){//todo weghalen
-            print(Byte.toString(header[i]));
-        }
         return header;
     }
 

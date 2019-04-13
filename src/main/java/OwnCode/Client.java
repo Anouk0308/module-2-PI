@@ -3,6 +3,7 @@ package OwnCode;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.Arrays;
 
 public class Client implements NetworkUser, Runnable {
     private DatagramSocket socket;
@@ -22,6 +23,7 @@ public class Client implements NetworkUser, Runnable {
     private PacketWithOwnHeader packetWithOwnHeader;
 
     public Client(InetAddress destinationAdress, int destinationPort, int ownPort){
+        this.destinationAddress = destinationAdress;
         this.destinationPort = destinationPort;
         this.ownPort = ownPort;
         //this.destinationAddress = destinationAdress;//todo for PI wel gebruiken
@@ -47,17 +49,20 @@ public class Client implements NetworkUser, Runnable {
     public void connect(){
         try {
             socket = new DatagramSocket(ownPort);
-            ownAddress = socket.getLocalAddress();
             receiver = new Receiver(socket, slidingWindow, this);
             Thread receiverThread = new Thread(receiver);
             receiverThread.start();
 
-            byte[] buffer = packetWithOwnHeader.commandoZero();
+            ownAddress = socket.getLocalAddress();
+            byte[] ownAdressBytes = ownAddress.getAddress();
+            byte[] buffer = packetWithOwnHeader.commandoZero(ownAdressBytes);
             DatagramPacket handshake = new DatagramPacket(buffer, buffer.length);
             send(handshake);
 
         } catch (SocketException e) {
             print("Timeout error: " + e.getMessage());
+        } catch (IOException e){
+            print(e.getMessage());
         }
     }
 
@@ -85,7 +90,7 @@ public class Client implements NetworkUser, Runnable {
                                         break;
                 case 8:                 processManager.receiveLastPacketForProcess(processID, receivedPacketFromServer);
                                         break;
-                case 9:                 processManager.receiveAcknowledgementLastPacketForProcess(processID); //hier
+                case 9:                 processManager.receiveAcknowledgementLastPacketForProcess(processID);
                                         break;
                 case 12:                userInputHandler.startMenu();
                                         break;
@@ -132,11 +137,10 @@ public class Client implements NetworkUser, Runnable {
 
 
         try {
-            //to computer
-            destinationAddress = InetAddress.getLocalHost();
 
             DatagramPacket packet = new DatagramPacket(buf, length, destinationAddress, destinationPort);
             print("verzend nu packet met commando nummer:" + buf[packetWithOwnHeader.commandoPosition]);//todo weghalen
+
             socket.send(packet);
         } catch (IOException e) {
             print("Client error: " + e.getMessage());
