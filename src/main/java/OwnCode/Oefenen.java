@@ -17,19 +17,18 @@ public class Oefenen {
 
     public Oefenen(){
         startUp();
-       byte[] fakeFile = new byte[3500];//todo dit is fake
+       byte[] fakeFile = new byte[35000000];//todo dit is fake
         for(int i = 0; i < fakeFile.length; i++){
             fakeFile[i]= 2;
         }
 
-        DatagramPacket[] packets = slidingWindow.fakeSlice(fakeFile, 1);
+        DatagramPacket[] packets = slidingWindow.slice(fakeFile, 1);
 
         for(int i = 0; i < packets.length; i++){
             int packetnumber = utils.limitBytesToInteger(packets[i].getData()[packetWithOwnHeader.packetNumberPosition], packets[i].getData()[packetWithOwnHeader.packetNumberPosition+1]);
-            for(int ii = 0; ii < packets[i].getLength(); ii++){
-                byte[]rawData = packets[i].getData();
-                System.out.println("packetnumber"+ packetnumber + "byte data" + rawData[ii]);
-            }
+
+                System.out.println("packetnumber:" + packetnumber);
+
         }
 
         System.out.println("");

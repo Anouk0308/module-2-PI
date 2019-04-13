@@ -121,7 +121,7 @@ public class Utils {
     public int limitBytesToInteger(byte firstByte, byte secondByte){
         int firstInt = fromByteToInteger(firstByte);
         int secondInt = fromByteToInteger(secondByte);
-        int number = (firstInt+1 )*secondInt;
+        int number = (firstInt*256 )+secondInt;
 
         return number;
     }

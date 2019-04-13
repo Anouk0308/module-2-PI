@@ -214,7 +214,6 @@ public class Server implements NetworkUser, Runnable{
         int length = p.getLength();
         try {
         DatagramPacket packet = new DatagramPacket(buf, length, destinationAddress, destinationPort);
-        System.out.println(destinationAddress + "+"+destinationPort);//todo weghalen
         print("verzend nu packet met commando nummer:" + buf[packetWithOwnHeader.commandoPosition]);//todo weghalen
 
 

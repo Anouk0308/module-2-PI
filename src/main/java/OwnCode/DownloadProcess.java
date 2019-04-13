@@ -128,6 +128,7 @@ public class DownloadProcess implements Process, Runnable{
     }
 
     public void createFile(){
+        System.out.println("Creating the file, wait a moment please");
 
         int newPacketsArrayLenght = downloadingPackets.length; //todo, als dowloadingpackets niet meer 1000000 is, hoeft dit allemaal niet
         for (int i = 0; i < downloadingPackets.length; i++) {
