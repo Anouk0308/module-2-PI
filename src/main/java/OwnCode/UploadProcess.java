@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class UploadProcess implements Process, Runnable {
@@ -51,7 +52,7 @@ public class UploadProcess implements Process, Runnable {
         utils = new Utils();
         packetSize = slidingWindow.getPacketSize();
         windowSize = slidingWindow.getWindowSize();
-        uploadingPackets = slidingWindow.slice(file,processID);
+        uploadingPackets = slidingWindow.slice(byteArrToLoad,processID);
     }
 
     @Override
@@ -89,6 +90,7 @@ public class UploadProcess implements Process, Runnable {
             lock.lock();
             for(int i = 0; i < uploadingPackets.length-1; i++){
                 DatagramPacket startPacket = uploadingPackets[i];
+                System.out.println("eerste packetjes"+Arrays.toString(startPacket.getData()));//todo nu weghalen
                 networkUser.send(startPacket);
                 print("packetje nummer " + i + " verzonden!!");//todo weghalen
             }
@@ -98,6 +100,7 @@ public class UploadProcess implements Process, Runnable {
             lock.lock();
             for (int i = 0; i < windowSize; i++) {
                 DatagramPacket startPacket = uploadingPackets[i];
+                System.out.println("laatste packetje"+Arrays.toString(startPacket.getData()));//todo nu weghalen
                 networkUser.send(startPacket);
                 print("packetje nummer " + i + " verzonden!!");//todo weghalen
             }

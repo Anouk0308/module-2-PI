@@ -1,11 +1,13 @@
 package OwnCode;
 
+import java.awt.event.ActionListener;
 import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
 
 public class SlidingWindow {
     private int windowSize = 3;
@@ -34,38 +36,33 @@ public class SlidingWindow {
         return rawDataSpace;
     }
 
-    public DatagramPacket[] slice(File file, int processID){
+    public DatagramPacket[] slice(byte[] rawData, int processID){
         DatagramPacket[] sendingPackets = null;
 
+        int rawDataLenght = rawData.length;
+        int numberPackets = (int) Math.ceil((double)rawDataLenght/(double) rawDataSpace);
+        sendingPackets = new DatagramPacket[numberPackets];
 
-        Path path = Paths.get(file.getAbsolutePath());
-        try{
-            byte[] rawData = Files.readAllBytes(path);
-            int rawDataLenght = rawData.length;
-            int numberPackets = (int) Math.ceil((double)rawDataLenght/(double) rawDataSpace);
-            sendingPackets = new DatagramPacket[numberPackets];
+        for(int i = 0; i < numberPackets-1; i++){//last packet gets another header
+            byte[] rawDataPart = new byte[rawDataSpace];
+            System.arraycopy(rawData, i*rawDataSpace, rawDataPart, 0,  rawDataSpace);
 
-            for(int i = 0; i < numberPackets-1; i++){//last packet gets another header
-                byte[] rawDataPart = new byte[rawDataSpace];
-                System.arraycopy(rawData, i*rawDataSpace, rawDataPart, 0,  rawDataSpace);
+            byte[] packetInBytes = packetWithOwnHeader.commandoSix(processID, i, rawDataPart);
+            DatagramPacket packet = new DatagramPacket(packetInBytes, packetInBytes.length);
 
-                byte[] packetInBytes = packetWithOwnHeader.commandoSix(processID, i, rawDataPart);
-                DatagramPacket packet = new DatagramPacket(packetInBytes, packetInBytes.length);
-
-                sendingPackets[i] = packet;
-            }
-
-            //last packet
-            int lenghtLastPart = rawDataLenght%numberPackets;
-            byte[] rawDataLastPart = new byte[lenghtLastPart];//todo, rawDataSpace is wss groter dan laatste packetje groot hoeft te zijn
-            System.arraycopy(rawData, (numberPackets-1)*lenghtLastPart, rawDataLastPart, 0, lenghtLastPart);
-            byte[] lastPacketInBytes = packetWithOwnHeader.commandoEight(processID, numberPackets-1,rawDataLastPart);
-            DatagramPacket lastPacket = new DatagramPacket(lastPacketInBytes, lastPacketInBytes.length);
-            sendingPackets[numberPackets-1] = lastPacket;
-
-        } catch (IOException e){
-            print(e.getMessage());
+            sendingPackets[i] = packet;
         }
+
+        //last packet
+        int lenghtLastPart = rawDataLenght-((numberPackets-1)*rawDataSpace);
+        byte[] rawDataLastPart = new byte[lenghtLastPart];//todo, rawDataSpace is wss groter dan laatste packetje groot hoeft te zijn
+        System.arraycopy(rawData, ((numberPackets-1)*rawDataSpace), rawDataLastPart, 0, lenghtLastPart);
+
+        byte[] lastPacketInBytes = packetWithOwnHeader.commandoEight(processID, numberPackets-1,rawDataLastPart);
+        DatagramPacket lastPacket = new DatagramPacket(lastPacketInBytes, lastPacketInBytes.length);
+
+        sendingPackets[numberPackets-1] = lastPacket;
+
         return sendingPackets;
     }
 

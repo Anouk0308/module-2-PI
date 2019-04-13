@@ -106,8 +106,7 @@ public class UserInputHandler implements Runnable{
                         break;
                     case "15":          getStatistics();
                         break;
-                    default:            startMenu();
-                        break;
+                    default:            break;
                 }
             }
 
