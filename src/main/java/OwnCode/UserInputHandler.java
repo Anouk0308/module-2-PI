@@ -160,7 +160,7 @@ public class UserInputHandler implements Runnable{
         try {
             if (userInput != null) {
                 String thisLine = userInput.readLine();
-                if(Arrays.asList(filesClient).contains(thisLine)){
+                if(Arrays.asList(filesClientNames).contains(thisLine)){
                     String filename = thisLine;
                     String pathname = fileFolderPath + "/" + filename;
                     File file = new File(pathname);
