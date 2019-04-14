@@ -1,6 +1,7 @@
 package OwnCode;
 
 import java.net.DatagramPacket;
+import java.net.InetAddress;
 import java.nio.ByteBuffer;
 
 public class Oefenen {
@@ -10,6 +11,7 @@ public class Oefenen {
     Server server;
     PacketWithOwnHeader packetWithOwnHeader;
     SlidingWindow slidingWindow;
+    Hardcoded hardcoded;
 
     public static void main(String[] args) {
         Oefenen oefenen = new Oefenen();
@@ -17,21 +19,22 @@ public class Oefenen {
 
     public Oefenen(){
         startUp();
-       byte[] fakeFile = new byte[35000000];//todo dit is fake
-        for(int i = 0; i < fakeFile.length; i++){
-            fakeFile[i]= 2;
+
+        InetAddress ownAdress = hardcoded.getInetAdressComputer();
+        byte[] ownAdressBytes = ownAdress.getAddress();
+
+
+        byte[] buffer = packetWithOwnHeader.commandoOne();
+        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
+
+        DatagramPacket checkedPacket = checksum.checkingChecksum(packet);
+
+        if(checkedPacket.equals(packet)){
+            System.out.println("jeej");
+        } else{
+            System.out.println("nooo");
         }
 
-        DatagramPacket[] packets = slidingWindow.slice(fakeFile, 1);
-
-        for(int i = 0; i < packets.length; i++){
-            int packetnumber = utils.limitBytesToInteger(packets[i].getData()[packetWithOwnHeader.packetNumberPosition], packets[i].getData()[packetWithOwnHeader.packetNumberPosition+1]);
-
-                System.out.println("packetnumber:" + packetnumber);
-
-        }
-
-        System.out.println("");
 
 
 
@@ -80,7 +83,7 @@ public class Oefenen {
         packetWithOwnHeader = new PacketWithOwnHeader();
         int portServer = 8888;
         int portClient = 8000;
-        Hardcoded hardcoded = new Hardcoded();
+        hardcoded = new Hardcoded();
         server = new Server(hardcoded.getInetAdressComputer(), portClient, portServer);
         slidingWindow = new SlidingWindow();
     }

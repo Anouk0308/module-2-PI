@@ -2,6 +2,7 @@ package OwnCode;
 
 import java.net.DatagramPacket;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.zip.CRC32;
 
 public class Checksum {
@@ -49,16 +50,12 @@ public class Checksum {
             //&& checksum[4] == ownCalculatedChecksum[4] && checksum[5] == ownCalculatedChecksum[5] && checksum[6] == ownCalculatedChecksum[6] && checksum[7] == ownCalculatedChecksum[7]){
             checkedPacket = packet;
         } else{//statistics is updated in the inputHandler()
-           /*
-            for(int i = 0; i < 4; i++){
-               print(Byte.toString(checksum[i]));
-           }
-            for(int i = 0; i < 4; i++){
-                print(Byte.toString(ownCalculatedChecksum[i]));
-            }
-*/
+
+            System.out.println("checksum went wrong. given checksum:" + Arrays.toString(checksum));
+            System.out.println("calculated checksum:" + Arrays.toString(ownCalculatedChecksum));
+
         }
-        return packet;//todo moet checkedPacket, maar dat klopt niet bij header 6?
+        return checkedPacket;//todo packet als checksum niet werkt
 
     }
 }
