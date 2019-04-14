@@ -1,8 +1,5 @@
 package OwnCode;
 
-import java.net.InetAddress;
-import java.util.Arrays;
-
 public class PacketWithOwnHeader {
     private Utils utils = new Utils();
     private Checksum checksum = new Checksum();

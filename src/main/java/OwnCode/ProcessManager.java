@@ -27,19 +27,6 @@ public class ProcessManager {
         return processID;
     }
 
-    /*
-    public void createFakeUploadProcess(byte[] fakeFile, NetworkUser networkUser, boolean isClient, int numberOfBytesToLoad){//todo FAKE
-        int processID = getAProcessID();
-
-        FakeUploadProcess fakeUploadProcess = new FakeUploadProcess(processID, fakeFile, networkUser, isClient, slidingWindow, numberOfBytesToLoad);
-        Thread thread = new Thread(fakeUploadProcess);
-        runningProcesses[processID] = fakeUploadProcess;
-        threads[processID] = thread;
-        thread.start();
-        networkUser.getStatics().startingProcess(processID);
-    }*/
-
-
     public void createUploadProcess(File file, NetworkUser networkUser, boolean isClient, int numberOfBytesToLoad){
         int processID = getAProcessID();
 
@@ -277,12 +264,7 @@ public class ProcessManager {
     }
 
     public void receiveUploadAcknowledgement(int processID){
-        /*if(runningProcesses[processID] != null && runningProcesses[processID] instanceof FakeUploadProcess){ //todo is voor echte packetjes
-            FakeUploadProcess fakeUploadProcess = (FakeUploadProcess) runningProcesses[processID];
-            fakeUploadProcess.setAcknowledgementToStartTrue();
-        }*/
-
-        if(runningProcesses[processID] != null && runningProcesses[processID] instanceof UploadProcess){ //todo is voor echte packetjes
+        if(runningProcesses[processID] != null && runningProcesses[processID] instanceof UploadProcess){
             UploadProcess upload = (UploadProcess) runningProcesses[processID];
             upload.setAcknowledgementToStartTrue();
         }
@@ -297,13 +279,7 @@ public class ProcessManager {
     }
 
     public void receiveAcknowledgementPacketForProcess(int processID, DatagramPacket receivedPacked){
-        /*if (runningProcesses[processID] != null && runningProcesses[processID] instanceof FakeUploadProcess){
-            FakeUploadProcess fakeUploadProcess = (FakeUploadProcess) runningProcesses[processID];
-            fakeUploadProcess.receiveAcknowledgementPacket(receivedPacked);
-        }*/
-
-
-        if (runningProcesses[processID] != null && runningProcesses[processID] instanceof UploadProcess){//todo voor niet echt packetjes
+        if (runningProcesses[processID] != null && runningProcesses[processID] instanceof UploadProcess){
             UploadProcess uploadProcess = (UploadProcess) runningProcesses[processID];
             uploadProcess.receiveAcknowledgementPacket(receivedPacked);
         }
@@ -317,13 +293,6 @@ public class ProcessManager {
     }
 
     public void receiveAcknowledgementLastPacketForProcess(int processID){
-       /* if(runningProcesses[processID] != null && runningProcesses[processID] instanceof FakeUploadProcess){
-            FakeUploadProcess fakeUploadProcess = (FakeUploadProcess) runningProcesses[processID];
-            fakeUploadProcess.setAcknowledgementToStopTrue();
-        }
-        */
-
-
         if(runningProcesses[processID] != null && runningProcesses[processID] instanceof UploadProcess){
             UploadProcess upload = (UploadProcess) runningProcesses[processID];
             upload.setAcknowledgementToStopTrue();

@@ -28,12 +28,6 @@ public class Receiver implements Runnable{
                 DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
                 socket.receive(receivePacket);
 
-                /*
-                for (int i = 0; i < 10; i++){
-                    print(Byte.toString(receivePacket.getData()[i]));
-                }
-                    */
-
                 int usefulDataLength = receivePacket.getLength();
                 if(usefulDataLength < slidingWindow.getPacketSize()){
                     byte[] packetData = receivePacket.getData();

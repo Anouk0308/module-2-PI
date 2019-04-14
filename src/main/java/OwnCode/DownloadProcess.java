@@ -10,7 +10,7 @@ import java.util.Arrays;
 public class DownloadProcess implements Process, Runnable{
     private int processID;
     private String fileName;
-    private int numberOfBytesToLoad;//todo dit nog uitlezen
+    private int numberOfBytesToLoad;
     private String fileNameAndNumberOfBytesToLoad;
 
     private DatagramPacket[] downloadingPackets = new DatagramPacket[100000]; //todo, kijken hoe dit op te lossen
@@ -145,26 +145,6 @@ public class DownloadProcess implements Process, Runnable{
             byte[] rawData = utils.removeHeader(newPacketArray[i].getData());
             allBytesTogether = utils.combineByteArr(allBytesTogether, rawData);
         }
-
-        /*
-        byte[] originalFakeFile = new byte[3000];//todo dit is fake
-        for(int i = 0; i < originalFakeFile.length; i++){
-            originalFakeFile[i]= 2;
-        }
-
-        int bytesSame = 0;
-        for(int i = 0; i <allBytesTogether.length; i++){//todo weghalen
-            if(allBytesTogether[i] == originalFakeFile[i]){
-                bytesSame++;
-            }
-        }
-
-        if(bytesSame == allBytesTogether.length){//todo weghalen
-            print("zelfde packetje woop woop");
-        } else{
-            print("something went wrong, packetje is niet goed binnen gekomen");
-        }
-        */
 
         String filePath = folderPath + "/" + fileName;
         File file = new File(filePath);

@@ -27,7 +27,6 @@ public class Client implements NetworkUser, Runnable {
         this.destinationPort = destinationPort;
         this.ownPort = ownPort;
         //this.destinationAddress = destinationAdress;//todo for PI wel gebruiken
-        //todo: vul FilesClient aan met de namen in daadwerkelijke map
 
         utils = new Utils();
         statistics = new Statistics();
@@ -61,8 +60,6 @@ public class Client implements NetworkUser, Runnable {
 
         } catch (SocketException e) {
             print("Timeout error: " + e.getMessage());
-        } catch (IOException e){
-            print(e.getMessage());
         }
     }
 

@@ -1,7 +1,5 @@
 package OwnCode;
 
-import java.io.File;
-import java.net.DatagramPacket;
 import java.util.Base64;
 
 public class Utils {
@@ -19,14 +17,6 @@ public class Utils {
         return s;
     }
 
-    public String fromByteArrToStringBit(byte[] b){
-        String s = "";
-        for(int i = 0; i < b.length; i++) {
-            s = s + Integer.toBinaryString((b[i] & 0xFF) + 0x100).substring(1);
-        }
-        return s;
-    }
-
     public Integer fromByteToInteger (byte b){
         Integer decodedIntegers =  (b & 0x000000ff);
         return decodedIntegers;
@@ -35,37 +25,6 @@ public class Utils {
     public byte fromIntegerToByte (Integer i) throws IllegalArgumentException {
         byte encodedByte = (byte) ((i & 0x000000ff));
         return encodedByte;
-    }
-
-    public String[] fromByteArrToStringArr (byte[] b) throws IllegalArgumentException {
-        String s = Base64.getEncoder().encodeToString(b);
-        String stringArr[] = s.split("\\+");
-        return stringArr;
-    }
-
-    public Integer[] fromByteArrToIntegerArr (byte[] b){
-        Integer[] decodedIntegers = new Integer[b.length];
-        for (int i = 0; i < b.length; i++) {
-            decodedIntegers[i] = (b[i] & 0x000000ff);
-        }
-        return decodedIntegers;
-    }
-
-    public byte[] fromIntegerArrToByteArr (Integer[] intarray) throws IllegalArgumentException {
-        if (intarray == null) {
-            throw new IllegalArgumentException("packet == null");
-        }
-        for (int i = 0; i < intarray.length; i++) {
-            if (intarray[i] == null) {
-                throw new IllegalArgumentException("packet[" + i + "] == null");
-            }
-        }
-
-        byte[] encodedBytes = new byte[intarray.length];
-        for (int i = 0; i < intarray.length; i++) {
-            encodedBytes[i] = (byte) ((intarray[i] & 0x000000ff));
-        }
-        return encodedBytes;
     }
 
     //packets related
@@ -144,9 +103,5 @@ public class Utils {
                 return  false;
             }
         }
-    }
-
-    private static void print (String message){
-        System.out.println(message);
     }
 }

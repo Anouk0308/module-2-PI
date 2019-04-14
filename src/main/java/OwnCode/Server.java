@@ -118,7 +118,7 @@ public class Server implements NetworkUser, Runnable{
         print("handshake received");
        /*
         try{
-            destinationAddress = InetAddress.getByAddress(inetAddressBytes);//todo voor PI
+            destinationAddress = InetAddress.getByAddress(inetAddressBytes);//todo voor PI, zonder hardcoded
         }catch (UnknownHostException e){
             print(e.getMessage());
         }
@@ -155,13 +155,7 @@ public class Server implements NetworkUser, Runnable{
         File file = new File(filePath);
 
 
-        processManager.createUploadProcess(file, this, isClient, numberOfBytesToLoad);//todo dit is fake
-
-
-        /*
-        File file = new File(filePath+fileName);//todo: kijken of dit zo werkt + dit is voor echte packetjes
-        processManager.createUploadProcessWithProcessID(file, this, processID, isClient);
-        */
+        processManager.createUploadProcess(file, this, isClient, numberOfBytesToLoad);
     }
 
     public void sendAckProcessPaused(int processID){
@@ -190,10 +184,6 @@ public class Server implements NetworkUser, Runnable{
         }
 
     }
-
-
-
-    public DatagramSocket getSocket(){ return socket;}
 
     public String filesToString(){
         String s = "";

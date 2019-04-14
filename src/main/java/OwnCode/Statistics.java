@@ -30,7 +30,7 @@ public class Statistics {
 
     public void startingProcess(int processID){
         /*
-        int startingTime = (int) System.currentTimeMillis();
+        int startingTime = (int) System.currentTimeMillis();//todo checken of dit goed gaat
         hmapRunning.put(processID, startingTime);
         */
     }
@@ -48,36 +48,36 @@ public class Statistics {
     }
 
     public void calculateHighestDownLoadSpeed(){
-        /*
-        int stoppedProcessed = loadingInformations.length;
-        for(int i = 0; i < stoppedProcessed; i++){
-            LoadingInformation loadingInformationTemp = loadingInformations[i];
+        if(loadingInformations != null){
+            int stoppedProcessed = loadingInformations.length;
+            for(int i = 0; i < stoppedProcessed; i++){
+                LoadingInformation loadingInformationTemp = loadingInformations[i];
 
-            int downloadTimeProcessI = loadingInformationTemp.getTimeToLoad();
-            int bytesToLoad = loadingInformationTemp.getBytesToLoad();
-            int downloadSpeedProcessI = downloadTimeProcessI/bytesToLoad;
+                int downloadTimeProcessI = loadingInformationTemp.getTimeToLoad();
+                int bytesToLoad = loadingInformationTemp.getBytesToLoad();
+                int downloadSpeedProcessI = downloadTimeProcessI/bytesToLoad;
 
-            if(downloadSpeedProcessI > highestDownloadSpeed){
-                highestDownloadSpeed = downloadSpeedProcessI;
+                if(downloadSpeedProcessI > highestDownloadSpeed){
+                    highestDownloadSpeed = downloadSpeedProcessI;
+                }
             }
         }
-        */
     }
 
     public void calculateAverageDownloadSpeed(){
-        /*
-        int stoppedProcessed = loadingInformations.length;
-        int totalDownloadSpeed = 0;
-        for(int i = 0; i < stoppedProcessed; i++){
-            LoadingInformation loadingInformationTemp = loadingInformations[i];
+        if(loadingInformations != null){
+            int stoppedProcessed = loadingInformations.length;
+            int totalDownloadSpeed = 0;
+            for(int i = 0; i < stoppedProcessed; i++){
+                LoadingInformation loadingInformationTemp = loadingInformations[i];
 
-            int downloadTimeProcessI = loadingInformationTemp.getTimeToLoad();
-            int bytesToLoad = loadingInformationTemp.getBytesToLoad();
-            int downloadSpeedProcessI = downloadTimeProcessI/bytesToLoad;
+                int downloadTimeProcessI = loadingInformationTemp.getTimeToLoad();
+                int bytesToLoad = loadingInformationTemp.getBytesToLoad();
+                int downloadSpeedProcessI = downloadTimeProcessI/bytesToLoad;
 
-            totalDownloadSpeed = totalDownloadSpeed + downloadSpeedProcessI;
+                totalDownloadSpeed = totalDownloadSpeed + downloadSpeedProcessI;
+            }
+            averageDownloadSpeed = totalDownloadSpeed/stoppedProcessed;
         }
-        averageDownloadSpeed = totalDownloadSpeed/stoppedProcessed;
-        */
     }
 }

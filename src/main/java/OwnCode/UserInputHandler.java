@@ -16,7 +16,7 @@ public class UserInputHandler implements Runnable{
 
     private static String fileFolderPath = "/Users/anouk.schoenmakers/Desktop/ClientFiles"; // where are the files placed
     private File fileFolder;
-    private File[] filesClient;//todo get real files
+    private File[] filesClient;
     private String[] filesClientNames;
     private String[] filesPI;
     private boolean updatedFilesPI = false;
@@ -43,7 +43,6 @@ public class UserInputHandler implements Runnable{
                 filesClientNames[i]=filesClient[i].getName();
             }
         }
-
     }
 
     @Override
@@ -166,18 +165,9 @@ public class UserInputHandler implements Runnable{
                     byte[] fileBytes = Files.readAllBytes(file.toPath());
                     int numberOfBytesToLoad = fileBytes.length;
 
-                    /*
-                    byte[] fakeFile = new byte[3000];//todo dit is fake
-                    for(int i = 0; i < fakeFile.length; i++){
-                        fakeFile[i]= 2;
-                    }
-                    int numberOfBytesToLoad = fakeFile.length;
-                    */
+                    processManager.createUploadProcess(file, client, isClient, numberOfBytesToLoad);
 
-
-                    processManager.createUploadProcess(file, client, isClient, numberOfBytesToLoad);//todo dit is fake
-
-                   // print("Would you like to do something else?"); //todo aanzetten
+                   // print("The file is being uploaded, would you like to do something else?"); //todo aanzetten
                    // startMenu(); //todo aanzetten
 
                 } else{
