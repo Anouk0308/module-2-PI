@@ -1,13 +1,14 @@
 package OwnCode;
 
-import java.io.File;
-import java.io.IOException;
+import java.io.*;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
+import java.nio.Buffer;
 import java.nio.ByteBuffer;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.StandardOpenOption;
+import java.util.Arrays;
 
 public class Oefenen {
     Utils utils;
@@ -26,87 +27,62 @@ public class Oefenen {
         startUp();
 
         byte[] bytesFile = null;
-        String fileString = "/Users/anouk.schoenmakers/Desktop/ClientFiles/9b.txt";
-        File file = new File(fileString);
-        Path pathFile = file.toPath();
+        String file1String = "/Users/anouk.schoenmakers/Desktop/ClientFiles/9b.txt";
+        File file1 = new File(file1String);
+        Path pathFile1 = file1.toPath();
+        byte[] gedeelte1 = new byte[3];
+        byte[] gedeelte2 = new byte[3];
+        byte[] gedeelte3 = new byte[3];
 
         try {
-            bytesFile = Files.readAllBytes(pathFile);
-            System.out.println("jeej 1");
-        } catch (IOException e){
-            System.out.println(e.getMessage());
+           bytesFile = Files.readAllBytes(pathFile1);
+            System.out.println(Arrays.toString(bytesFile));
+
+
+           /*
+            byte[] gedeelte1 = new byte[3];
+            FileInputStream fileInputStream = new FileInputStream(file);
+            fileInputStream.read(gedeelte1);
+            System.out.println(Arrays.toString(gedeelte1));
+            System.out.println(fileInputStream.available());
+            fileInputStream.read(gedeelte1);
+            System.out.println(Arrays.toString(gedeelte1));
+            System.out.println(fileInputStream.available());
+            fileInputStream.read(gedeelte1);
+            System.out.println(Arrays.toString(gedeelte1));
+*/
+            BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file1));
+            inputStream.read(gedeelte1);
+            System.out.println(Arrays.toString(gedeelte1));
+            System.out.println(inputStream.available());
+            inputStream.read(gedeelte2);
+            System.out.println(Arrays.toString(gedeelte2));
+            System.out.println(inputStream.available());
+            inputStream.read(gedeelte3);
+            System.out.println(Arrays.toString(gedeelte3));
+
+
+        } catch(IOException e){
+
         }
 
-        String file1String = "/Users/anouk.schoenmakers/Desktop/ServerFiles/9b.txt";
-        File file1 = new File(file1String);
-        System.out.println(file1);
-        Path pathFile1 = file1.toPath();
-        System.out.println(pathFile1);
+        String file2String = "/Users/anouk.schoenmakers/Desktop/ServerFiles/9b.txt";
+        File file2 = new File(file2String);
+        Path pathFile2 = file2.toPath();
 
         try{
-            Files.write(pathFile1, bytesFile, StandardOpenOption.APPEND);
-            System.out.println("jeej2");
+            FileOutputStream fileOutputStream = new FileOutputStream(file2);
+            fileOutputStream.write(gedeelte1);
+            System.out.println(Arrays.toString(Files.readAllBytes(pathFile2)));
+            fileOutputStream.write(gedeelte2);
+            System.out.println(Arrays.toString(Files.readAllBytes(pathFile2)));
+            fileOutputStream.write(gedeelte3);
+            System.out.println(Arrays.toString(Files.readAllBytes(pathFile2)));
+
         } catch (IOException e){
             print("fout:"+e.getMessage());
         }
 
-
-        /*
-        InetAddress ownAdress = hardcoded.getInetAdressComputer();
-        byte[] ownAdressBytes = ownAdress.getAddress();
-
-
-        byte[] buffer = packetWithOwnHeader.commandoOne();
-        DatagramPacket packet = new DatagramPacket(buffer, buffer.length);
-
-        DatagramPacket checkedPacket = checksum.checkingChecksum(packet);
-
-        if(checkedPacket.equals(packet)){
-            System.out.println("jeej");
-        } else{
-            System.out.println("nooo");
-        }
-
-
-*/
-
-
-
-
-
-
-
-        /*
-        byte[] b = new byte[5];
-        b[0]=1;
-        b[1] = 2;
-        b[2]=9;
-        b[3]=10;
-
-        String s = utils.fromByteArrToStringBit(b);
-       // print(s);
-
-        //byte[] packetBytes = packetWithOwnHeader.commandoTwo(b);
-
-        byte[] packetBytes = packetWithOwnHeader.commandoTwo(b);
-
-
-        String ss = utils.fromByteArrToStringBit(packetBytes);
-        print(ss);
-
-        DatagramPacket packet = new DatagramPacket(packetBytes, packetBytes.length);
-
-        for (int i = 0; i < 10; i++){
-            System.out.print(Byte.toString(packet.getData()[i]));
-        }
-        System.out.println("");
-
-        DatagramPacket newPacket = checksum.checkingChecksum(packet);
-
-        for (int i = 0; i < 10; i++){
-            System.out.print(Byte.toString(newPacket.getData()[i]));
-        }
-        */
     }
 
     public void startUp(){
