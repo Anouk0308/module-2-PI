@@ -14,7 +14,7 @@ public class UserInputHandler implements Runnable{
     private Client client;
     private static boolean isClient = true;
 
-    private static String fileFolderPath = "/Users/anouk.schoenmakers/Desktop/ClientFiles"; // where are the files placed
+    private static String folderPath = "/Users/anouk.schoenmakers/Desktop/ClientFiles"; // where are the files placed
     private File fileFolder;
     private File[] filesClient;
     private String[] filesClientNames;
@@ -31,7 +31,7 @@ public class UserInputHandler implements Runnable{
         this.processManager = processManager;
         this.statistics = statistics;
         packetWithOwnHeader = new PacketWithOwnHeader();
-        fileFolder = new File(fileFolderPath);
+        fileFolder = new File(folderPath);
         System.out.println("filefolder: "+fileFolder);//todo weghalen
 
         filesClient = fileFolder.listFiles();
@@ -160,7 +160,7 @@ public class UserInputHandler implements Runnable{
                 String thisLine = userInput.readLine();
                 if(Arrays.asList(filesClientNames).contains(thisLine)){
                     String filename = thisLine;
-                    String pathname = fileFolderPath + "/" + filename;
+                    String pathname = folderPath + "/" + filename;
                     File file = new File(pathname);
                     byte[] fileBytes = Files.readAllBytes(file.toPath());
                     int numberOfBytesToLoad = fileBytes.length;
@@ -208,7 +208,7 @@ public class UserInputHandler implements Runnable{
                 if(Arrays.asList(filesPI).contains(thisLine)){
                     String filename = thisLine;
                     int numberOfBytesToLoad = 3000;//todo naar kijken. aan PI namen en gelijk grootte vragen??
-                    processManager.createDownloadProcess(filename, fileFolderPath, client, isClient, numberOfBytesToLoad);
+                    processManager.createDownloadProcess(filename, folderPath, client, isClient, numberOfBytesToLoad);
 
                     //todo: startMenu();
                 } else{

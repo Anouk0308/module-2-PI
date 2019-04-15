@@ -1,8 +1,13 @@
 package OwnCode;
 
+import java.io.File;
+import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.InetAddress;
 import java.nio.ByteBuffer;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.StandardOpenOption;
 
 public class Oefenen {
     Utils utils;
@@ -20,6 +25,33 @@ public class Oefenen {
     public Oefenen(){
         startUp();
 
+        byte[] bytesFile = null;
+        String fileString = "/Users/anouk.schoenmakers/Desktop/ClientFiles/9b.txt";
+        File file = new File(fileString);
+        Path pathFile = file.toPath();
+
+        try {
+            bytesFile = Files.readAllBytes(pathFile);
+            System.out.println("jeej 1");
+        } catch (IOException e){
+            System.out.println(e.getMessage());
+        }
+
+        String file1String = "/Users/anouk.schoenmakers/Desktop/ServerFiles/9b.txt";
+        File file1 = new File(file1String);
+        System.out.println(file1);
+        Path pathFile1 = file1.toPath();
+        System.out.println(pathFile1);
+
+        try{
+            Files.write(pathFile1, bytesFile, StandardOpenOption.APPEND);
+            System.out.println("jeej2");
+        } catch (IOException e){
+            print("fout:"+e.getMessage());
+        }
+
+
+        /*
         InetAddress ownAdress = hardcoded.getInetAdressComputer();
         byte[] ownAdressBytes = ownAdress.getAddress();
 
@@ -36,7 +68,7 @@ public class Oefenen {
         }
 
 
-
+*/
 
 
 

@@ -75,6 +75,7 @@ public class DownloadProcess implements Process, Runnable{
         if(!isInterrupted){//Can only receive packets when running/not interrupted
             byte[] packetData = packet.getData();
             int packetNumber = utils.limitBytesToInteger(packetData[packetWithOwnHeader.packetNumberPosition], packetData[packetWithOwnHeader.packetNumberPosition+1]);
+            System.out.println("receive packetnumber" + packetNumber);//todo weghalen
             downloadingPackets[packetNumber] = packet;
 
             int packetNumberSuccessive = -1;
@@ -84,9 +85,12 @@ public class DownloadProcess implements Process, Runnable{
                     break;
                 }
             }
+
+            System.out.println("packetnumberSuccesive"+ packetNumberSuccessive);
             byte[] buffer = packetWithOwnHeader.commandoSeven(processID, packetNumberSuccessive);
             DatagramPacket acknowledgePacket = new DatagramPacket(buffer, buffer.length);
             networkUser.send(acknowledgePacket);
+            System.out.println("packetje verzonden");
         }
     }
 

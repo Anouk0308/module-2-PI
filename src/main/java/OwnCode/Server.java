@@ -10,7 +10,9 @@ public class Server implements NetworkUser, Runnable{
     private static boolean isClient = false;
     private DatagramSocket socket;
 
-    private static String folderPath = "/Users/anouk.schoenmakers/Desktop/ServerFiles/"; // where are the files placed //todo dit is voor computer
+    private static String folderPathPI = "/home/pi/ServerFiles"; // where are the files placed //todo dit is voor computer
+    private static String folderPathComputer = "/Users/anouk.schoenmakers/Desktop/ServerFiles"; // where are the files placed
+    private static String folderPath;
     private File fileFolder;
     private File[] filesOnPI;
     private String[] filesOnPINames;
@@ -38,6 +40,7 @@ public class Server implements NetworkUser, Runnable{
         slidingWindow = new SlidingWindow();
         processManager = new ProcessManager(this, slidingWindow);
 
+        folderPath = folderPathComputer;//todo veranderen als ik PI wil
         fileFolder = new File(folderPath);
         filesOnPI = fileFolder.listFiles();
         filesOnPINames = new String[filesOnPI.length];

@@ -1,7 +1,10 @@
 package OwnCode;
 
 import java.net.InetAddress;
+import java.net.NetworkInterface;
+import java.net.SocketException;
 import java.net.UnknownHostException;
+import java.util.Enumeration;
 
 public class Hardcoded {
     public InetAddress getInetAdressComputer(){
@@ -17,9 +20,25 @@ public class Hardcoded {
 
     public static void main(String[] args) {
         try{
+            Enumeration en = NetworkInterface.getNetworkInterfaces();
+            while (en.hasMoreElements()) {
+                NetworkInterface ni = (NetworkInterface) en.nextElement();
+                Enumeration ee = ni.getInetAddresses();
+                while (ee.hasMoreElements()) {
+                    InetAddress ia = (InetAddress) ee.nextElement();
+                    System.out.println(ia.getHostAddress());
+                }
+            }
+
+/*
             System.out.println(InetAddress.getLocalHost().getHostAddress());
         } catch (UnknownHostException e){
             System.out.println(e.getMessage());
+            System.out.println(e.getMessage());*/
+        } catch(SocketException e){
+            System.out.println("Hardcoded otherWay error " + e.getMessage());
         }
     }
 }
+
+
