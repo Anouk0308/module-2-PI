@@ -51,8 +51,7 @@ public class Checksum {
             checkedPacket = packet;
         } else{//statistics is updated in the inputHandler()
 
-            System.out.println("checksum went wrong. given checksum:" + Arrays.toString(checksum));
-            System.out.println("calculated checksum:" + Arrays.toString(ownCalculatedChecksum));
+            System.out.println("checksum went wrong");
 
         }
         return checkedPacket;//todo packet als checksum niet werkt

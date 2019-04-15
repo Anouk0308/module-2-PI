@@ -67,9 +67,9 @@ public class Server implements NetworkUser, Runnable{
     }
 
     public void inputHandler(DatagramPacket receivedPacketFromClient){
-        //DatagramPacket checkedPacket = checksum.checkingChecksum(receivedPacketFromClient);
+        DatagramPacket checkedPacket = checksum.checkingChecksum(receivedPacketFromClient);
 
-        if(true) {//checkedPacket != null
+        if(checkedPacket != null) {//checkedPacket != null
             byte[] data = receivedPacketFromClient.getData();
             byte commandoByte = data[packetWithOwnHeader.commandoPosition];
             print("server received packet with commando: " + commandoByte );//todo weghalen
