@@ -44,7 +44,7 @@ public class Receiver implements Runnable{
 
             }
         } catch (IOException e) {
-            print("Client error: " + e.getMessage());
+            print("Receiver error: " + e.getMessage());
         }
     }
 

@@ -140,7 +140,7 @@ public class Client implements NetworkUser, Runnable {
 
             socket.send(packet);
         } catch (IOException e) {
-            print("Client error: " + e.getMessage());
+            print("Client sending error: " + e.getMessage());
         }
     }
 

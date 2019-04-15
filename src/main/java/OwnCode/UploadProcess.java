@@ -74,7 +74,7 @@ public class UploadProcess implements Process, Runnable {
             }
 
         } catch (InterruptedException e) {
-            print("Client error: " + e.getMessage());
+            print("Upload handshake error: " + e.getMessage());
         }
     }
 
@@ -115,7 +115,7 @@ public class UploadProcess implements Process, Runnable {
                 }
 
             } catch (InterruptedException e) {
-                print("Client error: " + e.getMessage());
+                print("Upload startProcess error: " + e.getMessage());
             }
         }
     }
