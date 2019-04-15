@@ -8,7 +8,7 @@ import java.net.DatagramPacket;
 import java.nio.file.Files;
 
 public class SlidingWindow {
-    private int windowSize = 3;
+    private int windowSize = 10;//todo hier 100 van maken
     private int packetSize = 1024;
     private static int headerSpace = 9;
     private int rawDataSpace = packetSize - headerSpace;

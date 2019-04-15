@@ -9,7 +9,7 @@ import java.util.Enumeration;
 public class Hardcoded {
     public InetAddress getInetAdressComputer(){
         try{
-            String computerString = "10.6.16.27";//todo ervoor zorgen dat dit niet hardcoded hoeft
+            String computerString = "172.16.1.87";//todo ervoor zorgen dat dit niet hardcoded hoeft
             InetAddress computerAddress = InetAddress.getByName(computerString);
             return computerAddress;
         } catch (UnknownHostException e){

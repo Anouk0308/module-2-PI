@@ -77,7 +77,7 @@ public class DownloadProcess implements Process, Runnable{
         }
     }
 
-    int[] oefenen = new int[17500];
+    int[] oefenen = new int[100000];
     public void receivePacket(DatagramPacket packet){
         receivedAPacket = true;//for timer in handshake()
 
@@ -153,7 +153,8 @@ public class DownloadProcess implements Process, Runnable{
 
                 try{
                     outputStream.write(utils.removeHeader(downloadingPackets[packetNumber-1].getData()));
-                    System.out.println("schrijf nu packet nummer" + packetNumber + "naar file");//todo weghalen
+                    System.out.println("schrijf nu packet nummer" + (packetNumber-1) + "naar file");//todo weghalen
+                    oefenen[packetNumber-1]=packetNumber-1;
                     outputStream.write(utils.removeHeader(downloadingPackets[packetNumber].getData()));
                     System.out.println("schrijf nu packet nummer" + packetNumber + "naar file");//todo weghalen
                     oefenen[packetNumber]=packetNumber;

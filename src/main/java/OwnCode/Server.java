@@ -40,7 +40,7 @@ public class Server implements NetworkUser, Runnable{
         slidingWindow = new SlidingWindow();
         processManager = new ProcessManager(this, slidingWindow);
 
-        folderPath = folderPathComputer;//todo veranderen als ik PI wil
+        folderPath = folderPathPI;//todo veranderen als ik PI wil
         fileFolder = new File(folderPath);
         filesOnPI = fileFolder.listFiles();
         filesOnPINames = new String[filesOnPI.length];
