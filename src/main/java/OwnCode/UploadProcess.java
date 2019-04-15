@@ -51,7 +51,7 @@ public class UploadProcess implements Process, Runnable {
         utils = new Utils();
         packetSize = slidingWindow.getPacketSize();
         windowSize = slidingWindow.getWindowSize();
-        uploadingPackets = slidingWindow.slice(byteArrToLoad,processID);
+        uploadingPackets = slidingWindow.slice(file,processID);
     }
 
     @Override
