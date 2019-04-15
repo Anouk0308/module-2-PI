@@ -3,7 +3,7 @@ package OwnCode;
 import java.net.DatagramPacket;
 
 public class SlidingWindow {
-    private int windowSize = 20;
+    private int windowSize = 3;
     private int packetSize = 1024;
     private static int headerSpace = 9;
     private int rawDataSpace = packetSize - headerSpace;

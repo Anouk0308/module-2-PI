@@ -38,9 +38,9 @@ public class ProcessManager {
         networkUser.getStatics().startingProcess(processID);
     }
 
-    public void createDownloadProcess(String fileName, String fPath, NetworkUser networkUser, boolean isClient, int numberOfBytesToLoad){
+    public void createDownloadProcess(String fileName, String fileFolderPath, NetworkUser networkUser, boolean isClient, int numberOfBytesToLoad){
         int processID = getAProcessID();
-        DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, fPath, isClient, slidingWindow, numberOfBytesToLoad);
+        DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, fileFolderPath, isClient, slidingWindow, numberOfBytesToLoad);
         Thread thread = new Thread(download);
         runningProcesses[processID] = download;
         threads[processID] = thread;
@@ -57,8 +57,8 @@ public class ProcessManager {
         networkUser.getStatics().startingProcess(processID);
     }
 
-    public void createDownloadProcessWithProcessID(String fileName, String folderPath, NetworkUser networkUser, int processID, boolean isClient, int numberOfBytesToLoad){
-        DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, folderPath, isClient, slidingWindow, numberOfBytesToLoad);
+    public void createDownloadProcessWithProcessID(String fileName, String fileFolderPath, NetworkUser networkUser, int processID, boolean isClient, int numberOfBytesToLoad){
+        DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, fileFolderPath, isClient, slidingWindow, numberOfBytesToLoad);
         Thread thread = new Thread(download);
         runningProcesses[processID] = download;
         threads[processID] = thread;

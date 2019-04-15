@@ -5,8 +5,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.OutputStream;
 import java.net.DatagramPacket;
-import java.nio.file.Files;
-import java.nio.file.StandardOpenOption;
 import java.util.Arrays;
 
 public class DownloadProcess implements Process, Runnable{
@@ -23,7 +21,6 @@ public class DownloadProcess implements Process, Runnable{
     private SlidingWindow slidingWindow;
     private Utils utils;
     private PacketWithOwnHeader packetWithOwnHeader;
-    private File file;
 
     public boolean isInterrupted = false;
     private boolean receivedAPacket = false; // for timer
@@ -40,9 +37,6 @@ public class DownloadProcess implements Process, Runnable{
         this.isClient = isClient;
         this.numberOfBytesToLoad = numberOfBytesToLoad;
         this.fileNameAndNumberOfBytesToLoad = fileName + "+" + Integer.toString(numberOfBytesToLoad);
-
-        String filePath = folderPath + "/" + fileName;
-        file = new File(filePath);
     }
 
     @Override
@@ -71,48 +65,26 @@ public class DownloadProcess implements Process, Runnable{
             }
 
         } catch (InterruptedException e) {
-            print("Download handshake error: " + e.getMessage());
+            print("Client error: " + e.getMessage());
         }
     }
 
     public void receivePacket(DatagramPacket packet){
         receivedAPacket = true;//for timer in handshake()
-/*
-        int packetNumberSuccessiveFirst = -1;
-        for(int i = 0; i < downloadingPackets.length; i++){
-            if(downloadingPackets[i+1] == null){
-                packetNumberSuccessiveFirst = i;
-                break;
-            }
-        }
-*/
 
         if(!isInterrupted){//Can only receive packets when running/not interrupted
             byte[] packetData = packet.getData();
             int packetNumber = utils.limitBytesToInteger(packetData[packetWithOwnHeader.packetNumberPosition], packetData[packetWithOwnHeader.packetNumberPosition+1]);
             downloadingPackets[packetNumber] = packet;
 
-            int packetNumberSuccessiveNow = -1;
+            int packetNumberSuccessive = -1;
             for(int i = 0; i < downloadingPackets.length; i++){
                 if(downloadingPackets[i+1] == null){
-                    packetNumberSuccessiveNow = i;
+                    packetNumberSuccessive = i;
                     break;
                 }
             }
-/*
-            if(packetNumberSuccessiveNow > packetNumberSuccessiveFirst){
-                try{
-                    for(int i = packetNumberSuccessiveFirst+1; i < packetNumberSuccessiveNow-packetNumberSuccessiveFirst; i++){
-                        Files.write(file.toPath(), utils.removeHeader(downloadingPackets[i].getData()), StandardOpenOption.APPEND);
-                    }
-                } catch (IOException e){
-                    print(e.getMessage());
-                }
-            }
-
-*/
-
-            byte[] buffer = packetWithOwnHeader.commandoSeven(processID, packetNumberSuccessiveNow);
+            byte[] buffer = packetWithOwnHeader.commandoSeven(processID, packetNumberSuccessive);
             DatagramPacket acknowledgePacket = new DatagramPacket(buffer, buffer.length);
             networkUser.send(acknowledgePacket);
         }
@@ -136,14 +108,6 @@ public class DownloadProcess implements Process, Runnable{
 
             if (packetNumberSuccessive == packetNumber) {//everything is received
                 //todo timer. als ander niet commando 9 binnen krijgt, dan moet je die nog ene keer sturen
-
-                /*
-                try{
-                    Files.write(file.toPath(), utils.removeHeader(downloadingPackets[packetNumberSuccessive].getData()), StandardOpenOption.APPEND);
-                } catch (IOException e){
-                    print(e.getMessage());
-                }*/
-
                 createFile();
 
                 //tell the other that everything is received
@@ -181,6 +145,9 @@ public class DownloadProcess implements Process, Runnable{
             byte[] rawData = utils.removeHeader(newPacketArray[i].getData());
             allBytesTogether = utils.combineByteArr(allBytesTogether, rawData);
         }
+
+        String filePath = folderPath + "/" + fileName;
+        File file = new File(filePath);
 
         try{
             OutputStream os = new FileOutputStream(file);
