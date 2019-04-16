@@ -5,7 +5,6 @@ import java.util.Base64;
 public class Utils {
 
     //from a to b
-
     public byte[] fromStringToByteArr (String s){
         String encodedString = Base64.getEncoder().encodeToString(s.getBytes());
         byte[] decodedBytes = Base64.getDecoder().decode(encodedString);
@@ -30,11 +29,11 @@ public class Utils {
     //packets related
     public byte[] removeHeader(byte[] b){ //get only the raw data
         byte[] rawData = null;
-        int headerLength = 5;//always checksum and commandonumber//todo controleren
+        int headerLength = 5;//always checksum and commandonumber
         if(b.length>5){//has processID
-            headerLength = 7;//todo controleren
+            headerLength = 7;
             if(b.length>7){//has packetNumber
-                headerLength = 9;//todo controleren
+                headerLength = 9;
             }
         }
 
