@@ -129,7 +129,6 @@ public class UploadProcess implements Process, Runnable {
             byte[] packetData = packet.getData();
             int ackPacketNumber = utils.limitBytesToInteger(packetData[packetWithOwnHeader.packetNumberPosition], packetData[packetWithOwnHeader.packetNumberPosition+1]);
             System.out.println(Arrays.toString(packetData));
-            System.out.println("ackPackNumber" + ackPacketNumber);//todo weghalen
 
             //set counter
             if(ackPacketNumber >= internalAckNumber+1){
@@ -141,17 +140,13 @@ public class UploadProcess implements Process, Runnable {
 
             if(ackPacketNumber < checkingRetransmissionNumber){//did not send a retransmission
 
-                System.out.println("nextpacketnumber"+nextPacketNumber);//todo weghalen
-
                 if(counter >= 3){//when received 3 times the same acknowledgementPacket, resend packet after this acknowledgementPacket
                     nextPacketNumber = ackPacketNumber + 1;
-                    System.out.println("nextpacketnumber = ack + 1"+nextPacketNumber);//todo weghalen
                     checkingRetransmissionNumber = ackPacketNumber;
                     counter = 0;
 
                 } else {
                     nextPacketNumber = ackPacketNumber + windowSize;
-                    System.out.println(" nextpacketnumber = ack + windowSize"+nextPacketNumber);//todo weghalen
                 }
 
                 System.out.println("uploadingPackets length"+uploadingPackets.length);
@@ -159,10 +154,8 @@ public class UploadProcess implements Process, Runnable {
                 if (nextPacketNumber < uploadingPackets.length - 1) { //not the last packet
                     DatagramPacket nextPacket = uploadingPackets[nextPacketNumber];
                     networkUser.send(nextPacket);
-                    System.out.println("nextpacketnumber verzonden");//todo weghalen
                 } else if (nextPacketNumber == uploadingPackets.length - 1) { //last packet
                     sendLastPacket();
-                    System.out.println("sendlastpacket");//todo weghalen
                 }else{//packetNumber greater than the lastPacketNumber does not exist, does not have to be send
                     System.out.println("nextpacket bestaat neit");
                 }

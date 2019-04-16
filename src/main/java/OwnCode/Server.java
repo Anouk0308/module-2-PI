@@ -79,8 +79,6 @@ public class Server implements NetworkUser, Runnable{
             }
             byte[] rawData = utils.removeHeader(data);
 
-            print("server IH met commando:"+Byte.toString(commandoByte));//todo weghalen
-
             switch (utils.fromByteToInteger(commandoByte)) {
 
                 case 100:               handshake();//broadcast
@@ -183,7 +181,7 @@ public class Server implements NetworkUser, Runnable{
             s="There are no files on the PI";
         } else{
             for(int i = 0; i < filesOnPINames.length; i++){
-                s = s + "+" + filesOnPINames[i];
+                s = s + "+" + filesOnPINames[i] + ";" + (int)filesOnPI[i].length();
             }
         }
 
@@ -197,7 +195,6 @@ public class Server implements NetworkUser, Runnable{
         try {
         DatagramPacket packet = new DatagramPacket(buf, length, destinationAddress, destinationPort);
         socket.send(packet);
-        print("verstuur packetje"+packet+" met commando" + packet.getData()[packetWithOwnHeader.commandoPosition]);//todo weghalen;
         } catch (IOException e) {
             print("Client error: " + e.getMessage());
         }

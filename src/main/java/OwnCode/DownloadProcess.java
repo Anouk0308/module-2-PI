@@ -98,19 +98,15 @@ public class DownloadProcess implements Process, Runnable{
                 }
             }
 
-            System.out.println("packet with number"+ packetNumber);//todo weghalen
-            System.out.println("successive now"+packetNumberSuccessiveNow + ">succesive first"+packetNumberSuccessiveFirst);//todo weghalen
             if(packetNumberSuccessiveNow > packetNumberSuccessiveFirst){
 
                 try{
                     if(packetNumberSuccessiveNow == 0){
                         outputStream.write(utils.removeHeader(downloadingPackets.get(0).getData()));
-                        System.out.println("Schrijf nu packetjeeee"+ downloadingPackets.get(0)+"met packetnummer"+0);//todo weghalen
                     } else {
                         for (int i = packetNumberSuccessiveFirst; i < packetNumberSuccessiveFirst + (packetNumberSuccessiveNow - packetNumberSuccessiveFirst); i++) {
                             if(i>0){//packet with number 0 is already written
                                 outputStream.write(utils.removeHeader(downloadingPackets.get(i).getData()));
-                                System.out.println("Schrijf nu packetje"+ downloadingPackets.get(i)+"met packetnummer"+i);//todo weghalen
                             }
                         }
                     }

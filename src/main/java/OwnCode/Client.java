@@ -2,6 +2,9 @@ package OwnCode;
 
 import java.io.IOException;
 import java.net.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Client implements NetworkUser, Runnable {
     private DatagramSocket socket;
@@ -84,7 +87,7 @@ public class Client implements NetworkUser, Runnable {
                                         break;
                 case 9:                 processManager.receiveAcknowledgementLastPacketForProcess(processID);
                                         break;
-                case 12:                userInputHandler.startMenu();
+                case 12:                userInputHandler.somethingElse();
                                         break;
                 case 13:                receivedAckProcessPaused(processID);
                                         break;
@@ -103,9 +106,16 @@ public class Client implements NetworkUser, Runnable {
     public void receivedFilesPI(byte[] data){
         byte[] rawData = utils.removeHeader(data);
         String filesString = utils.fromByteArrToString(rawData);
-        String[] filesArr = filesString.split("\\+");
-
-        userInputHandler.setFilesPI(filesArr);
+        String[] filesNameWithLenghtArr = filesString.split("\\+");
+        String[] filesName = new String[filesNameWithLenghtArr.length];
+        int[] filesLength = new int[filesNameWithLenghtArr.length];
+        for(int i = 1; i < filesNameWithLenghtArr.length; i++){
+            String tempString = filesNameWithLenghtArr[i];
+            String[] temp = tempString.split(";");
+            filesName[i] = temp[0];
+            filesLength[i] = Integer.parseInt(temp[1]);
+        }
+        userInputHandler.setFilesPI(filesName, filesLength);
         userInputHandler.setUpdatedFilesPI(true);
     }
 
@@ -128,7 +138,6 @@ public class Client implements NetworkUser, Runnable {
         try {
             DatagramPacket packet = new DatagramPacket(buf, length, destinationAddress, destinationPort);
             socket.send(packet);
-            print("verstuur packetje"+packet+"met commando" + packet.getData()[packetWithOwnHeader.commandoPosition]);//todo weghalen;
         } catch (IOException e) {
             print("Client error: " + e.getMessage());
         }

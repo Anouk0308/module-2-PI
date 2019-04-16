@@ -8,11 +8,6 @@ import java.net.DatagramPacket;
 
 public class ZZZtodoLijstVoorMezelf {
 
-    //alle classes af
-
-
-    //user input, wanneer dowloadprocess start, staat daar nu 3000. dit klopt niet. hier naar kijken
-
     //timer:
     //upload sent last packet
     //download zelfde probleem als upload. probleem met timer
@@ -34,36 +29,3 @@ public class ZZZtodoLijstVoorMezelf {
 
 
 }
-
-/*
-    public void createFile(){
-        System.out.println("Creating the file, wait a moment please");
-
-        int newPacketsArrayLenght = downloadingPackets.length; //todo, als dowloadingpackets niet meer 1000000 is, hoeft dit allemaal niet
-        for (int i = 0; i < downloadingPackets.length; i++) {
-            if (downloadingPackets[i] == null) {
-                newPacketsArrayLenght--;
-            }
-        }
-        DatagramPacket[] newPacketArray = new DatagramPacket[newPacketsArrayLenght];
-        System.arraycopy(downloadingPackets, 0, newPacketArray, 0, newPacketsArrayLenght);
-
-        byte[] allBytesTogether = new byte[0];
-
-        for(int i = 0; i < newPacketsArrayLenght; i++){
-            byte[] rawData = utils.removeHeader(newPacketArray[i].getData());
-            allBytesTogether = utils.combineByteArr(allBytesTogether, rawData);
-        }
-
-        String filePath = folderPath + "/" + fileName;
-        File file = new File(filePath);
-
-        try{
-            OutputStream os = new FileOutputStream(file);
-            os.write(allBytesTogether);
-            print("file saved");
-        } catch (IOException e){
-            print(e.getMessage());
-        }
-    }
-    */

@@ -7,6 +7,7 @@ import java.io.InputStreamReader;
 import java.net.DatagramPacket;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.HashMap;
 
 public class UserInputHandler implements Runnable{
     private BufferedReader userInput = new BufferedReader(new InputStreamReader(System.in));
@@ -18,7 +19,8 @@ public class UserInputHandler implements Runnable{
     private File fileFolder;
     private File[] filesClient;
     private String[] filesClientNames;
-    private String[] filesPI;
+    private String[] filesPIName;
+    private int[] filePILength;
     private boolean updatedFilesPI = false;
 
     private ProcessManager processManager;
@@ -135,6 +137,7 @@ public class UserInputHandler implements Runnable{
                                             break;
                     default:                print("That is not a Y or a N, try again");
                                             somethingElse();
+                                            break;
                 }
             }
         } catch (IOException e){
@@ -164,8 +167,8 @@ public class UserInputHandler implements Runnable{
 
             print("The available files on the PI are:");
 
-            for (int i = 0; i < filesPI.length; i++) {//last in array is empty
-                print(filesPI[i]);
+            for (int i = 0; i < filesPIName.length; i++) {//last in array is empty
+                print(filesPIName[i]);
             }
             print("");//empty row
             updatedFilesPI = false;
@@ -199,11 +202,7 @@ public class UserInputHandler implements Runnable{
                     print("The file is being uploaded");
                     somethingElse();
                 } else{
-                    print("That is not a correct filename, these are the files to choose from:");
-                    for(int i = 0; i < filesClient.length; i++){
-                        print(filesClientNames[i]);
-                    }
-                    print("");
+                    print("That is not a correct filename");
                     uploadFile();
                 }
             }
@@ -224,8 +223,8 @@ public class UserInputHandler implements Runnable{
                 Thread.sleep(10);
             }
 
-            for (int i = 0; i < filesPI.length; i++) {//last in array is empty
-                print(filesPI[i]);
+            for (int i = 0; i < filesPIName.length; i++) {//last in array is empty
+                print(filesPIName[i]);
             }
             print("");//empty row
             updatedFilesPI = false;
@@ -233,16 +232,21 @@ public class UserInputHandler implements Runnable{
             print("Which file would you like to download?");
             if (userInput != null) {
                 String thisLine = userInput.readLine();
-                if(Arrays.asList(filesPI).contains(thisLine)){
+                if(Arrays.asList(filesPIName).contains(thisLine)){
                     String filename = thisLine;
-                    int numberOfBytesToLoad = 3000;//todo naar kijken. aan PI namen en gelijk grootte vragen??
+                    int positionFile=0;
+                    for(int i = 0; i < filesPIName.length; i++){
+                        if(filesPIName[i].equals(filename)){
+                            positionFile=i;
+                        }
+                    }
+                    int numberOfBytesToLoad = filePILength[positionFile];
                     processManager.createDownloadProcess(filename, folderPath, client, isClient, numberOfBytesToLoad);
 
                     somethingElse();
                 } else{
-                    print("That is not a correct filename, these are the files to choose from:");
-                    printPIFiles();
-                    uploadFile();
+                    print("That is not a correct filename.");
+                    downloadFile();
                 }
             }
         } catch (IOException e){
@@ -316,8 +320,9 @@ public class UserInputHandler implements Runnable{
         somethingElse();
     }
 
-    public void setFilesPI(String[] filesPI) {
-        this.filesPI = filesPI;
+    public void setFilesPI(String[] filesPIName, int[] filesPILength) {
+        this.filesPIName = filesPIName;
+        this.filePILength = filesPILength;
     }
 
     public void setUpdatedFilesPI(boolean updated){
