@@ -79,6 +79,8 @@ public class Server implements NetworkUser, Runnable{
             }
             byte[] rawData = utils.removeHeader(data);
 
+            print("server IH met commando:"+Byte.toString(commandoByte));//todo weghalen
+
             switch (utils.fromByteToInteger(commandoByte)) {
 
                 case 100:               handshake();//broadcast

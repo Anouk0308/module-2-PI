@@ -4,6 +4,7 @@ import java.io.File;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.nio.file.Files;
+import java.util.Arrays;
 import java.util.concurrent.locks.ReentrantLock;
 
 public class UploadProcess implements Process, Runnable {
@@ -122,10 +123,13 @@ public class UploadProcess implements Process, Runnable {
     int checkingRetransmissionNumber = Integer.MAX_VALUE;//checking number to see that the restransmission went well
     public void receiveAcknowledgementPacket(DatagramPacket packet){
         receivedAnAck = true;//for timer in startProcess()
+        int nextPacketNumber = 0;
 
         if(!isInterrupted) {//Can only receive packets when running/not interrupted (thread.pause/thread.resume are deprecated)
             byte[] packetData = packet.getData();
             int ackPacketNumber = utils.limitBytesToInteger(packetData[packetWithOwnHeader.packetNumberPosition], packetData[packetWithOwnHeader.packetNumberPosition+1]);
+            System.out.println(Arrays.toString(packetData));
+            System.out.println("ackPackNumber" + ackPacketNumber);//todo weghalen
 
             //set counter
             if(ackPacketNumber >= internalAckNumber+1){
@@ -136,23 +140,32 @@ public class UploadProcess implements Process, Runnable {
             }
 
             if(ackPacketNumber < checkingRetransmissionNumber){//did not send a retransmission
-                int nextPacketNumber;
+
+                System.out.println("nextpacketnumber"+nextPacketNumber);//todo weghalen
 
                 if(counter >= 3){//when received 3 times the same acknowledgementPacket, resend packet after this acknowledgementPacket
                     nextPacketNumber = ackPacketNumber + 1;
+                    System.out.println("nextpacketnumber = ack + 1"+nextPacketNumber);//todo weghalen
                     checkingRetransmissionNumber = ackPacketNumber;
                     counter = 0;
 
                 } else {
                     nextPacketNumber = ackPacketNumber + windowSize;
+                    System.out.println(" nextpacketnumber = ack + windowSize"+nextPacketNumber);//todo weghalen
                 }
 
+                System.out.println("uploadingPackets length"+uploadingPackets.length);
+                System.out.println("nextpacketnumber"+nextPacketNumber);
                 if (nextPacketNumber < uploadingPackets.length - 1) { //not the last packet
                     DatagramPacket nextPacket = uploadingPackets[nextPacketNumber];
                     networkUser.send(nextPacket);
+                    System.out.println("nextpacketnumber verzonden");//todo weghalen
                 } else if (nextPacketNumber == uploadingPackets.length - 1) { //last packet
                     sendLastPacket();
-                }//packetNumber greater than the lastPacketNumber does not exist, does not have to be send
+                    System.out.println("sendlastpacket");//todo weghalen
+                }else{//packetNumber greater than the lastPacketNumber does not exist, does not have to be send
+                    System.out.println("nextpacket bestaat neit");
+                }
 
             } else{ //ackPacketNumber is greater than last ackPacketNumber, which means that the retransmissioned succeeded
                 checkingRetransmissionNumber = Integer.MAX_VALUE;

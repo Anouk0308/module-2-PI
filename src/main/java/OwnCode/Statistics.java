@@ -48,7 +48,7 @@ public class Statistics {
     }
 
     public void calculateHighestDownLoadSpeed(){
-        if(loadingInformations != null){
+        if(loadingInformations.size()>0){
             int stoppedProcessed = loadingInformations.size();
             for(int i = 0; i < stoppedProcessed; i++){
                 LoadingInformation loadingInformationTemp = loadingInformations.get(i);
@@ -65,7 +65,7 @@ public class Statistics {
     }
 
     public void calculateAverageDownloadSpeed(){
-        if(loadingInformations != null){
+        if(loadingInformations.size()>0){
             int stoppedProcessed = loadingInformations.size();
             int totalDownloadSpeed = 0;
             for(int i = 0; i < stoppedProcessed; i++){

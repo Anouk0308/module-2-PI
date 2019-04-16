@@ -80,9 +80,7 @@ public class DownloadProcess implements Process, Runnable{
         receivedAPacket = true;//for timer in handshake()
 
         for(int i = 0; i < downloadingPackets.size(); i++){
-            try{
-                downloadingPackets.get(i+1);
-            } catch (IndexOutOfBoundsException e){//if their is no successive packet
+            if(!downloadingPackets.containsKey(i+1)){//if their is no successive packet
                 packetNumberSuccessiveFirst = i;
                 break;
             }
@@ -94,22 +92,26 @@ public class DownloadProcess implements Process, Runnable{
             downloadingPackets.put(packetNumber, packet);
 
             for(int i = 0; i < downloadingPackets.size(); i++){
-                try{
-                    downloadingPackets.get(i+1);
-                } catch (IndexOutOfBoundsException e){//if their is no successive packet
+                if(!downloadingPackets.containsKey(i+1)){//if their is no successive packet
                     packetNumberSuccessiveNow = i;
                     break;
                 }
             }
 
+            System.out.println("packet with number"+ packetNumber);//todo weghalen
+            System.out.println("successive now"+packetNumberSuccessiveNow + ">succesive first"+packetNumberSuccessiveFirst);//todo weghalen
             if(packetNumberSuccessiveNow > packetNumberSuccessiveFirst){
 
                 try{
                     if(packetNumberSuccessiveNow == 0){
                         outputStream.write(utils.removeHeader(downloadingPackets.get(0).getData()));
+                        System.out.println("Schrijf nu packetjeeee"+ downloadingPackets.get(0)+"met packetnummer"+0);//todo weghalen
                     } else {
                         for (int i = packetNumberSuccessiveFirst; i < packetNumberSuccessiveFirst + (packetNumberSuccessiveNow - packetNumberSuccessiveFirst); i++) {
-                            outputStream.write(utils.removeHeader(downloadingPackets.get(i).getData()));
+                            if(i>0){//packet with number 0 is already written
+                                outputStream.write(utils.removeHeader(downloadingPackets.get(i).getData()));
+                                System.out.println("Schrijf nu packetje"+ downloadingPackets.get(i)+"met packetnummer"+i);//todo weghalen
+                            }
                         }
                     }
                 } catch (IOException e){
@@ -131,9 +133,7 @@ public class DownloadProcess implements Process, Runnable{
             downloadingPackets.put(packetNumber, packet);
 
             for(int i = 0; i < downloadingPackets.size(); i++){
-                try{
-                    downloadingPackets.get(i+1);
-                } catch (IndexOutOfBoundsException e){//if their is no successive packet
+                if(!downloadingPackets.containsKey(i+1)){//if their is no successive packet
                     packetNumberSuccessive = i;
                     break;
                 }

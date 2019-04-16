@@ -7,7 +7,7 @@ import java.io.IOException;
 import java.net.DatagramPacket;
 
 public class SlidingWindow {
-    private int windowSize = 10;
+    private int windowSize = 3;
     private int packetSize = 1024;
     private static int headerSpace = 9;
     private int rawDataSpace = packetSize - headerSpace;
