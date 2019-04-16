@@ -4,7 +4,6 @@ import java.io.File;
 import java.net.DatagramPacket;
 
 public class ProcessManager {
-
     private Process[] runningProcesses = new Process[1000];
     private Process[] pausedProcesses = new Process[1000];
     private Thread[] threads = new Thread[1000];
@@ -14,7 +13,6 @@ public class ProcessManager {
     private PacketWithOwnHeader packetWithOwnHeader;
     private NetworkUser networkUser;
     private SlidingWindow slidingWindow;
-
 
     public ProcessManager(NetworkUser networkUser, SlidingWindow slidingWindow){
         this.networkUser = networkUser;
@@ -29,7 +27,6 @@ public class ProcessManager {
 
     public void createUploadProcess(File file, NetworkUser networkUser, boolean isClient, int numberOfBytesToLoad){
         int processID = getAProcessID();
-
         UploadProcess upload = new UploadProcess(processID, file, networkUser, isClient, slidingWindow, numberOfBytesToLoad);
         Thread thread = new Thread(upload);
         runningProcesses[processID] = upload;
@@ -111,7 +108,7 @@ public class ProcessManager {
             pausedProcesses[processID] = runningProcesses[processID];
             runningProcesses[processID] = null;
 
-            //also send the server to pause the process
+            //send the server to also pause the process
             byte[] buffer = packetWithOwnHeader.commandoTen(processID);
             DatagramPacket pausePacket = new DatagramPacket(buffer, buffer.length);
             networkUser.send(pausePacket);
@@ -133,7 +130,7 @@ public class ProcessManager {
                 runningProcesses[i] = null;
                 print("Process "+ processID + "is paused");
 
-                //also send the server to pause the process
+                //send the server to also pause the process
                 byte[] buffer = packetWithOwnHeader.commandoTen(processID);
                 DatagramPacket pausePacket = new DatagramPacket(buffer, buffer.length);
                 networkUser.send(pausePacket);
@@ -152,7 +149,6 @@ public class ProcessManager {
             }
         }
 
-
         if(IDfound == 1){
             print("Process "+ processID + "is continued");
 
@@ -160,7 +156,7 @@ public class ProcessManager {
             runningProcesses[processID] = pausedProcesses[processID];
             pausedProcesses[processID] = null;
 
-            //also send the server to continue the process
+            //send the server to also continue the process
             byte[] buffer = packetWithOwnHeader.commandoEleven(processID);
             DatagramPacket continuePacket = new DatagramPacket(buffer, buffer.length);
             networkUser.send(continuePacket);
@@ -181,7 +177,7 @@ public class ProcessManager {
                 pausedProcesses[i] = null;
                 print("Process " + processID + "is continued");
 
-                //also send the server to continue the process
+                //send the server to also continue the process
                 byte[] buffer = packetWithOwnHeader.commandoEleven(processID);
                 DatagramPacket continuePacket = new DatagramPacket(buffer, buffer.length);
                 networkUser.send(continuePacket);
@@ -215,7 +211,7 @@ public class ProcessManager {
                 runningProcesses[processID].kill();
                 runningProcesses[processID] = null;
 
-                //also send the server to stop the process
+                //send the server to also stop the process
                 byte[] buffer = packetWithOwnHeader.commandoTwelve(processID);
                 DatagramPacket stopPacket = new DatagramPacket(buffer, buffer.length);
                 networkUser.send(stopPacket);
@@ -223,7 +219,7 @@ public class ProcessManager {
                 pausedProcesses[processID].kill();
                 pausedProcesses[processID] = null;
 
-                //also send the server to stop the process
+                //send the server to also stop the process
                 byte[] buffer = packetWithOwnHeader.commandoTwelve(processID);
                 DatagramPacket stopPacket = new DatagramPacket(buffer, buffer.length);
                 networkUser.send(stopPacket);
@@ -242,7 +238,7 @@ public class ProcessManager {
                 runningProcesses[processID] = null;
                 print("Process " + processID + "is stopped");
 
-                //also send the server to stop the process
+                //send the server to also stop the process
                 byte[] buffer = packetWithOwnHeader.commandoTwelve(processID);
                 DatagramPacket stopPacket = new DatagramPacket(buffer, buffer.length);
                 networkUser.send(stopPacket);
@@ -255,7 +251,7 @@ public class ProcessManager {
                 pausedProcesses[processID] = null;
                 print("Process " + processID + "is stopped");
 
-                //also send the server to stop the process
+                //send the server to also stop the process
                 byte[] buffer = packetWithOwnHeader.commandoTwelve(processID);
                 DatagramPacket stopPacket = new DatagramPacket(buffer, buffer.length);
                 networkUser.send(stopPacket);
@@ -275,7 +271,6 @@ public class ProcessManager {
             DownloadProcess downloadProcess = (DownloadProcess) runningProcesses[processID];
             downloadProcess.receivePacket(receivedPacked);
         }
-
     }
 
     public void receiveAcknowledgementPacketForProcess(int processID, DatagramPacket receivedPacked){

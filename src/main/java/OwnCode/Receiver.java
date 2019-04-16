@@ -3,8 +3,6 @@ package OwnCode;
 import java.io.IOException;
 import java.net.DatagramPacket;
 import java.net.DatagramSocket;
-import java.net.InetAddress;
-import java.util.Arrays;
 
 public class Receiver implements Runnable{
     private DatagramSocket socket;
@@ -21,10 +19,9 @@ public class Receiver implements Runnable{
 
     @Override
     public void run() {
-        print("Receiver started");//todo weghalen
         try{
             while (true) { //receive
-                byte[] buffer = new byte[slidingWindow.getPacketSize()];//packet grootte
+                byte[] buffer = new byte[slidingWindow.getPacketSize()];
                 DatagramPacket receivePacket = new DatagramPacket(buffer, buffer.length);
                 socket.receive(receivePacket);
 
@@ -34,14 +31,11 @@ public class Receiver implements Runnable{
                     byte[] usefulPacket = new byte[usefulDataLength];
                     System.arraycopy(packetData,0,usefulPacket,0,usefulDataLength);
                     DatagramPacket packet = new DatagramPacket(usefulPacket,usefulDataLength);
-                    print("packet received with commandonumber" + Byte.toString(packetData[packetWithOwnHeader.commandoPosition]));
 
                     networkUser.inputHandler(packet);
                 } else{
                     networkUser.inputHandler(receivePacket);
                 }
-
-
             }
         } catch (IOException e) {
             print("Client error: " + e.getMessage());

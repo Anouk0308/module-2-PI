@@ -3,8 +3,6 @@ package OwnCode;
 import java.io.File;
 import java.io.IOException;
 import java.net.*;
-import java.nio.ByteBuffer;
-import java.util.Arrays;
 
 public class Server implements NetworkUser, Runnable{
     private static boolean isClient = false;
@@ -29,7 +27,6 @@ public class Server implements NetworkUser, Runnable{
     private InetAddress destinationAddress;
 
     public Server(InetAddress destinationAddress,int destinationPort, int ownPort) {
-        print("Starting server");
         this.destinationAddress = destinationAddress;
         this.destinationPort = destinationPort;
         this.ownPort = ownPort;
@@ -55,7 +52,6 @@ public class Server implements NetworkUser, Runnable{
     @Override
     public void run() {
         connect();
-        print("Connected");
     }
 
     public void connect(){
@@ -72,10 +68,9 @@ public class Server implements NetworkUser, Runnable{
     public void inputHandler(DatagramPacket receivedPacketFromClient){
         DatagramPacket checkedPacket = checksum.checkingChecksum(receivedPacketFromClient);
 
-        if(checkedPacket != null) {//checkedPacket != null
+        if(checkedPacket != null) {
             byte[] data = receivedPacketFromClient.getData();
             byte commandoByte = data[packetWithOwnHeader.commandoPosition];
-            print("server received packet with commando: " + commandoByte );//todo weghalen
             int processID = 0;
             if(data.length > packetWithOwnHeader.processIDPosition){
                 byte byteProcessID1 = data[packetWithOwnHeader.processIDPosition];
@@ -150,7 +145,6 @@ public class Server implements NetworkUser, Runnable{
         String filePath = folderPath + "/" + fileName;
         File file = new File(filePath);
 
-
         processManager.createUploadProcessWithProcessID(file, this, processID, isClient, numberOfBytesToLoad);
     }
 
@@ -191,7 +185,7 @@ public class Server implements NetworkUser, Runnable{
             }
         }
 
-        s = s + "+";
+       // s = s + "+";//todo kijken of dingen nu kapot gaan
         return s;
     }
 
@@ -200,10 +194,7 @@ public class Server implements NetworkUser, Runnable{
         int length = p.getLength();
         try {
         DatagramPacket packet = new DatagramPacket(buf, length, destinationAddress, destinationPort);
-        print("verzend nu packet met commando nummer:" + buf[packetWithOwnHeader.commandoPosition]);//todo weghalen
-
-
-            socket.send(packet);
+        socket.send(packet);
         } catch (IOException e) {
             print("Client error: " + e.getMessage());
         }
@@ -212,8 +203,6 @@ public class Server implements NetworkUser, Runnable{
     public ProcessManager getProcessManager(){return processManager;}
 
     public Statistics getStatics(){return statistics;}
-
-    public PacketWithOwnHeader getPacketWithOwnHeader(){return packetWithOwnHeader;}
 
     public void print (String message){
         System.out.println("[PIVanAnouk]" + message);

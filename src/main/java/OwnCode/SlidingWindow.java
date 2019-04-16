@@ -5,10 +5,9 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.nio.file.Files;
 
 public class SlidingWindow {
-    private int windowSize = 10;//todo hier 100 van maken
+    private int windowSize = 10;
     private int packetSize = 1024;
     private static int headerSpace = 9;
     private int rawDataSpace = packetSize - headerSpace;

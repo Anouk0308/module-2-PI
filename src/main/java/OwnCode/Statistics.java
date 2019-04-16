@@ -1,6 +1,8 @@
 package OwnCode;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 
 public class Statistics {
 
@@ -8,11 +10,12 @@ public class Statistics {
     int highestDownloadSpeed;//miliseconds per byte
     int averageDownloadSpeed;//miliseconds per byte
 
-    HashMap<Integer, Integer> hmapRunning = new HashMap<Integer, Integer>();//processID & startingTime
-    LoadingInformation[] loadingInformations = new LoadingInformation[1000];//processID & timeToLoad & bytesToLoad //todo kijken of dit netter kan
+    HashMap<Integer, Integer> hmapRunning;//processID & startingTime
+    List<LoadingInformation> loadingInformations;//processID & timeToLoad & bytesToLoad
 
     public Statistics(){
-
+        hmapRunning = new HashMap<>();
+        loadingInformations = new ArrayList<>();
     }
 
     public int[] getStatistics(){
@@ -29,29 +32,26 @@ public class Statistics {
     }
 
     public void startingProcess(int processID){
-        /*
         int startingTime = (int) System.currentTimeMillis();//todo checken of dit goed gaat
         hmapRunning.put(processID, startingTime);
-        */
     }
 
     public void stoppingProcess(int processID, int bytesToLoad){
-        /*
         int stoppingTime = (int) System.currentTimeMillis();
         int startingTime = hmapRunning.get(processID);
         hmapRunning.remove(processID);
         int timeToLoad = stoppingTime - startingTime;
         LoadingInformation loadingInformationTemp = new LoadingInformation(processID, timeToLoad, bytesToLoad);
+
         calculateHighestDownLoadSpeed();
         calculateAverageDownloadSpeed();
-        */
     }
 
     public void calculateHighestDownLoadSpeed(){
         if(loadingInformations != null){
-            int stoppedProcessed = loadingInformations.length;
+            int stoppedProcessed = loadingInformations.size();
             for(int i = 0; i < stoppedProcessed; i++){
-                LoadingInformation loadingInformationTemp = loadingInformations[i];
+                LoadingInformation loadingInformationTemp = loadingInformations.get(i);
 
                 int downloadTimeProcessI = loadingInformationTemp.getTimeToLoad();
                 int bytesToLoad = loadingInformationTemp.getBytesToLoad();
@@ -66,10 +66,10 @@ public class Statistics {
 
     public void calculateAverageDownloadSpeed(){
         if(loadingInformations != null){
-            int stoppedProcessed = loadingInformations.length;
+            int stoppedProcessed = loadingInformations.size();
             int totalDownloadSpeed = 0;
             for(int i = 0; i < stoppedProcessed; i++){
-                LoadingInformation loadingInformationTemp = loadingInformations[i];
+                LoadingInformation loadingInformationTemp = loadingInformations.get(i);
 
                 int downloadTimeProcessI = loadingInformationTemp.getTimeToLoad();
                 int bytesToLoad = loadingInformationTemp.getBytesToLoad();
