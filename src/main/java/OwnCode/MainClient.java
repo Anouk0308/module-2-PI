@@ -15,7 +15,7 @@ public class MainClient {
             InetAddress computer = hardcoded.getInetAdressComputer();//todo to commputer
             int portServer = 8888;
             int portClient = 8000;
-            Client client = new Client(PI, portServer, portClient);
+            Client client = new Client(computer, portServer, portClient);
             Thread clientThread = new Thread(client);
             clientThread.start();
         } catch(IOException e){

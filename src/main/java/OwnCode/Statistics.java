@@ -1,8 +1,8 @@
 package OwnCode;
 
-import java.util.ArrayList;
+
 import java.util.HashMap;
-import java.util.List;
+import java.util.Map;
 
 public class Statistics {
 
@@ -10,12 +10,12 @@ public class Statistics {
     int highestDownloadSpeed;//miliseconds per byte
     int averageDownloadSpeed;//miliseconds per byte
 
-    HashMap<Integer, Integer> hmapRunning;//processID & startingTime
-    List<LoadingInformation> loadingInformations;//processID & timeToLoad & bytesToLoad
+    Map<Integer, Integer> hmapRunning;//processID & startingTime
+    Map<Integer, LoadingInformation> loadingInformations;//processID & timeToLoad & bytesToLoad
 
     public Statistics(){
         hmapRunning = new HashMap<>();
-        loadingInformations = new ArrayList<>();
+        loadingInformations = new HashMap();
     }
 
     public int[] getStatistics(){

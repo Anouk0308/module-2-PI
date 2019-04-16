@@ -37,7 +37,7 @@ public class Server implements NetworkUser, Runnable{
         slidingWindow = new SlidingWindow();
         processManager = new ProcessManager(this, slidingWindow);
 
-        folderPath = folderPathPI;//todo veranderen als ik PI wil
+        folderPath = folderPathComputer;//todo veranderen als ik PI wil
         fileFolder = new File(folderPath);
         filesOnPI = fileFolder.listFiles();
         filesOnPINames = new String[filesOnPI.length];
@@ -195,6 +195,7 @@ public class Server implements NetworkUser, Runnable{
         try {
         DatagramPacket packet = new DatagramPacket(buf, length, destinationAddress, destinationPort);
         socket.send(packet);
+        print("verstuur packetje"+packet+" met commando" + packet.getData()[packetWithOwnHeader.commandoPosition]);//todo weghalen;
         } catch (IOException e) {
             print("Client error: " + e.getMessage());
         }

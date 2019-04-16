@@ -2,13 +2,13 @@ package OwnCode;
 
 import java.io.File;
 import java.net.DatagramPacket;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class ProcessManager {
-    private List<Process> runningProcesses;
-    private List<Process> pausedProcesses;
-    private List<Thread> threads;
+    private Map<Integer, Process> runningProcesses;
+    private Map<Integer, Process> pausedProcesses;
+    private Map<Integer, Thread> threads;
 
     int processID = -1;
 
@@ -21,9 +21,9 @@ public class ProcessManager {
         this.slidingWindow = slidingWindow;
         packetWithOwnHeader = new PacketWithOwnHeader();
 
-        runningProcesses = new ArrayList<>();
-        pausedProcesses = new ArrayList<>();
-        threads = new ArrayList<>();
+        runningProcesses = new HashMap<>();
+        pausedProcesses = new HashMap<>();
+        threads = new HashMap<>();
     }
 
     public int getAProcessID(){
@@ -35,8 +35,8 @@ public class ProcessManager {
         int processID = getAProcessID();
         UploadProcess upload = new UploadProcess(processID, file, networkUser, isClient, slidingWindow, numberOfBytesToLoad);
         Thread thread = new Thread(upload);
-        runningProcesses.add(processID, upload);
-        threads.add(processID,thread);
+        runningProcesses.put(processID, upload);
+        threads.put(processID,thread);
         thread.start();
         networkUser.getStatics().startingProcess(processID);
     }
@@ -45,8 +45,8 @@ public class ProcessManager {
         int processID = getAProcessID();
         DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, folderPath, isClient, numberOfBytesToLoad);
         Thread thread = new Thread(download);
-        runningProcesses.add(processID, download);
-        threads.add(processID,thread);
+        runningProcesses.put(processID, download);
+        threads.put(processID,thread);
         thread.start();
         networkUser.getStatics().startingProcess(processID);
     }
@@ -54,8 +54,8 @@ public class ProcessManager {
     public void createUploadProcessWithProcessID(File file, NetworkUser networkUser, int processID, boolean isClient, int numberOfBytesToLoad){
         UploadProcess upload = new UploadProcess(processID, file, networkUser, isClient, slidingWindow, numberOfBytesToLoad);
         Thread thread = new Thread(upload);
-        runningProcesses.add(processID, upload);
-        threads.add(processID,thread);
+        runningProcesses.put(processID, upload);
+        threads.put(processID,thread);
         thread.start();
         networkUser.getStatics().startingProcess(processID);
     }
@@ -63,8 +63,8 @@ public class ProcessManager {
     public void createDownloadProcessWithProcessID(String fileName, String folderPath, NetworkUser networkUser, int processID, boolean isClient, int numberOfBytesToLoad){
         DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, folderPath, isClient, numberOfBytesToLoad);
         Thread thread = new Thread(download);
-        runningProcesses.add(processID, download);
-        threads.add(processID,thread);
+        runningProcesses.put(processID, download);
+        threads.put(processID,thread);
         thread.start();
         networkUser.getStatics().startingProcess(processID);
     }
@@ -111,8 +111,8 @@ public class ProcessManager {
             print("Process "+ processID + "is paused");
 
             runningProcesses.get(processID).setIsInterrupted(true);
-            pausedProcesses.add(processID,runningProcesses.get(processID));
-            runningProcesses.add(processID, null);
+            pausedProcesses.put(processID,runningProcesses.get(processID));
+            runningProcesses.put(processID, null);
 
             //send the server to also pause the process
             byte[] buffer = packetWithOwnHeader.commandoTen(processID);
@@ -132,8 +132,8 @@ public class ProcessManager {
             if(runningProcesses.get(i) != null){
                 int processID = runningProcesses.get(i).getProcessID();
                 runningProcesses.get(i).setIsInterrupted(true);
-                pausedProcesses.add(i,runningProcesses.get(i));
-                runningProcesses.add(i,null);
+                pausedProcesses.put(i,runningProcesses.get(i));
+                runningProcesses.put(i,null);
                 print("Process "+ processID + "is paused");
 
                 //send the server to also pause the process
@@ -159,8 +159,8 @@ public class ProcessManager {
             print("Process "+ processID + "is continued");
 
             pausedProcesses.get(processID).setIsInterrupted(false);
-            runningProcesses.add(processID,pausedProcesses.get(processID));
-            pausedProcesses.add(processID,null);
+            runningProcesses.put(processID,pausedProcesses.get(processID));
+            pausedProcesses.put(processID,null);
 
             //send the server to also continue the process
             byte[] buffer = packetWithOwnHeader.commandoEleven(processID);
@@ -179,8 +179,8 @@ public class ProcessManager {
             if(pausedProcesses.get(i) != null) {
                 int processID = pausedProcesses.get(i).getProcessID();
                 pausedProcesses.get(i).setIsInterrupted(false);
-                runningProcesses.add(i, pausedProcesses.get(i));
-                pausedProcesses.add(i, null);
+                runningProcesses.put(i, pausedProcesses.get(i));
+                pausedProcesses.put(i, null);
                 print("Process " + processID + "is continued");
 
                 //send the server to also continue the process
@@ -215,7 +215,7 @@ public class ProcessManager {
             print("Process "+ processID + " is stopped");
             if(state.equals("RUNNING")){
                 runningProcesses.get(processID).kill();
-                runningProcesses.add(processID, null);
+                runningProcesses.put(processID, null);
 
                 //send the server to also stop the process
                 byte[] buffer = packetWithOwnHeader.commandoTwelve(processID);
@@ -223,7 +223,7 @@ public class ProcessManager {
                 networkUser.send(stopPacket);
             } else if(state.equals("PAUSED")){
                 pausedProcesses.get(processID).kill();
-                pausedProcesses.add(processID,null);
+                pausedProcesses.put(processID,null);
 
                 //send the server to also stop the process
                 byte[] buffer = packetWithOwnHeader.commandoTwelve(processID);
@@ -241,7 +241,7 @@ public class ProcessManager {
         for(int i = 0; i < runningProcesses.size(); i++){
             if(runningProcesses.get(i) != null) {
                 runningProcesses.get(i).kill();
-                runningProcesses.add(processID,null);
+                runningProcesses.put(processID,null);
                 print("Process " + processID + "is stopped");
 
                 //send the server to also stop the process
@@ -254,7 +254,7 @@ public class ProcessManager {
         for(int i = 0; i < pausedProcesses.size(); i++){
             if(pausedProcesses.get(i) != null) {
                 pausedProcesses.get(i).kill();
-                pausedProcesses.add(processID,null);
+                pausedProcesses.put(processID,null);
                 print("Process " + processID + "is stopped");
 
                 //send the server to also stop the process

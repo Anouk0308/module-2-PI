@@ -127,7 +127,11 @@ public class UserInputHandler implements Runnable{
                 switch (thisLine) {
                     case "Y":               startMenu();
                                             break;
+                    case "y":               startMenu();
+                                            break;
                     case "N":               stopProgram();
+                                            break;
+                    case "n":               stopProgram();
                                             break;
                     default:                print("That is not a Y or a N, try again");
                                             somethingElse();

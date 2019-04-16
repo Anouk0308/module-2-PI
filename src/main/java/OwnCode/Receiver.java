@@ -15,6 +15,7 @@ public class Receiver implements Runnable{
         this.slidingWindow = slidingWindow;
         this.networkUser = networkUser;
         packetWithOwnHeader = new PacketWithOwnHeader();
+        print("Receiver aan");//todo weghalen
     }
 
     @Override
@@ -31,6 +32,8 @@ public class Receiver implements Runnable{
                     byte[] usefulPacket = new byte[usefulDataLength];
                     System.arraycopy(packetData,0,usefulPacket,0,usefulDataLength);
                     DatagramPacket packet = new DatagramPacket(usefulPacket,usefulDataLength);
+
+                    print("received packet with commando"+packet.getData()[packetWithOwnHeader.commandoPosition]);//todo weghalen
 
                     networkUser.inputHandler(packet);
                 } else{

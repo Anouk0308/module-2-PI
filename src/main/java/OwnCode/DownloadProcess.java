@@ -3,9 +3,8 @@ package OwnCode;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.net.DatagramPacket;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.HashMap;
+import java.util.Map;
 
 public class DownloadProcess implements Process, Runnable{
     private int processID;
@@ -13,7 +12,7 @@ public class DownloadProcess implements Process, Runnable{
     private int numberOfBytesToLoad;
     private String fileNameAndNumberOfBytesToLoad;
 
-    private List<DatagramPacket> downloadingPackets; //todo, kijken hoe dit op te lossen
+    private Map<Integer, DatagramPacket> downloadingPackets; //todo, kijken hoe dit op te lossen
 
     private NetworkUser networkUser;
     private String folderPath; // where are the files placed
@@ -36,7 +35,7 @@ public class DownloadProcess implements Process, Runnable{
         this.isClient = isClient;
         this.numberOfBytesToLoad = numberOfBytesToLoad;
         this.fileNameAndNumberOfBytesToLoad = fileName + "+" + numberOfBytesToLoad;
-        downloadingPackets = new ArrayList<>();
+        downloadingPackets = new HashMap<>();
 
         String filePath = folderPath + "/" + fileName;
         try{
@@ -81,7 +80,9 @@ public class DownloadProcess implements Process, Runnable{
         receivedAPacket = true;//for timer in handshake()
 
         for(int i = 0; i < downloadingPackets.size(); i++){
-            if(downloadingPackets.get(i+1) == null){
+            try{
+                downloadingPackets.get(i+1);
+            } catch (IndexOutOfBoundsException e){//if their is no successive packet
                 packetNumberSuccessiveFirst = i;
                 break;
             }
@@ -90,10 +91,12 @@ public class DownloadProcess implements Process, Runnable{
         if(!isInterrupted){//Can only receive packets when running (thread.pause/thread.resume are deprecated)
             byte[] packetData = packet.getData();
             int packetNumber = utils.limitBytesToInteger(packetData[packetWithOwnHeader.packetNumberPosition], packetData[packetWithOwnHeader.packetNumberPosition+1]);
-            downloadingPackets.add(packetNumber, packet);
+            downloadingPackets.put(packetNumber, packet);
 
             for(int i = 0; i < downloadingPackets.size(); i++){
-                if(downloadingPackets.get(i+1) == null){
+                try{
+                    downloadingPackets.get(i+1);
+                } catch (IndexOutOfBoundsException e){//if their is no successive packet
                     packetNumberSuccessiveNow = i;
                     break;
                 }
@@ -125,10 +128,12 @@ public class DownloadProcess implements Process, Runnable{
         if(!isInterrupted) {//Can only receive packets when running/not interrupted (thread.pause/thread.resume are deprecated)
             byte[] packetData = packet.getData();
             int packetNumber = utils.limitBytesToInteger(packetData[packetWithOwnHeader.packetNumberPosition], packetData[packetWithOwnHeader.packetNumberPosition+1]);
-            downloadingPackets.add(packetNumber, packet);
+            downloadingPackets.put(packetNumber, packet);
 
-            for (int i = 0; i < downloadingPackets.size(); i++) {
-                if (downloadingPackets.get(i + 1) == null) {
+            for(int i = 0; i < downloadingPackets.size(); i++){
+                try{
+                    downloadingPackets.get(i+1);
+                } catch (IndexOutOfBoundsException e){//if their is no successive packet
                     packetNumberSuccessive = i;
                     break;
                 }

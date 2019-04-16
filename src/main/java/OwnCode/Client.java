@@ -127,8 +127,8 @@ public class Client implements NetworkUser, Runnable {
 
         try {
             DatagramPacket packet = new DatagramPacket(buf, length, destinationAddress, destinationPort);
-
             socket.send(packet);
+            print("verstuur packetje"+packet+"met commando" + packet.getData()[packetWithOwnHeader.commandoPosition]);//todo weghalen;
         } catch (IOException e) {
             print("Client error: " + e.getMessage());
         }
