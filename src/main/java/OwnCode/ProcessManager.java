@@ -40,7 +40,7 @@ public class ProcessManager {
 
     public void createDownloadProcess(String fileName, String folderPath, NetworkUser networkUser, boolean isClient, int numberOfBytesToLoad){
         int processID = getAProcessID();
-        DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, folderPath, isClient, slidingWindow, numberOfBytesToLoad);
+        DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, folderPath, isClient, numberOfBytesToLoad);
         Thread thread = new Thread(download);
         runningProcesses[processID] = download;
         threads[processID] = thread;
@@ -58,7 +58,7 @@ public class ProcessManager {
     }
 
     public void createDownloadProcessWithProcessID(String fileName, String folderPath, NetworkUser networkUser, int processID, boolean isClient, int numberOfBytesToLoad){
-        DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, folderPath, isClient, slidingWindow, numberOfBytesToLoad);
+        DownloadProcess download = new DownloadProcess(processID, fileName, networkUser, folderPath, isClient, numberOfBytesToLoad);
         Thread thread = new Thread(download);
         runningProcesses[processID] = download;
         threads[processID] = thread;

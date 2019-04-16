@@ -1,9 +1,7 @@
 package OwnCode;
 
-
 import java.io.IOException;
 import java.net.*;
-import java.util.Arrays;
 
 public class Client implements NetworkUser, Runnable {
     private DatagramSocket socket;
@@ -11,7 +9,6 @@ public class Client implements NetworkUser, Runnable {
     private int ownPort;
     private InetAddress ownAddress;
     private InetAddress destinationAddress;
-
 
     private Utils utils;
     private Statistics statistics;
@@ -22,11 +19,10 @@ public class Client implements NetworkUser, Runnable {
     private SlidingWindow slidingWindow;
     private PacketWithOwnHeader packetWithOwnHeader;
 
-    public Client(InetAddress destinationAdress, int destinationPort, int ownPort){
-        this.destinationAddress = destinationAdress;
+    public Client(InetAddress destinationAddress, int destinationPort, int ownPort){
+        this.destinationAddress = destinationAddress;
         this.destinationPort = destinationPort;
         this.ownPort = ownPort;
-        //this.destinationAddress = destinationAdress;//todo for PI wel gebruiken
 
         utils = new Utils();
         statistics = new Statistics();
@@ -52,11 +48,11 @@ public class Client implements NetworkUser, Runnable {
             Thread receiverThread = new Thread(receiver);
             receiverThread.start();
 
-            ownAddress = socket.getLocalAddress();
-            byte[] ownAdressBytes = ownAddress.getAddress();
-            byte[] buffer = packetWithOwnHeader.commandoZero(ownAdressBytes);
+            /* broadcast
+            byte[] buffer = packetWithOwnHeader.commandoZero();
             DatagramPacket handshake = new DatagramPacket(buffer, buffer.length);
             send(handshake);
+            */
 
         } catch (SocketException e) {
             print("Timeout error: " + e.getMessage());
@@ -65,12 +61,11 @@ public class Client implements NetworkUser, Runnable {
 
     public DatagramSocket getSocket(){ return socket;}
 
-    public void inputHandler(DatagramPacket receivedPacketFromServer){
+    public void inputHandler(DatagramPacket receivedPacketFromServer){//dealing with input from socket
         DatagramPacket checkedPacket = checksum.checkingChecksum(receivedPacketFromServer);
         if(checkedPacket != null){
             byte[] data = receivedPacketFromServer.getData();
             byte commandoByte = data[packetWithOwnHeader.commandoPosition];
-            print("client received packet with commando: " + commandoByte );//todo weghalen
             byte byteProcessID1 = data[packetWithOwnHeader.processIDPosition];
             byte byteProcessID2 = data[packetWithOwnHeader.processIDPosition+1];
             int processID = utils.limitBytesToInteger(byteProcessID1, byteProcessID2);
@@ -115,28 +110,23 @@ public class Client implements NetworkUser, Runnable {
     }
 
     public void receivedAckProcessPaused(int processID){
-        print("Process " + processID + " is paused on the serverside aswell");
+        print("Process " + processID + " is paused on the serverside as well");
     }
 
     public void receivedAckProcessContinued(int processID){
-        print("Process " + processID + " is continued on the serverside aswell");
+        print("Process " + processID + " is continued on the serverside as well");
     }
 
     public void receivedAckProcessStopped(int processID){
-        print("Process " + processID + " is stopped on the serverside aswell");
+        print("Process " + processID + " is stopped on the serverside asw ell");
     }
 
     public void send(DatagramPacket p){
         byte[] buf = p.getData();
         int length = p.getLength();
-        //to PI:
-        // DatagramPacket packet = new DatagramPacket(buf, length, destinationAddress, destinationPort);
-
 
         try {
-
             DatagramPacket packet = new DatagramPacket(buf, length, destinationAddress, destinationPort);
-            print("verzend nu packet met commando nummer:" + buf[packetWithOwnHeader.commandoPosition]);//todo weghalen
 
             socket.send(packet);
         } catch (IOException e) {

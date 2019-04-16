@@ -2,7 +2,6 @@ package OwnCode;
 
 import java.net.DatagramPacket;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.zip.CRC32;
 
 public class Checksum {
@@ -21,7 +20,7 @@ public class Checksum {
 
         ByteBuffer buffer = ByteBuffer.allocate(Long.BYTES);
         buffer.putLong(value);
-        byte[] tooLong =  buffer.array();
+        byte[] tooLong =  buffer.array();//first 4 bytes are zero's
 
         byte[] correct = new byte[4];
         System.arraycopy(tooLong,4,correct,0,4);
@@ -29,17 +28,12 @@ public class Checksum {
         return correct;
     }
 
-    private static void print (String message){
-        System.out.println(message);
-    }//todo weghalen
-
-
     public DatagramPacket checkingChecksum(DatagramPacket packet){
         DatagramPacket checkedPacket = null;
 
         byte[] data = packet.getData();
         byte[] checksum = new byte[4];
-        System.arraycopy(data,0,checksum,0,4);//todo checken
+        System.arraycopy(data,0,checksum,0,4);
 
         byte[] dataWithOutChecksum = new byte[data.length-4];
         System.arraycopy(data,4,dataWithOutChecksum,0,data.length-4);
@@ -47,14 +41,10 @@ public class Checksum {
         byte[] ownCalculatedChecksum = creatingChecksum(dataWithOutChecksum);
 
         if(checksum[0] == ownCalculatedChecksum[0] && checksum[1] == ownCalculatedChecksum[1] && checksum[2] == ownCalculatedChecksum[2] && checksum[3] == ownCalculatedChecksum[3]){
-            //&& checksum[4] == ownCalculatedChecksum[4] && checksum[5] == ownCalculatedChecksum[5] && checksum[6] == ownCalculatedChecksum[6] && checksum[7] == ownCalculatedChecksum[7]){
             checkedPacket = packet;
         } else{//statistics is updated in the inputHandler()
-
             System.out.println("checksum went wrong");
-
         }
-        return checkedPacket;//todo packet als checksum niet werkt
-
+        return checkedPacket;
     }
 }

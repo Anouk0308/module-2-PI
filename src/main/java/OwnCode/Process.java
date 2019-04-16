@@ -1,7 +1,6 @@
 package OwnCode;
 
 public interface Process {
-
     void kill();
     int getProcessID();
     String getFileName();

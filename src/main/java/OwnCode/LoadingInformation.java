@@ -11,10 +11,6 @@ public class LoadingInformation {
         this.bytesToLoad = bytesToLoad;
     }
 
-    public int getProcessID(){
-        return processID;
-    }
-
     public int getTimeToLoad(){
         return timeToLoad;
     }

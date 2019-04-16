@@ -122,17 +122,16 @@ public class UploadProcess implements Process, Runnable {
 
     int internalAckNumber = 0;//for counter, to check if the incoming acknowledgement numbers will increase
     int counter = 0;//for counter
+    int checkingRetransmissonNumber = 1000000000;//checking number to see that the restransmission went well
     public void receiveAcknowledgementPacket(DatagramPacket packet){
         receivedAnAck = true;//for timer in startProcess()
-        int checkingRetransmissonNumber = 1000000000;//checking number to see that the restransmission went well
-
-        if(!isInterrupted) {//Can only receive packets when running/not interrupted
+        if(!isInterrupted) {//Can only receive packets when running/not interrupted (thread.pause/thread.resume are deprecated)
             byte[] packetData = packet.getData();
             int ackPacketNumber = utils.limitBytesToInteger(packetData[packetWithOwnHeader.packetNumberPosition], packetData[packetWithOwnHeader.packetNumberPosition+1]);
             System.out.println("ack other is: "+ ackPacketNumber);//todo weghalen
 
             //set counter
-            if(ackPacketNumber == internalAckNumber+1){
+            if(ackPacketNumber >= internalAckNumber+1){
                 internalAckNumber = ackPacketNumber;
                 counter = 0;
                 System.out.println("counter weer op nul");//todo weghalen
@@ -161,10 +160,12 @@ public class UploadProcess implements Process, Runnable {
                 }//packetNumber greater than the lastPacketNumber does not exist, does not have to be send
             } else{ //ackPacketNumber is greater than last ackPacketNumber, which means that the retransmissioned succeeded
                 checkingRetransmissonNumber = 1000000000;
-                for(int i = ackPacketNumber+1; i < ackPacketNumber+windowSize; i++){
-                    DatagramPacket nextPacket = uploadingPackets[i];
-                    networkUser.send(nextPacket);
-                    print("windowww packetje nummer " + i + " verzonden!!");//todo weghalen
+                if(ackPacketNumber+1 < uploadingPackets.length){
+                    for(int i = ackPacketNumber+1; i < ackPacketNumber+windowSize; i++){
+                        DatagramPacket nextPacket = uploadingPackets[i];
+                        networkUser.send(nextPacket);
+                        print("windowww packetje nummer " + i + " verzonden!!");//todo weghalen
+                    }
                 }
             }
         }

@@ -86,7 +86,7 @@ public class Server implements NetworkUser, Runnable{
 
             switch (utils.fromByteToInteger(commandoByte)) {
 
-                case 100:               handshake(receivedPacketFromClient, rawData);
+                case 100:               handshake();//broadcast
                                         break;
                 case 1:                 requestSendFileNames();
                                         break;
@@ -117,15 +117,8 @@ public class Server implements NetworkUser, Runnable{
         }
     }
 
-    public void handshake(DatagramPacket packet, byte[] inetAddressBytes){
-        print("handshake received");
-       /*
-        try{
-            destinationAddress = InetAddress.getByAddress(inetAddressBytes);//todo voor PI, zonder hardcoded
-        }catch (UnknownHostException e){
-            print(e.getMessage());
-        }
-        */
+    public void handshake(){
+        print("handshake received");//broadcast
     }
 
     public void requestSendFileNames(){
@@ -158,7 +151,7 @@ public class Server implements NetworkUser, Runnable{
         File file = new File(filePath);
 
 
-        processManager.createUploadProcess(file, this, isClient, numberOfBytesToLoad);
+        processManager.createUploadProcessWithProcessID(file, this, processID, isClient, numberOfBytesToLoad);
     }
 
     public void sendAckProcessPaused(int processID){

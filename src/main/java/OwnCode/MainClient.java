@@ -8,9 +8,9 @@ public class MainClient {
     private MainClient() {}
 
     public static void main(String[] args) {
-        Hardcoded hardcoded = new Hardcoded();//todo ervoor zorgen dat dit niet hardcoded hoeft
+        Hardcoded hardcoded = new Hardcoded();//broadcast
         try{
-            String PIstring = "172.16.1.1";
+            String PIstring = "172.16.1.1";//broadcast
             InetAddress PI = InetAddress.getByName(PIstring);//todo to pi
             InetAddress computer = hardcoded.getInetAdressComputer();//todo to commputer
             int portServer = 8888;
@@ -21,8 +21,5 @@ public class MainClient {
         } catch(IOException e){
             System.out.println(e.getMessage() + "Client");
         }
-
     }
-
-
 }
