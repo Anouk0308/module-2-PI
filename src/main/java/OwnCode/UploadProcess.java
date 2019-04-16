@@ -68,7 +68,6 @@ public class UploadProcess implements Process, Runnable {
         try {
             networkUser.send(startPacket);
 
-            print("waiting on server");
             while (!acknowledgementToStart) {//wait till PI tells that the uploading process can start
                 Thread.sleep(10);
             }

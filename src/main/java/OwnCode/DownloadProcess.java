@@ -58,7 +58,6 @@ public class DownloadProcess implements Process, Runnable{
         byte[] buffer = packetWithOwnHeader.commandoFour(processID, fileNameAndNumberOfBytesToLoad);
         DatagramPacket startPacket = new DatagramPacket(buffer, buffer.length);
         networkUser.send(startPacket);
-        print("Starting downloading process...");
 
         //set timer
         Utils.Timer timer = utils.new Timer(1000);
@@ -146,7 +145,6 @@ public class DownloadProcess implements Process, Runnable{
                 //tell the other that everything is received
                 byte[] buffer = packetWithOwnHeader.commandoNine(processID, packetNumberSuccessive);
                 DatagramPacket acknowledgeLastPacket = new DatagramPacket(buffer, buffer.length);
-                print(Arrays.toString(acknowledgeLastPacket.getData()));
                 networkUser.send(acknowledgeLastPacket);
                 //todo timer. als ander niet commando 9 binnen krijgt, dan moet je die nog ene keer sturen
 
