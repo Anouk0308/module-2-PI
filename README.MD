@@ -10,8 +10,8 @@
 
 ## Connecting with the PI
 - Connect via wifi with the PI (my PI is called nu-pi-anouk).
-- In your terminal, type: ssh pi@172.16.0.0
-- password: raspberry
+- In your terminal, type: `ssh pi@172.16.0.0`
+- password: `raspberry`
 (don't close the terminal, which will from now on pe referred to as the PI terminal)
 
 If your computer cannot find the PI wifi:
@@ -25,9 +25,9 @@ If your computer cannot find the PI wifi:
 ## Creating a new folder on the PI
 Just like with the first folder, this folder will hold files for uploading & downloading.
 - Go to the terminal where you're connected with the PI
-- type: mkdir name_your_folder (for example: mkdir ServerFiles)
-- type: cd name_your_folder
-- type: pwd
+- type: `mkdir name_your_folder (for example: mkdir ServerFiles)`
+- type: `cd name_your_folder`
+- type: `pwd`
 This will give you the path to the folder (for example:"/home/pi/ServerFiles")
 (don't close the terminal)
 
@@ -49,8 +49,9 @@ The folderpaths you have checked, need to be added in de project code.
 - when it is finished, choose DEPLOY
 
 ## Execute the program
-- In your PI terminal, type: sudo systemctl stop num2.service
-- than type: java -jar NUM2.jar
+- In your PI terminal, type: `sudo systemctl stop num2.service`
+- than type: `java -jar NUM2.jar`
+
 The server is now running on the PI
 - Go to your IDE, and run the class MainClient
 The client is now running on your computer
@@ -60,10 +61,9 @@ The client is now running on your computer
 - Choose the number of the action you want to perform
 
 ## Stopping the program
-- In the IDE terminal, type: 14
+- In the IDE terminal, type: `14`
 
 The client is now stopped
-
-- In the PI terminal, type: sudo shutdown -P now
+- In the PI terminal, type: `sudo shutdown -P now`
 
 The server is now stopped, it is now safe to disconnect the power to your PI
