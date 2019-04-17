@@ -61,7 +61,9 @@ The client is now running on your computer
 
 ## Stopping the program
 - In the IDE terminal, type: 14
+
 The client is now stopped
 
 - In the PI terminal, type: sudo shutdown -P now
+
 The server is now stopped, it is now safe to disconnect the power to your PI
