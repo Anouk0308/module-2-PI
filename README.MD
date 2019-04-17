@@ -1,13 +1,13 @@
 # Module 2 Final Assignment
 
-###### Nedap University 4.0 2018–2020
+###### Nedap University 4.0 
 
 ###### Authors
 
- - @silvanverschuur
- - @erikhuizinga
+ - @anoukschoenmakers
 
-## Introduction
+## Getting started
+Download
 
 Time flies, and we already arrived at the end of the second module of the Nedap University.
 In the last few weeks you learned all the ins and outs about the fascinating subject of networking.
