@@ -6,7 +6,7 @@ import java.io.IOException;
 import java.io.OutputStream;
 import java.net.DatagramPacket;
 
-public class ZZZtodoLijstVoorMezelf {
+
 
     //timer:
     //upload sent last packet
@@ -28,7 +28,8 @@ public class ZZZtodoLijstVoorMezelf {
     //broadcast
 
 
-}
+
+/*
 client:
 
     public static void main(String[] args) {
@@ -147,4 +148,5 @@ public static void main(String[] args) {
         Server server = new Server();
         System.out.println("Server constructed");
         server.startClientInputLoop();
-        }
+
+       */

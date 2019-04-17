@@ -177,12 +177,12 @@ public class UserInputHandler implements Runnable{
                     processManager.createUploadProcess(file, client, isClient, numberOfBytesToLoad);
 
                     print("The file is being uploaded");
-                    startMenu();
                 } else{
                     print("That is not a correct filename");
                     uploadFile();
                 }
             }
+            startMenu();
         } catch (IOException e){
             print("Something went wrong" + e.getMessage());
         }
@@ -221,12 +221,11 @@ public class UserInputHandler implements Runnable{
                     }
                     int numberOfBytesToLoad = filePILength[positionFile];
                     processManager.createDownloadProcess(filename, folderPath, client, isClient, numberOfBytesToLoad);
-
-                    startMenu();
                 } else{
                     print("That is not a correct filename.");
                     downloadFile();
                 }
+                startMenu();
             }
         } catch (IOException e){
             print("Something went wrong" + e.getMessage());
@@ -242,8 +241,8 @@ public class UserInputHandler implements Runnable{
                 String thisLine = userInput.readLine();
                 int userIDSugested = Integer.parseInt(thisLine);
                 processManager.pauseSpecificProcess(userIDSugested);
-                startMenu();
             }
+            startMenu();
         } catch(IOException e){
             print("Something went wrong" + e.getMessage());
         }
@@ -256,8 +255,8 @@ public class UserInputHandler implements Runnable{
                 String thisLine = userInput.readLine();
                 int userIDSugested = Integer.parseInt(thisLine);
                 processManager.continueSpecificProcess(userIDSugested);
-                startMenu();
             }
+            startMenu();
         }catch(IOException e){
             print("Something went wrong" + e.getMessage());
         }
@@ -270,8 +269,8 @@ public class UserInputHandler implements Runnable{
                 String thisLine = userInput.readLine();
                 int userIDSugested = Integer.parseInt(thisLine);
                 processManager.stopSpecificProcess(userIDSugested);
-                startMenu();
             }
+            startMenu();
         }catch(IOException e){
             print("Something went wrong" + e.getMessage());
         }
