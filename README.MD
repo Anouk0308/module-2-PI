@@ -35,11 +35,14 @@ This will give you the path to the folder (for example:"/home/pi/ServerFiles")
 The folderpaths you have checked, need to be added in de project code.
 - Go to the project via a IDE
 - Go to the class UserInputHandler
-- Change the String folderPath to your folder path (for example: private static String folderPath ="/Users/anouk.schoenmakers/Desktop/ClientFiles";
+- Change the String folderPath to your folder path 
+   - (for example: private static String folderPath ="/Users/anouk.schoenmakers/Desktop/ClientFiles";
 - Go to the class Server
-- Change the String folderPathPI to your folder path (for example:  private static String folderPathPI = "/home/pi/ServerFiles";)
+- Change the String folderPathPI to your folder path 
+   - (for example:  private static String folderPathPI = "/home/pi/ServerFiles";)
 - Go to the class Hardcoded and run it
-- Change the String computerString to what is printed on the IDE terminal (for example: String computerString = "192.168.178.27");)
+- Change the String computerString to what is printed on the IDE terminal 
+   - (for example: String computerString = "192.168.178.27");)
 
 ## Using the Gradle project
 - In your IDE, go to your Gradle tasks, and choose BUILD
