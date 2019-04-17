@@ -12,6 +12,7 @@
 - Connect via wifi with the PI (my PI is called nu-pi-anouk).
 - In your terminal, type: `ssh pi@172.16.0.0`
 - password: `raspberry`
+
 (don't close the terminal, which will from now on pe referred to as the PI terminal)
 
 If your computer cannot find the PI wifi:
@@ -28,6 +29,7 @@ Just like with the first folder, this folder will hold files for uploading & dow
 - type: `mkdir name_your_folder (for example: mkdir ServerFiles)`
 - type: `cd name_your_folder`
 - type: `pwd`
+
 This will give you the path to the folder (for example:"/home/pi/ServerFiles")
 (don't close the terminal)
 
