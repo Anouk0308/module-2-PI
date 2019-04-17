@@ -8,8 +8,8 @@ public class Server implements NetworkUser, Runnable{
     private static boolean isClient = false;
     private DatagramSocket socket;
 
-    private static String folderPathPI = "/home/pi/ServerFiles"; // where are the files placed //todo dit is voor computer
-    private static String folderPathComputer = "/Users/anouk.schoenmakers/Desktop/ServerFiles"; // where are the files placed
+    private static String folderPathPI = "/home/pi/ServerFiles"; // where are the files placed on computer
+    private static String folderPathComputer = "/Users/anouk.schoenmakers/Desktop/ServerFiles"; // where are the files placed on the PI
     private static String folderPath;
     private File fileFolder;
     private File[] filesOnPI;
@@ -37,7 +37,7 @@ public class Server implements NetworkUser, Runnable{
         slidingWindow = new SlidingWindow();
         processManager = new ProcessManager(this, slidingWindow);
 
-        folderPath = folderPathComputer;//todo veranderen als ik PI wil
+        folderPath = folderPathComputer;//computer
         fileFolder = new File(folderPath);
         filesOnPI = fileFolder.listFiles();
         filesOnPINames = new String[filesOnPI.length];
@@ -81,8 +81,6 @@ public class Server implements NetworkUser, Runnable{
 
             switch (utils.fromByteToInteger(commandoByte)) {
 
-                case 100:               handshake();//broadcast
-                                        break;
                 case 1:                 requestSendFileNames();
                                         break;
                 case 3:                 requestStartDownloadProcess(rawData, processID);
@@ -110,10 +108,6 @@ public class Server implements NetworkUser, Runnable{
         else{
             statistics.foundCorruptedPacket();
         }
-    }
-
-    public void handshake(){
-        print("handshake received");//broadcast
     }
 
     public void requestSendFileNames(){
@@ -184,8 +178,6 @@ public class Server implements NetworkUser, Runnable{
                 s = s + "+" + filesOnPINames[i] + ";" + (int)filesOnPI[i].length();
             }
         }
-
-       // s = s + "+";//todo kijken of dingen nu kapot gaan
         return s;
     }
 

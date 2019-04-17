@@ -50,13 +50,6 @@ public class Client implements NetworkUser, Runnable {
             receiver = new Receiver(socket, slidingWindow, this);
             Thread receiverThread = new Thread(receiver);
             receiverThread.start();
-
-            /* broadcast
-            byte[] buffer = packetWithOwnHeader.commandoZero();
-            DatagramPacket handshake = new DatagramPacket(buffer, buffer.length);
-            send(handshake);
-            */
-
         } catch (SocketException e) {
             print("Timeout error: " + e.getMessage());
         }

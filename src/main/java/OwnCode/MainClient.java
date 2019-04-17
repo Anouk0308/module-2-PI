@@ -16,9 +16,9 @@ public class MainClient {
 
         //without broadcast:
         Hardcoded hardcoded = new Hardcoded();//broadcast
-        serverAddress = hardcoded.getInetAdressComputer();//todo to commputer
-        //String PIstring = "172.16.1.1";//broadcast
-        //serverAddress = InetAddress.getByName(PIstring);//todo to pi
+        serverAddress = hardcoded.getInetAdressComputer();// to commputer
+        //String PIstring = "172.16.1.1";//broadcast//to pi
+        //serverAddress = InetAddress.getByName(PIstring);//to pi
 
         //broadcast:
         /*

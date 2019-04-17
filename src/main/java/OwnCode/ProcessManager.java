@@ -158,7 +158,11 @@ public class ProcessManager {
         if(IDfound == 1){
             print("Process "+ processID + "is continued");
 
-            pausedProcesses.get(processID).setIsInterrupted(false);
+            Process process = pausedProcesses.get(processID);
+            process.setIsInterrupted(false);
+            if(process instanceof UploadProcess){
+                ((UploadProcess) process).continueProcess();
+            }
             runningProcesses.put(processID,pausedProcesses.get(processID));
             pausedProcesses.put(processID,null);
 

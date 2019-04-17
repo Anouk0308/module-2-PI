@@ -12,7 +12,7 @@ public class DownloadProcess implements Process, Runnable{
     private int numberOfBytesToLoad;
     private String fileNameAndNumberOfBytesToLoad;
 
-    private Map<Integer, DatagramPacket> downloadingPackets; //todo, kijken hoe dit op te lossen
+    private Map<Integer, DatagramPacket> downloadingPackets;
 
     private NetworkUser networkUser;
     private String folderPath; // where are the files placed

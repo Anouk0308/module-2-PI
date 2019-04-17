@@ -18,32 +18,18 @@ public class Hardcoded {
         return null;
     }
 
-    public static void main(String[] args) {//todo wanneer je met computer bezig bent
-        try{
+
+    public static void main(String[] args) {
+        try {
             String computerAddress = InetAddress.getLocalHost().getHostAddress();
             System.out.println(computerAddress);
-        } catch (UnknownHostException e){
+        } catch (UnknownHostException e) {
             System.out.println(e.getMessage());
         }
 
     }
 }
-/*
-    public static void main(String[] args) {//todo wanneer je met PI bezig bent
-        try{
-            Enumeration en = NetworkInterface.getNetworkInterfaces();
-            while (en.hasMoreElements()) {
-                NetworkInterface ni = (NetworkInterface) en.nextElement();
-                Enumeration ee = ni.getInetAddresses();
-                while (ee.hasMoreElements()) {
-                    InetAddress ia = (InetAddress) ee.nextElement();
-                    System.out.println(ia.getHostAddress());
-                }
-            }
-        } catch(SocketException e){
-            System.out.println("Hardcoded error " + e.getMessage());
-        }
-    }
-}
 
-*/
+
+
+

@@ -13,15 +13,6 @@ public class PacketWithOwnHeader {
     int packetNumberPosition = processIDPosition + processIDbytes.length;
     private byte[] packetNumberBytes= new byte[2];
 
-    public byte[] commandoZero(){ //client to PI: handshake
-        commandoByte[0]= utils.fromIntegerToByte(100);//0 would not go well with creating a checksum
-
-        //broadcast
-        checksumBytes = checksum.creatingChecksum(commandoByte);
-        byte[] header = utils.combineByteArr(checksumBytes, commandoByte);
-        return header;
-    }
-
     public byte[] commandoOne(){ //client to PI: please give me your files
         commandoByte[0]= utils.fromIntegerToByte(1);
 

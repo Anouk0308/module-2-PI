@@ -32,7 +32,7 @@ public class Statistics {
     }
 
     public void startingProcess(int processID){
-        int startingTime = (int) System.currentTimeMillis();//todo checken of dit goed gaat
+        int startingTime = (int) System.currentTimeMillis();
         hmapRunning.put(processID, startingTime);
     }
 

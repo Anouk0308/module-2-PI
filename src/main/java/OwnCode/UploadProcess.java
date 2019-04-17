@@ -122,7 +122,6 @@ public class UploadProcess implements Process, Runnable {
         if(!isInterrupted) {//Can only receive packets when running/not interrupted (thread.pause/thread.resume are deprecated)
             byte[] packetData = packet.getData();
             int ackPacketNumber = utils.limitBytesToInteger(packetData[packetWithOwnHeader.packetNumberPosition], packetData[packetWithOwnHeader.packetNumberPosition+1]);
-            System.out.println(Arrays.toString(packetData));
 
             //set counter
             if(ackPacketNumber >= internalAckNumber+1){
@@ -143,15 +142,12 @@ public class UploadProcess implements Process, Runnable {
                     nextPacketNumber = ackPacketNumber + windowSize;
                 }
 
-                System.out.println("uploadingPackets length"+uploadingPackets.length);
-                System.out.println("nextpacketnumber"+nextPacketNumber);
                 if (nextPacketNumber < uploadingPackets.length - 1) { //not the last packet
                     DatagramPacket nextPacket = uploadingPackets[nextPacketNumber];
                     networkUser.send(nextPacket);
                 } else if (nextPacketNumber == uploadingPackets.length - 1) { //last packet
                     sendLastPacket();
                 }else{//packetNumber greater than the lastPacketNumber does not exist, does not have to be send
-                    System.out.println("nextpacket bestaat neit");
                 }
 
             } else{ //ackPacketNumber is greater than last ackPacketNumber, which means that the retransmissioned succeeded
@@ -215,6 +211,22 @@ public class UploadProcess implements Process, Runnable {
                 break;
             case 2:         sendLastPacket();
                 break;
+        }
+    }
+
+    public void continueProcess(){
+        if(internalAckNumber+1 < uploadingPackets.length){//there are still packets to be send
+            if(internalAckNumber+windowSize < uploadingPackets.length){//a full window with packets can be send
+                for(int i = internalAckNumber+1; i < internalAckNumber+windowSize; i++){
+                    DatagramPacket nextPacket = uploadingPackets[i];
+                    networkUser.send(nextPacket);
+                }
+            } else{
+                for(int i = internalAckNumber+1; i < uploadingPackets.length; i++){
+                    DatagramPacket nextPacket = uploadingPackets[i];
+                    networkUser.send(nextPacket);
+                }
+            }
         }
     }
 }
