@@ -16,10 +16,8 @@ public class MainClient {
         int serverPort = 8888;
 
         //without broadcast:
-
+/*
         try {
-            //Hardcoded hardcoded = new Hardcoded();//to computer
-            //serverAddress = hardcoded.getInetAdressComputer();// to commputer
             String PIstring = "172.16.1.1";//broadcast//to pi
             serverAddress = InetAddress.getByName(PIstring);//to pi
 
@@ -30,6 +28,17 @@ public class MainClient {
         } catch (UnknownHostException e){
             System.out.println(e.getMessage());
         }
+        */
+
+
+        Hardcoded hardcoded = new Hardcoded();//to computer
+        serverAddress = hardcoded.getInetAdressComputer();// to commputer
+
+        Client client = new Client(serverAddress, serverPort, clientPort);
+        Thread clientThread = new Thread(client);
+        clientThread.start();
+        System.out.println("The client has started");
+
 
         //broadcast:
         /*
