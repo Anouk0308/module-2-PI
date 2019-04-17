@@ -85,13 +85,17 @@ public class Utils {
     }
 
     //a timer
-    public class Timer{
+    public class Timer implements Runnable{
         private int startingTime;
         private int tooLate;
+        private boolean getBooleanFromClass;
+        private Process process;
 
-        public Timer(int miliSeconds){
+        public Timer(int miliSecondsToWait, boolean getBooleanFromClass, Process process){
             startingTime = (int) System.currentTimeMillis();
-            tooLate = startingTime + miliSeconds;
+            tooLate = startingTime + miliSecondsToWait;
+            this.getBooleanFromClass = getBooleanFromClass;
+            this.process = process;
         }
 
         public boolean isTooLate(){
@@ -99,7 +103,24 @@ public class Utils {
             if(now > tooLate){
                 return true;
             }else{
-                return  false;
+                return false;
+            }
+        }
+
+        @Override
+        public void run() {
+            try{
+                while(!isTooLate()){
+                    Thread.sleep(10);
+                }
+
+                if(!getBooleanFromClass){
+                    process.whenTimerWentOff();
+                }
+
+
+            } catch(InterruptedException e){
+                System.out.println(e.getMessage());
             }
         }
     }

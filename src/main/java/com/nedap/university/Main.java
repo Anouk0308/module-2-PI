@@ -17,6 +17,7 @@ public class Main {
         Server server = new Server(computerAddress,portClient,portServer);
         Thread serverThread = new Thread(server);
         serverThread.start();
+        System.out.println("The server has started");
     }
 
 

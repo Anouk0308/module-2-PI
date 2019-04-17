@@ -26,6 +26,11 @@ public class Oefenen {
     public Oefenen(){
         startUp();
 
+        int negen = 9;
+        int drie = 3;
+        int i = negen/drie;
+        System.out.println(i);
+/*
         byte[] bytesFile = null;
         String file1String = "/Users/anouk.schoenmakers/Desktop/ClientFiles/9b.txt";
         File file1 = new File(file1String);
@@ -38,7 +43,7 @@ public class Oefenen {
            bytesFile = Files.readAllBytes(pathFile1);
             System.out.println(Arrays.toString(bytesFile));
 
-
+*/
            /*
             byte[] gedeelte1 = new byte[3];
             FileInputStream fileInputStream = new FileInputStream(file);
@@ -50,7 +55,7 @@ public class Oefenen {
             System.out.println(fileInputStream.available());
             fileInputStream.read(gedeelte1);
             System.out.println(Arrays.toString(gedeelte1));
-*/
+*//*
             BufferedInputStream inputStream = new BufferedInputStream(new FileInputStream(file1));
             inputStream.read(gedeelte1);
             System.out.println(Arrays.toString(gedeelte1));
@@ -82,7 +87,7 @@ public class Oefenen {
         } catch (IOException e){
             print("fout:"+e.getMessage());
         }
-
+*/
     }
 
     public void startUp(){

@@ -24,6 +24,7 @@ public class DownloadProcess implements Process, Runnable{
     public boolean isInterrupted = false;
     private boolean receivedAPacket = false; // for timer
     private boolean isClient;
+    private int timer = 0;
 
     public DownloadProcess(int processID, String fileName, NetworkUser networkUser, String folderPath, boolean isClient, int numberOfBytesToLoad){
         this.processID = processID;
@@ -52,6 +53,7 @@ public class DownloadProcess implements Process, Runnable{
         }//when server, wait for Client to send packets
     }
 
+    public boolean isReceivedAPacket(){ return receivedAPacket;}
 
     public void handshake(){
         byte[] buffer = packetWithOwnHeader.commandoFour(processID, fileNameAndNumberOfBytesToLoad);
@@ -59,19 +61,10 @@ public class DownloadProcess implements Process, Runnable{
         networkUser.send(startPacket);
 
         //set timer
-        Utils.Timer timer = utils.new Timer(1000);
-        try{
-            while (!timer.isTooLate()) {
-                Thread.sleep(10);
-            }
-            //timer went off
-            if(!receivedAPacket){//if there is still no packet received:
-                handshake();
-            }
-
-        } catch (InterruptedException e) {
-            print("Client error: " + e.getMessage());
-        }
+        timer = 1;
+        Utils.Timer timer = utils.new Timer(5000, isReceivedAPacket(), this);
+        Thread thread = new Thread(timer);
+        thread.start();
     }
 
     int packetNumberSuccessiveFirst = -1;//-1, as 0 is a number that can be used for packetNumbers
@@ -147,7 +140,6 @@ public class DownloadProcess implements Process, Runnable{
                 byte[] buffer = packetWithOwnHeader.commandoNine(processID, packetNumberSuccessive);
                 DatagramPacket acknowledgeLastPacket = new DatagramPacket(buffer, buffer.length);
                 networkUser.send(acknowledgeLastPacket);
-                //todo timer. als ander niet commando 9 binnen krijgt, dan moet je die nog ene keer sturen
 
                 //stop procces self
                 networkUser.getProcessManager().stopSpecificProcess(processID);
@@ -174,5 +166,9 @@ public class DownloadProcess implements Process, Runnable{
 
     private static void print (String message){
         System.out.println(message);
+    }
+
+    public void whenTimerWentOff(){
+         handshake();
     }
 }

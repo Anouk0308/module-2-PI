@@ -5,4 +5,5 @@ public interface Process {
     int getProcessID();
     String getFileName();
     void setIsInterrupted(boolean b);
+    void whenTimerWentOff();
 }

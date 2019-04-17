@@ -18,6 +18,7 @@ public class MainClient {
             Client client = new Client(computer, portServer, portClient);
             Thread clientThread = new Thread(client);
             clientThread.start();
+            System.out.println("The client has started");
         } catch(IOException e){
             System.out.println(e.getMessage() + "Client");
         }

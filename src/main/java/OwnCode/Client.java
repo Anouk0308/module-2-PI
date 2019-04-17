@@ -87,7 +87,7 @@ public class Client implements NetworkUser, Runnable {
                                         break;
                 case 9:                 processManager.receiveAcknowledgementLastPacketForProcess(processID);
                                         break;
-                case 12:                userInputHandler.somethingElse();
+                case 12:                userInputHandler.startMenu();
                                         break;
                 case 13:                receivedAckProcessPaused(processID);
                                         break;

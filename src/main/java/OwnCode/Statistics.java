@@ -7,8 +7,8 @@ import java.util.Map;
 public class Statistics {
 
     int corruptedPackets = 0;//didn't make the checksum
-    int highestDownloadSpeed;//miliseconds per byte
-    int averageDownloadSpeed;//miliseconds per byte
+    int highestDownloadSpeed = 0;//miliseconds per byte
+    int averageDownloadSpeed = 0;//miliseconds per byte
 
     Map<Integer, Integer> hmapRunning;//processID & startingTime
     Map<Integer, LoadingInformation> loadingInformations;//processID & timeToLoad & bytesToLoad
@@ -42,6 +42,7 @@ public class Statistics {
         hmapRunning.remove(processID);
         int timeToLoad = stoppingTime - startingTime;
         LoadingInformation loadingInformationTemp = new LoadingInformation(processID, timeToLoad, bytesToLoad);
+        loadingInformations.put(processID, loadingInformationTemp);
 
         calculateHighestDownLoadSpeed();
         calculateAverageDownloadSpeed();
@@ -55,7 +56,7 @@ public class Statistics {
 
                 int downloadTimeProcessI = loadingInformationTemp.getTimeToLoad();
                 int bytesToLoad = loadingInformationTemp.getBytesToLoad();
-                int downloadSpeedProcessI = downloadTimeProcessI/bytesToLoad;
+                int downloadSpeedProcessI = bytesToLoad/downloadTimeProcessI;
 
                 if(downloadSpeedProcessI > highestDownloadSpeed){
                     highestDownloadSpeed = downloadSpeedProcessI;
@@ -73,7 +74,7 @@ public class Statistics {
 
                 int downloadTimeProcessI = loadingInformationTemp.getTimeToLoad();
                 int bytesToLoad = loadingInformationTemp.getBytesToLoad();
-                int downloadSpeedProcessI = downloadTimeProcessI/bytesToLoad;
+                int downloadSpeedProcessI = bytesToLoad/downloadTimeProcessI;
 
                 totalDownloadSpeed = totalDownloadSpeed + downloadSpeedProcessI;
             }

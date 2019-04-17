@@ -31,6 +31,7 @@ public class UploadProcess implements Process, Runnable {
 
     public boolean isInterrupted = false;
     private boolean receivedAnAck = false; //is for timer
+    private int timer = 0;
 
     public UploadProcess(int processID, File file, NetworkUser networkUser, boolean isClient, SlidingWindow slidingWindow, int numberOfBytesToLoad){
         this.processID = processID;
@@ -102,21 +103,14 @@ public class UploadProcess implements Process, Runnable {
             lock.unlock();
 
             //set timer
-            Utils.Timer timer = utils.new Timer(500);
-            try {
-                while (!timer.isTooLate()) {
-                    Thread.sleep(10);
-                }
-                //timer went off
-                if (receivedAnAck = false) {//if there is still no acknowledgement packet received:
-                    startProcess();
-                }
-
-            } catch (InterruptedException e) {
-                print("Client error: " + e.getMessage());
-            }
+            timer = 1;
+            Utils.Timer timer = utils.new Timer(5000, isReceivedAnAck(), this);
+            Thread thread = new Thread(timer);
+            thread.start();
         }
     }
+
+    public boolean isReceivedAnAck(){ return  receivedAnAck;}
 
     int internalAckNumber = 0;//for counter, to check if the incoming acknowledgement numbers will increase
     int counter = 0;//for counter
@@ -184,9 +178,14 @@ public class UploadProcess implements Process, Runnable {
             DatagramPacket lastPacket = uploadingPackets[uploadingPackets.length-1];
             networkUser.send(lastPacket);
 
-            //todo timer. als deze niet binnen komt, dan versturen nog een keer. komt binnen als !acknowledgementToStop
+            timer = 2;
+            Utils.Timer timer = utils.new Timer(5000, isAcknowledgementToStop(), this);
+            Thread thread = new Thread(timer);
+            thread.start();
         }
     }
+
+    public boolean isAcknowledgementToStop(){ return acknowledgementToStop;}
 
     public void setAcknowledgementToStopTrue(){
         acknowledgementToStop = true;
@@ -208,5 +207,14 @@ public class UploadProcess implements Process, Runnable {
 
     private static void print (String message){
         System.out.println(message);
+    }
+
+    public void whenTimerWentOff(){
+        switch (timer){//there are 2 timers needed in this Class
+            case 1:         startProcess();
+                break;
+            case 2:         sendLastPacket();
+                break;
+        }
     }
 }

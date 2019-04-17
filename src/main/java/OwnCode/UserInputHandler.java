@@ -66,6 +66,7 @@ public class UserInputHandler implements Runnable{
         print("12. Stop a specific process");
         print("13. Stop all processes");
         print("14. Close this program");
+        print("15. Get the statistics");
         userInputHandler();
     }
 
@@ -83,28 +84,28 @@ public class UserInputHandler implements Runnable{
                     case "4":           downloadFile();
                                         break;
                     case "5":           processManager.printRunningProcesses();
-                                        somethingElse();
+                                        startMenu();
                                         break;
                     case "6":           processManager.printPausedProcesses();
-                                        somethingElse();
+                                        startMenu();
                                         break;
                     case "7":           processManager.printAllProcesses();
-                                        somethingElse();
+                                        startMenu();
                                         break;
                     case "8":           pauseSpecificProcess();
                                         break;
                     case "9":           processManager.pauseAllProcesses();
-                                        somethingElse();
+                                        startMenu();
                                         break;
                     case "10":          continueSpecificProcess();
                                         break;
                     case "11":          processManager.continueAllProcesses();
-                                        somethingElse();
+                                        startMenu();
                                         break;
                     case "12":          stopSpecificProcess();
                                         break;
                     case "13":          processManager.stopAllProcesses();
-                                        somethingElse();
+                                        startMenu();
                                         break;
                     case "14":          stopProgram();
                                         break;
@@ -121,37 +122,13 @@ public class UserInputHandler implements Runnable{
         }
     }
 
-    public void somethingElse(){
-        print("Would you like to do something else? Y/N");
-        try{
-            if (userInput != null) {
-                String thisLine = userInput.readLine();
-                switch (thisLine) {
-                    case "Y":               startMenu();
-                                            break;
-                    case "y":               startMenu();
-                                            break;
-                    case "N":               stopProgram();
-                                            break;
-                    case "n":               stopProgram();
-                                            break;
-                    default:                print("That is not a Y or a N, try again");
-                                            somethingElse();
-                                            break;
-                }
-            }
-        } catch (IOException e){
-            print(e.getMessage());
-        }
-    }
-
     public void printOwnFiles(){
         print("The available files on this computer are:");
         for(int i = 0; i < filesClient.length; i++){
             print(filesClientNames[i]);
         }
         print("");
-        somethingElse();
+        startMenu();
     }
 
     public void printPIFiles(){
@@ -173,7 +150,7 @@ public class UserInputHandler implements Runnable{
             print("");//empty row
             updatedFilesPI = false;
 
-            somethingElse();
+            startMenu();
         } catch(InterruptedException e){
             print("Something went wrong" + e.getMessage());
         }
@@ -200,7 +177,7 @@ public class UserInputHandler implements Runnable{
                     processManager.createUploadProcess(file, client, isClient, numberOfBytesToLoad);
 
                     print("The file is being uploaded");
-                    somethingElse();
+                    startMenu();
                 } else{
                     print("That is not a correct filename");
                     uploadFile();
@@ -212,7 +189,7 @@ public class UserInputHandler implements Runnable{
     }
 
     public void downloadFile(){
-        print("These are the files you can chose:");
+        print("These are the files you can chose from:");
         try {
             byte[] buffer = packetWithOwnHeader.commandoOne();
             DatagramPacket askFiles = new DatagramPacket(buffer, buffer.length);
@@ -236,14 +213,16 @@ public class UserInputHandler implements Runnable{
                     String filename = thisLine;
                     int positionFile=0;
                     for(int i = 0; i < filesPIName.length; i++){
-                        if(filesPIName[i].equals(filename)){
-                            positionFile=i;
+                        if(filesPIName[i]!= null){
+                            if(filesPIName[i].equals(filename)){
+                                positionFile=i;
+                            }
                         }
                     }
                     int numberOfBytesToLoad = filePILength[positionFile];
                     processManager.createDownloadProcess(filename, folderPath, client, isClient, numberOfBytesToLoad);
 
-                    somethingElse();
+                    startMenu();
                 } else{
                     print("That is not a correct filename.");
                     downloadFile();
@@ -263,7 +242,7 @@ public class UserInputHandler implements Runnable{
                 String thisLine = userInput.readLine();
                 int userIDSugested = Integer.parseInt(thisLine);
                 processManager.pauseSpecificProcess(userIDSugested);
-                somethingElse();
+                startMenu();
             }
         } catch(IOException e){
             print("Something went wrong" + e.getMessage());
@@ -277,7 +256,7 @@ public class UserInputHandler implements Runnable{
                 String thisLine = userInput.readLine();
                 int userIDSugested = Integer.parseInt(thisLine);
                 processManager.continueSpecificProcess(userIDSugested);
-                somethingElse();
+                startMenu();
             }
         }catch(IOException e){
             print("Something went wrong" + e.getMessage());
@@ -291,7 +270,7 @@ public class UserInputHandler implements Runnable{
                 String thisLine = userInput.readLine();
                 int userIDSugested = Integer.parseInt(thisLine);
                 processManager.stopSpecificProcess(userIDSugested);
-                somethingElse();
+                startMenu();
             }
         }catch(IOException e){
             print("Something went wrong" + e.getMessage());
@@ -317,7 +296,7 @@ public class UserInputHandler implements Runnable{
         print("The number corrupted packets received is: " + statisticsintarr[0]);
         print("The highest up/download speed measured is: " + statisticsintarr[1]);
         print("The average up/download speed measured is: " + statisticsintarr[2]);
-        somethingElse();
+        startMenu();
     }
 
     public void setFilesPI(String[] filesPIName, int[] filesPILength) {
