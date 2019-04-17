@@ -1,6 +1,4 @@
-# Module 2 Final Assignment
-
-###### Nedap University 4.0 
+# Module 2 Assignment
 
 ###### Authors
 
