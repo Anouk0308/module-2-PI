@@ -70,36 +70,10 @@ public class UserInputHandler implements Runnable{
         userInputHandler();
     }
 
-    public class InputReader{
-        BufferedReader userInputReader = new BufferedReader(new InputStreamReader(System.in));
-
-        public String readInput(){
-            String userInput = "";
-            try{
-
-                if(userInputReader != null){
-                    userInput = userInputReader.readLine();
-                }
-
-                userInputReader.close();
-            }catch (IOException e){
-                System.out.println(e.getMessage());
-            }
-            return userInput;
-        }
-
-
-    }
-
-    public String inputReader(){
-        InputReader inputReader = new InputReader();
-        String s = inputReader.readInput();
-        return s;
-    }
-
     public void userInputHandler(){
-
-                String thisLine = inputReader();
+        try {
+            if (userInput != null) {
+                String thisLine = userInput.readLine();
                 switch (thisLine){
                     case "1":           printOwnFiles();
                                         break;
@@ -141,7 +115,11 @@ public class UserInputHandler implements Runnable{
                                         startMenu();
                                         break;
                 }
+            }
 
+        } catch (IOException e){
+            print("Something went wrong" + e.getMessage());
+        }
     }
 
     public void printOwnFiles(){
